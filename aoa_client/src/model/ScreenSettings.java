@@ -1,8 +1,8 @@
-package config;
+package model;
 
 import javafx.geometry.Dimension2D;
 
-public class ScreenConfig {
+public class ScreenSettings {
 	
 	private int ID;
 	
@@ -16,7 +16,7 @@ public class ScreenConfig {
 	
 	
 	
-	public ScreenConfig(ScreenEnum screen, Dimension2D size, Dimension2D minSize) {
+	public ScreenSettings(ScreenType screen, Dimension2D size, Dimension2D minSize) {
 		this.ID = screen.getID();
 		this.name = screen.getName();
 		this.title = screen.getTitle();

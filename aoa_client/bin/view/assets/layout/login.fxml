@@ -26,9 +26,9 @@
                   <Insets />
                </VBox.margin>
             </Label>
-            <TextField fx:id="tf_username" alignment="CENTER">
+            <TextField fx:id="tf_username" alignment="CENTER" promptText="nickname" styleClass="input">
                <VBox.margin>
-                  <Insets bottom="20.0" left="90.0" right="90.0" top="20.0" />
+                  <Insets bottom="15.0" left="80.0" right="80.0" top="10.0" />
                </VBox.margin>
             </TextField>
             <Button fx:id="btn_login" mnemonicParsing="false" onAction="#handleLogin" text="Log in" />

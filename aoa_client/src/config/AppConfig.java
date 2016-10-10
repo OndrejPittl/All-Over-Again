@@ -1,6 +1,8 @@
 package config;
 
 import javafx.geometry.Dimension2D;
+import model.ScreenType;
+import model.ScreenSettings;
 
 public class AppConfig {
 	
@@ -17,25 +19,29 @@ public class AppConfig {
 	/**
 	 * 
 	 */
-	private static final ScreenConfig[] SCREENS = {
-		new ScreenConfig(
-			ScreenEnum.Login,
+	private static final ScreenSettings[] SCREENS = {
+		new ScreenSettings(
+			ScreenType.Login,
 			new Dimension2D(400, 300),
 			new Dimension2D(350, 330)
-		), new ScreenConfig(
-			ScreenEnum.GameCenter,
+		), new ScreenSettings(
+			ScreenType.GameCenter,
 			new Dimension2D(400, 300),
 			new Dimension2D(350, 330)
-		), new ScreenConfig(
-			ScreenEnum.Initializing,
+		), new ScreenSettings(
+			ScreenType.Initializing,
 			new Dimension2D(400, 300),
 			new Dimension2D(350, 330)
-		), new ScreenConfig(
-			ScreenEnum.Game,
+		), new ScreenSettings(
+			ScreenType.Game,
 			new Dimension2D(400, 300),
 			new Dimension2D(350, 330)
-		), new ScreenConfig(
-			ScreenEnum.GameResult,
+		), new ScreenSettings(
+			ScreenType.GameResult,
+			new Dimension2D(400, 300),
+			new Dimension2D(350, 330)
+		), new ScreenSettings(
+			ScreenType.Message,
 			new Dimension2D(400, 300),
 			new Dimension2D(350, 330)
 		),
@@ -48,7 +54,7 @@ public class AppConfig {
 	
 	
 	
-	public static ScreenConfig getScreen(ScreenEnum screen){
+	public static ScreenSettings getScreen(ScreenType screen){
 		return AppConfig.SCREENS[screen.getID()];
 	}
 	

@@ -15,6 +15,7 @@ public class Routes {
 			Routes.PROJECT_PREFIX + "view/assets/",
 			Routes.PROJECT_PREFIX + "view/assets/style/",
 			Routes.PROJECT_PREFIX + "view/assets/layout/",
+			Routes.PROJECT_PREFIX + "view/assets/images/",
 	};
 	
 	
@@ -30,6 +31,10 @@ public class Routes {
 		return Routes.DIRECTORIES[2];
 	}
 	
+	public static String getImagesDir(){
+		return Routes.DIRECTORIES[3];
+	}
+	
 	public static String getLayoutFile(String filename){
 		return Routes.getLayoutDir() + filename + Routes.LAYOUT_EXPANSION;
 	}
@@ -37,4 +42,8 @@ public class Routes {
 	public static String getStyleFile(String filename){
 		return Routes.getStyleDir() + filename + STYLESHEET_EXPANSION;
 	}
+	
+//	public static String getImageFile(String filename){
+//		return Routes.getImagesDir() + filename + STYLESHEET_EXPANSION;
+//	}
 }

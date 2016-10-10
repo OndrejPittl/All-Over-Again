@@ -1,6 +1,8 @@
-package config;
+package model;
 
-public enum ScreenEnum {
+import config.AppConfig;
+
+public enum ScreenType {
 	
 	/**
 	 * Scene where a new player logs in.
@@ -25,7 +27,12 @@ public enum ScreenEnum {
 	/**
 	 * Scene with result of a game.
 	 */
-	GameResult (4, "results", "Game Results");
+	GameResult (4, "results", "Game Results"),
+
+	/**
+	 * Scene with a message.
+	 */
+	Message (5, "message");
 	
 	/**
 	 * ID of a scene.
@@ -43,13 +50,13 @@ public enum ScreenEnum {
 	private String title;
 	
 	
-	private ScreenEnum(int id, String name) {
+	private ScreenType(int id, String name) {
 		this.id = id;
 		this.name = name;
 		this.title = AppConfig.APP_NAME;
 	}
 	
-	private ScreenEnum(int id, String name, String title) {
+	private ScreenType(int id, String name, String title) {
 		this.id = id;
 		this.name = name;
 		this.title = title + " | " + AppConfig.APP_NAME;

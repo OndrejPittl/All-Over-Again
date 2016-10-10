@@ -3,12 +3,16 @@ package controllers;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import application.Application;
 import application.Main;
+import application.Screen;
+import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import view.Screen;
+import model.Player;
+import validation.UserInputValidator;
 
 public class LoginController implements Initializable {
 
@@ -16,8 +20,12 @@ public class LoginController implements Initializable {
 	
 	private Screen screen;
 	
+	private Application app;
+	
+	@FXML
 	private TextField tf_username;
 	
+	@FXML
 	private Button btn_login;
 		
 	
@@ -27,12 +35,20 @@ public class LoginController implements Initializable {
 	
 	public void setApp(Screen screen){
         this.screen = screen;
+        this.app = Application.getInstance();
     }
 
 	public void handleLogin(){
-		System.out.println("logged in!!!");
+		String nick = tf_username.getText();
+		
+		if(UserInputValidator.validateUsername(nick)) {
+			this.app.registerPlayer(new Player(nick));
+			Application.awaitAtGuiBarrier("GUI – releases GUI-Control. User entered username.");
+			//this.screen.run
+		}
 	}
 
+	
 	
 	
 	
