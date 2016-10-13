@@ -7,8 +7,8 @@ import java.net.InetAddress;
 import java.net.Socket;
 
 import application.Connection;
-import application.Room;
 import config.ConnectionConfig;
+import model.Room;
 
 public class Communicator {
 	

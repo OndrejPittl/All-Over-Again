@@ -1,5 +1,7 @@
 package communication;
 
+import model.Player;
+
 public class CommunicationParser {
 	
 	private byte[] msgBuffer;
@@ -7,9 +9,42 @@ public class CommunicationParser {
 	
 	
 	
+	/**
+	 * Parses a response of username availability request
+	 * from a server in a form:
+	 * 
+	 * 1;[1 == ACK / 0 == NACK];[user ID]
+	 * example: "1;1;7"
+	 * 
+	 * @param response	
+	 * @param player	
+	 * @return
+	 */
+	public boolean parseUsernameAvailabilityResponse(String response, Player player){
+		String[] parts = response.split(";");
+		
+		boolean ack = Integer.parseInt(parts[1]) == 1;
+		
+		if(!ack)
+			return false;
+		
+		int id = Integer.parseInt(parts[2]);
+		player.setID(id);
+		
+		return true;
+	}
 	
 	
 	
+	
+	
+//	private static int parseToInt(String str){
+//		return Integer.parseInt(str);
+//	}
+//	
+//	private static float parseToFloat(String str){
+//		return Float.parseFloat(str);
+//	}
 	
 	
 	/* public CommunicationParser(){

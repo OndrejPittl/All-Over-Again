@@ -65,6 +65,10 @@ public class Application {
 		return Application.player;
 	}
 	
+	public boolean isPlayerRegistered(){
+		return Application.player.hasID();
+	}
+	
 //	public Screen getScreen(){
 //		return this.gui;
 //	}
@@ -76,7 +80,7 @@ public class Application {
 	public static void awaitAtClientBarrier(String str){
 		String status = Application.clientBarrier.getNumberWaiting() == 0 ? "stopping" : "released";
 		
-		System.out.println("### BARRIER (CLI, " + status + "): " + str);
+		System.out.println("### BARRIER (" + status + "): " + str);
 		
 		try {
 			Application.clientBarrier.await();

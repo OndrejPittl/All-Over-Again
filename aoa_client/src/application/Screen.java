@@ -8,18 +8,19 @@ import java.util.Observer;
 import config.AppConfig;
 import config.CommunicationConfig;
 import config.Routes;
+import config.ViewConfig;
 import controllers.LoginController;
 import controllers.MessageController;
 import io.DataLoader;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.fxml.JavaFXBuilderFactory;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import model.ScreenType;
 import model.ScreenSettings;
+import model.ScreenType;
 
 public class Screen extends Stage implements Observer {
 	
@@ -50,7 +51,7 @@ public class Screen extends Stage implements Observer {
 		FXMLLoader loader = new FXMLLoader();
         //loader.setBuilderFactory(new JavaFXBuilderFactory());
 		
-		System.out.println(Routes.getLayoutFile(cfg.getName()));
+		//System.out.println(Routes.getLayoutFile(cfg.getName()));
 		
         BorderPane root = (BorderPane) loader.load(in);
 		in.close();
@@ -72,7 +73,7 @@ public class Screen extends Stage implements Observer {
 		return loader.getController();		
 	}
 	
-	public void runLogin(){
+	public Void runLogin(){
 		Screen scrn = this;
 		Platform.runLater(new Runnable() {
 		    public void run() {
@@ -84,13 +85,44 @@ public class Screen extends Stage implements Observer {
 				}
 		    }
 		});
+		
+		return null;
 	}
 	
 	public void runConnecting(){
 		try {
 			MessageController controller = (MessageController) this.runScreen(ScreenType.Message);
-			controller.setMessage(CommunicationConfig.MSG_CONNECTION);
+			controller.setMessage(ViewConfig.MSG_CONNECTION);
 			controller.setApp(this);
+			
+			
+			new Thread(new Task<Void>() {
+				protected Void call() throws Exception {
+					Application.awaitAtClientBarrier("GUI – waits for connection established (G1W)");
+					runLogin();
+					return null;
+				}
+		    }).start();
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void runChecking(){
+		try {
+			MessageController controller = (MessageController) this.runScreen(ScreenType.Message);
+			controller.setMessage(ViewConfig.MSG_CHECKING);
+			controller.setApp(this);
+			
+			new Thread(new Task<Void>() {
+				protected Void call() throws Exception {
+					Application.awaitAtClientBarrier("GUI – waits for client checks username.");
+					runLogin();
+					return null;
+				}
+		    }).start();
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -98,7 +130,16 @@ public class Screen extends Stage implements Observer {
 	
 	
 	
-	
+//	public void awaitAtBarrier(Callable<Void> callback, String str){
+//	    new Thread(new Task<Boolean>() {
+//	        @Override
+//	        protected Boolean call() throws Exception {
+//	        	Application.awaitAtClientBarrier(str);
+//	        	callback.call();
+//	            return null;
+//	        }
+//	    }).start();
+//	}
 	
 	//observer
 	@Override

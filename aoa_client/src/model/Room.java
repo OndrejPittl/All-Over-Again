@@ -1,6 +1,4 @@
-package application;
-
-import model.Player;
+package model;
 
 public class Room {
 	

@@ -3,31 +3,37 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.CyclicBarrier;
 
+import application.Application;
 import application.Connection;
 import application.Logger;
-import application.Room;
 import config.CommunicationConfig;
 import config.ConnectionConfig;
 import model.Player;
+import model.Room;
 
 
 public class CommunicationManager {
+	
+	private Application app;
 	
 	private Connection conn;
 	
 	private Communicator comm;
 	
-	private CommunicationParser commParser;
-	
+	private CommunicationParser parser;
 	
 	private CyclicBarrier barrier;
+	
+	private StringBuilder sb;
 	
 	
 	
 	public CommunicationManager() {
+		this.app = Application.getInstance();
 		this.comm = new Communicator();
-		this.commParser = new CommunicationParser();
+		this.parser = new CommunicationParser();
 		this.barrier = new CyclicBarrier(2);
+		this.sb = new StringBuilder();
 	}
 	
 	public boolean helloPacketHandShake(){
@@ -59,6 +65,44 @@ public class CommunicationManager {
 		return msg.equals(CommunicationConfig.MSG_HELLO_SERVER_RESPONSE);
 	}
 	
+	/**
+	 * Checks whether or not is the chosen username 
+	 * available (== not taken by other user).  
+	 * 
+	 * Sends a message to a server in a form:
+	 * 1;[username]
+	 * example: "1;ondra"
+	 * 
+	 * Waits for a message in a form:
+	 * 1;[1 == ACK / 0 == NACK];[user ID]
+	 * example: "1;1;7"
+	 * (username is available and a user got an ID 7) 
+	 * 
+	 * @return
+	 */
+	public boolean checkUsernamAvailability(){
+		this.clearStringBuilder();
+		
+		Player p = this.app.getPlayerInfo();
+		String username = p.getName();
+		
+		this.sb.append(CommunicationConfig.REQ_USERNAME_AVAILABILITY);
+		this.sb.append(CommunicationConfig.MSG_DELIMITER);
+		this.sb.append(username);
+		
+		this.comm.writeMsg(this.sb.toString());
+		
+		
+		String response = this.comm.recvMsg();
+		this.parser.parseUsernameAvailabilityResponse(response, p);
+		
+		return true;
+	}
+	
+	
+	
+	
+	
 	
 	
 	
@@ -67,6 +111,15 @@ public class CommunicationManager {
 		this.conn = conn;
 		this.comm.setConnection(this.conn);
 	}
+	
+	private void clearStringBuilder(){
+		this.sb.setLength(0);
+	}
+	
+	
+	
+	
+	
 	
 	public void updateServerStatus(){
 		//comm.setSessions(getSessionInfo());

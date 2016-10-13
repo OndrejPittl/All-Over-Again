@@ -2,7 +2,7 @@ package model;
 
 public class Player {
 	
-	private int ID;
+	private int ID = -1;
 	
 	private String name;
 	
@@ -13,7 +13,6 @@ public class Player {
 	
 	public Player(String name) {
 		this.name = name;
-		this.ID = -1;
 	}
 	
 	public Player(int id, String name) {
@@ -25,12 +24,26 @@ public class Player {
 	
 	
 	
-	
+
+
+
+
 	/**
-	 * @return the iD
+	 * @return the ID
 	 */
 	public int getID() {
 		return ID;
+	}
+
+	/**
+	 * @param id the ID to set
+	 */
+	public void setID(int id) {
+		ID = id;
+	}
+	
+	public boolean hasID(){
+		return this.ID != -1;
 	}
 
 	/**
@@ -41,16 +54,25 @@ public class Player {
 	}
 
 	/**
+	 * @param name the name to set
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	/**
 	 * @return the isActive
 	 */
 	public boolean isActive() {
 		return isActive;
 	}
 
-
-
-
-
+	/**
+	 * @param isActive the isActive to set
+	 */
+	public void setActive(boolean isActive) {
+		this.isActive = isActive;
+	}
 
 	public static Player[] parsePlayers(String sequence){
 		return null;

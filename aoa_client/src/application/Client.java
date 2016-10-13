@@ -56,7 +56,10 @@ public class Client implements Runnable {
 		Application.awaitAtClientBarrier("CLI waits for gui thread (C2W)");
 				
 		
-		
+		//check nickname availability
+		while(!this.app.isPlayerRegistered()) {
+			this.comm.checkUsernamAvailability();
+		}
 		
 		
 		
