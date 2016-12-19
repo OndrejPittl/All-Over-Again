@@ -1,0 +1,13 @@
+2016-12-19 13:42:10,217 INFO  [default] ------ Starting server -------
+2016-12-19 13:42:10,218 INFO  [default] Input args are OK!
+2016-12-19 13:42:10,218 INFO  [default] ConnectionManager is initialized.
+2016-12-19 13:42:10,218 INFO  [default] CommunicationManager is initialized.
+2016-12-19 13:42:10,218 INFO  [default] Server is listening on port 23456.
+2016-12-19 13:42:10,218 INFO  [default] Server is waiting for a request...
+2016-12-19 13:42:15,967 INFO  [default] Server recognized a new request.
+2016-12-19 13:42:15,968 INFO  [default] New client connected to socket: 5.
+2016-12-19 13:42:15,968 INFO  [default] Server is waiting for a request...
+2016-12-19 13:42:17,008 INFO  [default] Server recognized a new request.
+2016-12-19 13:42:17,008 INFO  [default] Server is waiting for a request...
+2016-12-19 13:54:01,645 FATAL [default] CRASH HANDLED; Application has crashed due to [SIGINT] signal
+2016-12-19 13:54:01,645 WARN  [default] Aborting application. Reason: Fatal log at [./libs/easylogging++.h:5627]

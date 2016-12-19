@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="aoa_server"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="aoa_server">
+				<Option output="/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/cmake-build-debug/aoa_server" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/bin/../lib/clang/8.0.0/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/bin/../include/c++/v1"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/cmake-build-debug/Makefile&quot;  VERBOSE=1 aoa_server"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="aoa_server/fast">
+				<Option output="/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/cmake-build-debug/aoa_server" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/bin/../lib/clang/8.0.0/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/bin/../include/c++/v1"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/cmake-build-debug/Makefile&quot;  VERBOSE=1 aoa_server/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/communication/CommunicationManager.cpp">
+			<Option target="aoa_server"/>
+		</Unit>
+		<Unit filename="/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/communication/CommunicationManager.h">
+			<Option target="aoa_server"/>
+		</Unit>
+		<Unit filename="/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/communication/MessageReceiver.h">
+			<Option target="aoa_server"/>
+		</Unit>
+		<Unit filename="/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/connection/ConnectionManager.cpp">
+			<Option target="aoa_server"/>
+		</Unit>
+		<Unit filename="/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/connection/ConnectionManager.h">
+			<Option target="aoa_server"/>
+		</Unit>
+		<Unit filename="/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/core/App.cpp">
+			<Option target="aoa_server"/>
+		</Unit>
+		<Unit filename="/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/core/App.h">
+			<Option target="aoa_server"/>
+		</Unit>
+		<Unit filename="/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/core/Logger.cpp">
+			<Option target="aoa_server"/>
+		</Unit>
+		<Unit filename="/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/core/Logger.h">
+			<Option target="aoa_server"/>
+		</Unit>
+		<Unit filename="/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/libs/easylogging++.h">
+			<Option target="aoa_server"/>
+		</Unit>
+		<Unit filename="/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/partial/SafeQueue.h">
+			<Option target="aoa_server"/>
+		</Unit>
+		<Unit filename="/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/partial/StringBuilder.cpp">
+			<Option target="aoa_server"/>
+		</Unit>
+		<Unit filename="/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/partial/StringBuilder.h">
+			<Option target="aoa_server"/>
+		</Unit>
+		<Unit filename="/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/partial/command.cpp">
+			<Option target="aoa_server"/>
+		</Unit>
+		<Unit filename="/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/partial/command.h">
+			<Option target="aoa_server"/>
+		</Unit>
+		<Unit filename="/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/partial/err.cpp">
+			<Option target="aoa_server"/>
+		</Unit>
+		<Unit filename="/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/partial/err.h">
+			<Option target="aoa_server"/>
+		</Unit>
+		<Unit filename="/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/partial/message.cpp">
+			<Option target="aoa_server"/>
+		</Unit>
+		<Unit filename="/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/partial/message.h">
+			<Option target="aoa_server"/>
+		</Unit>
+		<Unit filename="/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/partial/tools.cpp">
+			<Option target="aoa_server"/>
+		</Unit>
+		<Unit filename="/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/partial/tools.h">
+			<Option target="aoa_server"/>
+		</Unit>
+		<Unit filename="/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/srv.cpp">
+			<Option target="aoa_server"/>
+		</Unit>
+		<Unit filename="/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

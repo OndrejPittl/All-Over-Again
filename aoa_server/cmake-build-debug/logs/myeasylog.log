@@ -1,0 +1,78 @@
+2016-12-19 12:36:44,759 INFO  [default] ------ Starting server -------
+2016-12-19 12:36:44,760 INFO  [default] Input args are OK!
+2016-12-19 12:36:44,760 INFO  [default] ConnectionManager is initialized.
+2016-12-19 12:36:44,760 INFO  [default] CommunicationManager is initialized.
+2016-12-19 12:36:44,760 ERROR [default] Bind error at bind().
+2016-12-19 12:36:44,760 INFO  [default] Server is waiting for a request...
+2016-12-19 12:37:06,322 INFO  [default] ------ Starting server -------
+2016-12-19 12:37:06,323 INFO  [default] Input args are OK!
+2016-12-19 12:37:06,323 INFO  [default] ConnectionManager is initialized.
+2016-12-19 12:37:06,323 INFO  [default] CommunicationManager is initialized.
+2016-12-19 12:37:06,323 INFO  [default] Server is listening on port 23456.
+2016-12-19 12:37:06,323 INFO  [default] Server is waiting for a request...
+2016-12-19 12:37:16,006 INFO  [default] Server recognized a new request.
+2016-12-19 12:37:16,006 INFO  [default] New client connected to socket: 5.
+2016-12-19 12:37:16,006 INFO  [default] Server is waiting for a request...
+2016-12-19 12:37:18,838 INFO  [default] Server recognized a new request.
+2016-12-19 12:37:18,839 INFO  [default] Server is waiting for a request...
+2016-12-19 12:43:37,912 INFO  [default] ------ Starting server -------
+2016-12-19 12:43:37,913 INFO  [default] Input args are OK!
+2016-12-19 12:43:37,914 INFO  [default] ConnectionManager is initialized.
+2016-12-19 12:43:37,914 INFO  [default] CommunicationManager is initialized.
+2016-12-19 12:43:37,914 INFO  [default] Server is listening on port 23456.
+2016-12-19 12:43:37,914 INFO  [default] Server is waiting for a request...
+2016-12-19 12:43:47,861 INFO  [default] Server recognized a new request.
+2016-12-19 12:43:47,861 INFO  [default] New client connected to socket: 5.
+2016-12-19 12:43:47,861 INFO  [default] Server is waiting for a request...
+2016-12-19 12:43:50,744 INFO  [default] Server recognized a new request.
+2016-12-19 12:43:50,744 INFO  [default] Server is waiting for a request...
+2016-12-19 12:44:04,734 INFO  [default] ------ Starting server -------
+2016-12-19 12:44:04,735 INFO  [default] Input args are OK!
+2016-12-19 12:44:04,735 INFO  [default] ConnectionManager is initialized.
+2016-12-19 12:44:04,735 INFO  [default] CommunicationManager is initialized.
+2016-12-19 12:44:04,735 INFO  [default] Server is listening on port 23456.
+2016-12-19 12:44:04,735 INFO  [default] Server is waiting for a request...
+2016-12-19 12:44:07,983 INFO  [default] Server recognized a new request.
+2016-12-19 12:44:07,983 INFO  [default] New client connected to socket: 5.
+2016-12-19 12:44:07,983 INFO  [default] Server is waiting for a request...
+2016-12-19 12:44:09,447 INFO  [default] Server recognized a new request.
+2016-12-19 12:44:09,448 INFO  [default] Server is waiting for a request...
+2016-12-19 12:44:10,424 INFO  [default] Server recognized a new request.
+2016-12-19 12:44:10,424 INFO  [default] A client was disconnected and removed from the set.
+2016-12-19 12:44:10,425 INFO  [default] Server is waiting for a request...
+2016-12-19 12:44:56,890 INFO  [default] ------ Starting server -------
+2016-12-19 12:44:56,891 INFO  [default] Input args are OK!
+2016-12-19 12:44:56,891 INFO  [default] ConnectionManager is initialized.
+2016-12-19 12:44:56,891 INFO  [default] CommunicationManager is initialized.
+2016-12-19 12:44:56,891 ERROR [default] Bind error at bind().
+2016-12-19 12:44:56,891 INFO  [default] Server is waiting for a request...
+2016-12-19 12:45:11,653 INFO  [default] ------ Starting server -------
+2016-12-19 12:45:11,654 INFO  [default] Input args are OK!
+2016-12-19 12:45:11,654 INFO  [default] ConnectionManager is initialized.
+2016-12-19 12:45:11,654 INFO  [default] CommunicationManager is initialized.
+2016-12-19 12:45:11,654 ERROR [default] Bind error at bind().
+2016-12-19 12:45:11,654 INFO  [default] Server is waiting for a request...
+2016-12-19 12:46:56,033 INFO  [default] ------ Starting server -------
+2016-12-19 12:46:56,034 INFO  [default] Input args are OK!
+2016-12-19 12:46:56,034 INFO  [default] ConnectionManager is initialized.
+2016-12-19 12:46:56,034 INFO  [default] CommunicationManager is initialized.
+2016-12-19 12:46:56,035 INFO  [default] Server is listening on port 23456.
+2016-12-19 12:46:56,035 INFO  [default] Server is waiting for a request...
+2016-12-19 12:50:52,219 INFO  [default] ------ Starting server -------
+2016-12-19 12:50:52,221 INFO  [default] Input args are OK!
+2016-12-19 12:50:52,221 INFO  [default] ConnectionManager is initialized.
+2016-12-19 12:50:52,221 INFO  [default] CommunicationManager is initialized.
+2016-12-19 12:50:52,221 ERROR [default] Bind error at bind().
+2016-12-19 12:50:52,221 INFO  [default] Server is waiting for a request...
+2016-12-19 12:51:02,765 INFO  [default] ------ Starting server -------
+2016-12-19 12:51:02,766 INFO  [default] Input args are OK!
+2016-12-19 12:51:02,766 INFO  [default] ConnectionManager is initialized.
+2016-12-19 12:51:02,766 INFO  [default] CommunicationManager is initialized.
+2016-12-19 12:51:02,766 INFO  [default] Server is listening on port 23456.
+2016-12-19 12:51:02,766 INFO  [default] Server is waiting for a request...
+2016-12-19 12:51:19,660 INFO  [default] ------ Starting server -------
+2016-12-19 12:51:19,661 INFO  [default] Input args are OK!
+2016-12-19 12:51:19,661 INFO  [default] ConnectionManager is initialized.
+2016-12-19 12:51:19,661 INFO  [default] CommunicationManager is initialized.
+2016-12-19 12:51:19,661 INFO  [default] Server is listening on port 23456.
+2016-12-19 12:51:19,661 INFO  [default] Server is waiting for a request...
