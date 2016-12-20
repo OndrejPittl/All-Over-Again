@@ -24,6 +24,7 @@ const std::string Logger::ERROR_TABLE[] = {
 	"Message receive error."
 };
 
+bool Logger::logging = true;
 
 void Logger::init(int argc, char **argv){
 	el::Configurations conf(CFG_PATH);
@@ -33,31 +34,37 @@ void Logger::init(int argc, char **argv){
 }
 
 void Logger::trace(std::string msg, bool stdOut) {
+    if(!logging) return;
 	LOG(TRACE) << msg;
 	if(stdOut) println(msg);
 }
 
 void Logger::debug(std::string msg, bool stdOut) {
+    if(!logging) return;
 	LOG(DEBUG) << msg;
 	if(stdOut) println(msg);
 }
 
 void Logger::fatal(std::string msg, bool stdOut) {
+    if(!logging) return;
 	LOG(FATAL) << msg;
 	if(stdOut) println(msg);
 }
 
 void Logger::error(std::string msg, bool stdOut) {
+    if(!logging) return;
 	LOG(ERROR) << msg;
 	if(stdOut) println(msg);
 }
 
 void Logger::warning(std::string msg, bool stdOut) {
+    if(!logging) return;
 	LOG(WARNING) << msg;
 	if(stdOut) println(msg);
 }
 
 void Logger::info(std::string msg, bool stdOut) {
+    if(!logging) return;
 	LOG(INFO) << msg;
 	if(stdOut) println(msg);
 }

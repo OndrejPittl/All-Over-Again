@@ -3,3 +3,11 @@
 .mainFrame {
 	-fx-background-image: url('../images/transp_bg.png');
 }
+
+.roomsTable .table-column {
+  -fx-alignment: CENTER;
+}
+
+.roomsTable .table-column.first {
+  -fx-alignment: CENTER-LEFT;
+}

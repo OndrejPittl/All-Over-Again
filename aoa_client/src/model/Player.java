@@ -74,8 +74,15 @@ public class Player {
 		this.isActive = isActive;
 	}
 
-	public static Player[] parsePlayers(String sequence){
-		return null;
+	public static Player[] parsePlayers(String sequence, String delimiter){
+		String[] parts = sequence.split(delimiter);
+		Player[] players = new Player[parts.length];
+		
+		for (int i = 0; i < parts.length; i++) {
+			players[i] = new Player(parts[i]);
+		}
+		
+		return players;
 	}
 
 	public String toString(){

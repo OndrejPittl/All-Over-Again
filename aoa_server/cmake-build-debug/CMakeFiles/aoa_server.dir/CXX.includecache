@@ -35,10 +35,14 @@ iostream
 -
 sstream
 -
+zconf.h
+-
 ../core/Logger.h
 /Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/core/Logger.h
 ConnectionManager.h
 /Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/connection/ConnectionManager.h
+../partial/StringBuilder.h
+/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/partial/StringBuilder.h
 
 /Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/connection/ConnectionManager.h
 string
@@ -49,6 +53,8 @@ netinet/in.h
 -
 arpa/inet.h
 -
+../partial/StringBuilder.h
+/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/partial/StringBuilder.h
 
 /Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/core/App.cpp
 iostream

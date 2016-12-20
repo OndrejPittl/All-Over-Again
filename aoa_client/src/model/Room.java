@@ -6,7 +6,9 @@ public class Room {
 
 	private int playerLimit;
 	
-	private int difficulty;
+	private int playerCount;
+	
+	private GameDifficulty difficulty;
 
 	private int boardDimension;
 	
@@ -14,16 +16,111 @@ public class Room {
 	
 	private int activePlayerID;
 	
+	
+	
 	//private int[] gameStatus;
 	
-	
-	public Room(int ID, int playerLimit, Player[] players) {
-		this.ID = ID;
+
+	/**
+	 * @return the id
+	 */
+	public int getID() {
+		return ID;
+	}
+
+	/**
+	 * @param id the ID to set
+	 */
+	public void setID(int id) {
+		ID = id;
+	}
+
+	/**
+	 * @return the playerLimit
+	 */
+	public int getPlayerLimit() {
+		return playerLimit;
+	}
+
+	/**
+	 * @param playerLimit the playerLimit to set
+	 */
+	public void setPlayerLimit(int playerLimit) {
 		this.playerLimit = playerLimit;
+	}
+
+	/**
+	 * @return the playerCount
+	 */
+	public int getPlayerCount() {
+		return playerCount;
+	}
+
+	/**
+	 * @param playerCount the playerCount to set
+	 */
+	public void setPlayerCount(int playerCount) {
+		this.playerCount = playerCount;
+	}
+
+	/**
+	 * @return the difficulty
+	 */
+	public GameDifficulty getDifficulty() {
+		return difficulty;
+	}
+
+	/**
+	 * @param difficulty the difficulty to set
+	 */
+	public void setDifficulty(GameDifficulty difficulty) {
+		this.difficulty = difficulty;
+	}
+
+	/**
+	 * @return the boardDimension
+	 */
+	public int getBoardDimension() {
+		return boardDimension;
+	}
+
+	/**
+	 * @param boardDimension the boardDimension to set
+	 */
+	public void setBoardDimension(int boardDimension) {
+		this.boardDimension = boardDimension;
+	}
+
+	/**
+	 * @return the players
+	 */
+	public Player[] getPlayers() {
+		return players;
+	}
+
+	/**
+	 * @param players the players to set
+	 */
+	public void setPlayers(Player[] players) {
 		this.players = players;
 	}
 
+	/**
+	 * @return the activePlayerID
+	 */
+	public int getActivePlayerID() {
+		return activePlayerID;
+	}
 
+	/**
+	 * @param activePlayerID the activePlayerID to set
+	 */
+	public void setActivePlayerID(int activePlayerID) {
+		this.activePlayerID = activePlayerID;
+	}
+
+
+	
 	
 	
 	

@@ -76,3 +76,30 @@
 2016-12-19 12:51:19,661 INFO  [default] CommunicationManager is initialized.
 2016-12-19 12:51:19,661 INFO  [default] Server is listening on port 23456.
 2016-12-19 12:51:19,661 INFO  [default] Server is waiting for a request...
+2016-12-19 22:41:40,690 INFO  [default] ------ Starting server -------
+2016-12-19 22:41:40,691 INFO  [default] Input args are OK!
+2016-12-19 22:41:40,691 INFO  [default] ConnectionManager is initialized.
+2016-12-19 22:41:40,691 INFO  [default] CommunicationManager is initialized.
+2016-12-19 22:41:40,691 INFO  [default] Server is listening on port 23456.
+2016-12-19 22:41:40,692 FATAL [default] CRASH HANDLED; Application has crashed due to [SIGSEGV] signal
+2016-12-19 22:41:40,692 WARN  [default] Aborting application. Reason: Fatal log at [/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/libs/easylogging++.h:5627]
+2016-12-20 11:29:01,220 FATAL [default] CRASH HANDLED; Application has crashed due to [SIGSEGV] signal
+2016-12-20 11:29:01,221 WARN  [default] Aborting application. Reason: Fatal log at [/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/libs/easylogging++.h:5627]
+2016-12-20 11:30:49,798 FATAL [default] CRASH HANDLED; Application has crashed due to [SIGSEGV] signal
+2016-12-20 11:30:49,799 WARN  [default] Aborting application. Reason: Fatal log at [/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/libs/easylogging++.h:5627]
+2016-12-20 11:30:57,857 FATAL [default] CRASH HANDLED; Application has crashed due to [SIGSEGV] signal
+2016-12-20 11:30:57,857 WARN  [default] Aborting application. Reason: Fatal log at [/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/libs/easylogging++.h:5627]
+2016-12-20 11:31:27,326 FATAL [default] CRASH HANDLED; Application has crashed due to [SIGSEGV] signal
+2016-12-20 11:31:27,327 WARN  [default] Aborting application. Reason: Fatal log at [/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/libs/easylogging++.h:5627]
+2016-12-20 11:31:29,096 FATAL [default] CRASH HANDLED; Application has crashed due to [SIGSEGV] signal
+2016-12-20 11:31:29,097 WARN  [default] Aborting application. Reason: Fatal log at [/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/libs/easylogging++.h:5627]
+2016-12-20 11:31:31,900 FATAL [default] CRASH HANDLED; Application has crashed due to [SIGSEGV] signal
+2016-12-20 11:31:31,901 WARN  [default] Aborting application. Reason: Fatal log at [/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/libs/easylogging++.h:5627]
+2016-12-20 11:31:40,002 FATAL [default] CRASH HANDLED; Application has crashed due to [SIGSEGV] signal
+2016-12-20 11:31:40,003 WARN  [default] Aborting application. Reason: Fatal log at [/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/libs/easylogging++.h:5627]
+2016-12-20 11:31:48,157 FATAL [default] CRASH HANDLED; Application has crashed due to [SIGSEGV] signal
+2016-12-20 11:31:48,158 WARN  [default] Aborting application. Reason: Fatal log at [/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/libs/easylogging++.h:5627]
+2016-12-20 11:31:56,468 FATAL [default] CRASH HANDLED; Application has crashed due to [SIGSEGV] signal
+2016-12-20 11:31:56,469 WARN  [default] Aborting application. Reason: Fatal log at [/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/libs/easylogging++.h:5627]
+2016-12-20 11:32:06,185 FATAL [default] CRASH HANDLED; Application has crashed due to [SIGSEGV] signal
+2016-12-20 11:32:06,186 WARN  [default] Aborting application. Reason: Fatal log at [/Users/OndrejPittl/ZCU/All-Over-Again/aoa_server/libs/easylogging++.h:5627]

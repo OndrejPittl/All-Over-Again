@@ -28,7 +28,7 @@ class Logger {
 		*/
 		static const std::string ERROR_TABLE[];
 
-		Logger();
+		static bool logging;
 
 	public:
 		// static Logger& instance() {

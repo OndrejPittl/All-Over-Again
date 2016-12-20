@@ -4,12 +4,15 @@ import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
 import model.Player;
+import model.Room;
 
 public class Application {
 
 	private static Application instance = null;
 	
-	private static Player player;
+	private  Player player;
+	
+	private  Room[] rooms;
 	
 //	private static Screen gui;
 
@@ -58,16 +61,19 @@ public class Application {
 //	}
 	
 	public void registerPlayer(Player player){
-		Application.player = player;
+		this.player = player;
 	}
 	
 	public Player getPlayerInfo(){
-		return Application.player;
+		return this.player;
 	}
 	
 	public boolean isPlayerRegistered(){
-		return Application.player.hasID();
+		return this.player.hasID();
 	}
+	
+	
+	
 	
 //	public Screen getScreen(){
 //		return this.gui;
@@ -77,10 +83,26 @@ public class Application {
 //		return Application.clientBarrier;
 //	}
 	
+
+
+	/**
+	 * @return the rooms
+	 */
+	public Room[] getRooms() {
+		return rooms;
+	}
+
+	/**
+	 * @param rooms the rooms to set
+	 */
+	public void setRooms(Room[] rooms) {
+		this.rooms = rooms;
+	}
+
 	public static void awaitAtClientBarrier(String str){
-		String status = Application.clientBarrier.getNumberWaiting() == 0 ? "stopping" : "released";
+		String status = Application.clientBarrier.getNumberWaiting() == 0 ? "waiting" : "released";
 		
-		System.out.println("### BARRIER (" + status + "): " + str);
+		System.out.println("### BARRIER_CLI (" + status + "): " + str);
 		
 		try {
 			Application.clientBarrier.await();
@@ -92,9 +114,9 @@ public class Application {
 	}
 	
 	public static void awaitAtGuiBarrier(String str){
-		String status = Application.guiBarrier.getNumberWaiting() == 0 ? "stopping" : "released";
+		String status = Application.guiBarrier.getNumberWaiting() == 0 ? "waiting" : "released";
 		
-		System.out.println("### BARRIER (GUI, " + status + "): " + str);
+		System.out.println("### BARRIER_GUI (" + status + "): " + str);
 		
 		try {
 			Application.guiBarrier.await();
@@ -104,5 +126,6 @@ public class Application {
 			e.printStackTrace();
 		}
 	}
-	
+
+
 }

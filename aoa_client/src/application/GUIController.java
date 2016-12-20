@@ -18,15 +18,39 @@ public class GUIController extends Observable implements Runnable {
 
 	@Override
 	public void run() {
+		
+		//this.gui.runConnecting();
 
 		//GUIController, WAIT: at "Connecting..." scene for a connection to a server.
-		Application.awaitAtClientBarrier("GUI-control – waits for connection established (G1W)");
-		
-		//Display "Enter username scene"
-		this.gui.runLogin();
+		Application.awaitAtClientBarrier("GUIControl – waits for connection established (1GCWC)");
 
 		
-		Application.awaitAtGuiBarrier("GUI-control – waits for user interaction.");
+//		do {
+//			
+//			//Display "Enter username scene"
+//			this.gui.runLogin();
+//	
+//			Application.awaitAtGuiBarrier("GUIControl – waits for entering username. (4GCWG)");
+//			
+//			this.gui.runChecking();
+//			
+//			Application.awaitAtClientBarrier("GUIControl releases. Username entered. (6GCRC)");
+//			
+//			Application.awaitAtClientBarrier("GUIControl wsaits for checking username. (7GCWC)");
+//		
+//		} while(!this.app.isPlayerRegistered());
+		
+		
+		Application.awaitAtClientBarrier("GUIControl waits for room list. (8_2GCWC)");
+		
+		
+		this.gui.runGameCenter();
+		
+		
+		Application.awaitAtGuiBarrier("GUIControl waits for user room selection/creation. (10GCWG)");
+		
+		
+		
 		
 		
 		// (GUI, RELEASE: –> Client checks username)

@@ -1,8 +1,7 @@
 package application;
 
-import java.util.concurrent.CyclicBarrier;
-
 import communication.CommunicationManager;
+import model.Room;
 
 
 
@@ -45,21 +44,34 @@ public class Client implements Runnable {
 		this.comm.setConnection(this.conn);
 		
 		//hello packet handshake – max 3 tries
-		if(!this.comm.helloPacketHandShake()) {
-			System.exit(0);
-		}
+//		if(!this.comm.helloPacketHandShake()) {
+//			System.exit(0);
+//		}
 		
 		//release
-		Application.awaitAtClientBarrier("CLI releases after connection & hello packet (C1R)");
+		Application.awaitAtClientBarrier("CLI releases after connection & hello packet. (2CRC)");
 				
-		//wait
-		Application.awaitAtClientBarrier("CLI waits for gui thread (C2W)");
-				
+//		do {
+//			//wait for entering username
+//			Application.awaitAtClientBarrier("CLI waits for username. (3CWC)");
+//			
+//			//check nickname availability
+//			this.comm.checkUsernamAvailability();
+//			
+//			Application.awaitAtClientBarrier("CLI releases. Username checked. (8CRC)");
+//			
+//		} while(!this.app.isPlayerRegistered());
 		
-		//check nickname availability
-		while(!this.app.isPlayerRegistered()) {
-			this.comm.checkUsernamAvailability();
-		}
+		
+		
+		Room[] rooms = this.comm.requestRoomList();
+		this.app.setRooms(rooms);
+		
+		
+		Application.awaitAtClientBarrier("Client releases with room list. (8_3CRC)");
+		
+		Application.awaitAtClientBarrier("Client waits for user room selection/creation. (9CWC)");
+		
 		
 		
 		

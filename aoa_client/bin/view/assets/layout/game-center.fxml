@@ -8,15 +8,35 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" styleClass="mainFrame" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" styleClass="mainFrame" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.GameCenterController">
    <center>
-      <HBox prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <GridPane BorderPane.alignment="CENTER">
+        <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="300.0" percentWidth="35.0" />
+            <ColumnConstraints hgrow="SOMETIMES" />
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="70.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
          <children>
-            <BorderPane prefHeight="200.0" prefWidth="300.0">
+            <BorderPane prefHeight="200.0" prefWidth="200.0">
+               <top>
+                  <Label text="New Game" BorderPane.alignment="CENTER">
+                     <font>
+                        <Font name="System Bold" size="18.0" />
+                     </font>
+                     <padding>
+                        <Insets top="50.0" />
+                     </padding>
+                  </Label>
+               </top>
                <center>
                   <VBox alignment="CENTER" prefHeight="400.0" prefWidth="300.0" BorderPane.alignment="CENTER">
                      <children>
@@ -29,45 +49,19 @@
                      </children>
                   </VBox>
                </center>
-               <top>
-                  <Label text="New Game" BorderPane.alignment="CENTER">
-                     <font>
-                        <Font name="System Bold" size="18.0" />
-                     </font>
-                     <BorderPane.margin>
-                        <Insets top="50.0" />
-                     </BorderPane.margin>
-                  </Label>
-               </top>
                <bottom>
                   <Button fx:id="btn_createGame" mnemonicParsing="false" prefWidth="150.0" text="Create a game" BorderPane.alignment="CENTER">
                      <BorderPane.margin>
-                        <Insets bottom="40.0" />
+                        <Insets bottom="50.0" />
                      </BorderPane.margin>
                   </Button>
                </bottom>
+               <padding>
+                  <Insets left="30.0" right="30.0" />
+               </padding>
             </BorderPane>
-            <Separator orientation="VERTICAL" prefHeight="200.0" />
-            <BorderPane prefHeight="200.0" prefWidth="300.0">
-               <center>
-                  <VBox alignment="CENTER" prefHeight="400.0" prefWidth="300.0" BorderPane.alignment="CENTER">
-                     <children>
-                        <VBox alignment="CENTER" fillWidth="false" minWidth="200.0" prefHeight="200.0">
-                           <children>
-                              <TableView fx:id="tv_rooms" minWidth="200.0" prefHeight="200.0">
-                                <columns>
-                                  <TableColumn prefWidth="75.0" text="C1" />
-                                  <TableColumn prefWidth="75.0" text="C2" />
-                                </columns>
-                              </TableView>
-                           </children>
-                           <padding>
-                              <Insets left="30.0" right="30.0" />
-                           </padding>
-                        </VBox>
-                     </children>
-                  </VBox>
-               </center>
+            <Separator orientation="VERTICAL" prefHeight="200.0" GridPane.columnIndex="1" />
+            <BorderPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2">
                <top>
                   <Label text="Join Game" BorderPane.alignment="CENTER">
                      <font>
@@ -81,12 +75,34 @@
                <bottom>
                   <Button fx:id="btn_joinGame" mnemonicParsing="false" prefWidth="150.0" text="Join a game" BorderPane.alignment="CENTER">
                      <BorderPane.margin>
-                        <Insets bottom="40.0" />
+                        <Insets bottom="50.0" />
                      </BorderPane.margin>
                   </Button>
                </bottom>
+               <center>
+                  <GridPane BorderPane.alignment="CENTER">
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                     <children>
+                        <TableView fx:id="tv_rooms" minWidth="200.0" prefHeight="200.0" styleClass="roomsTable">
+                           <columns>
+					          <TableColumn fx:id="nicknamesColumn" styleClass="first" text="" />
+					          <TableColumn fx:id="playersColumn" text="Players" />
+					          <TableColumn fx:id="difficultyColumn" text="Diffficulty" />
+					     </columns>
+                        </TableView>
+                     </children>
+                     <padding>
+                        <Insets bottom="15.0" left="30.0" right="30.0" top="15.0" />
+                     </padding>
+                  </GridPane>
+               </center>
             </BorderPane>
          </children>
-      </HBox>
+      </GridPane>
    </center>
 </BorderPane>

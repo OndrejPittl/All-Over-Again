@@ -2,12 +2,13 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <zconf.h>
 
 // headers
 #include "../core/Logger.h"
 #include "ConnectionManager.h"
+#include "../partial/StringBuilder.h"
 
-// namespace
 
 
 
@@ -16,13 +17,15 @@ const int PORT_NUM = 22222;
 const int ConnectionManager::CLIENT_FD_OFFSET = 4;
 
 
-ConnectionManager::ConnectionManager(int portNumber) {
-	// store number of a port
-	this->portNum = portNumber;
-	init();
+
+ConnectionManager::ConnectionManager(char *portNumber) {
+    this->portNum = atoi(portNumber);
+    this->init();
 }
 
 void ConnectionManager::init(){
+    this->sb = new StringBuilder();
+
 	// clearing a memory
 	memset(&this->srvAddr, 0, sizeof(struct sockaddr_in));
 
@@ -69,5 +72,57 @@ int ConnectionManager::getPortNumber(){
 }
 
 int ConnectionManager::getServerSocket(){
-	return this->srvSocket;
+    return this->srvSocket;
 }
+
+bool ConnectionManager::isServerSocket(int sock){
+    return this->srvSocket == sock;
+}
+
+
+void ConnectionManager::prepareClientSocketSet(){
+    // clear a set of sockets
+    FD_ZERO(&this->cliSockSet);
+
+    std::cout << "Hledam, kde je chyba." << std::endl;
+
+    // place a server socket into a set being checked with select()
+    FD_SET(this->srvSocket, &this->cliSockSet);
+}
+
+fd_set ConnectionManager::getClientSocketSet(){
+    return this->cliSockSet;
+}
+
+void ConnectionManager::registerNewClient(){
+	/**
+	*	IP adresa & port of a new client.
+	*/
+	struct sockaddr_in cliAddr;
+
+	/**
+    *	Length of client address.
+    */
+	int cliAddrLen;
+
+	/**
+	 * A new client socket.
+	 */
+	int cliSock = accept(this->srvSocket, (struct sockaddr *) &cliAddr, (socklen_t *) &cliAddrLen);
+
+    FD_SET(cliSock, &this->cliSockSet);
+
+    this->sb->clear();
+    this->sb->append("New client connected to socket: ");
+    this->sb->append(cliSock);
+    this->sb->append(".");
+    Logger::info(this->sb->getString());
+}
+
+void ConnectionManager::deregisterNewClient(int sock){
+    close(sock);
+    FD_CLR(sock, &this->cliSockSet);
+    Logger::info("A client was disconnected and removed from the set.");
+}
+
+

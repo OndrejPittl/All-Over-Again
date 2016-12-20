@@ -8,6 +8,13 @@ public class CommunicationConfig {
 	public static final String MSG_DELIMITER = ";";
 	
 	/**
+	 * Sub-blocks delimiting character. 
+	 */
+	public static final String MSG_SUB_DELIMITER = ":";
+	
+	
+	
+	/**
 	 * Request accepted/succeeded.
 	 */
 	public static final int REQ_ACK = 1;

@@ -20,14 +20,14 @@ public class Main extends javafx.application.Application {
 	
 	
 	public static void main(String[] args) {
-//		Main.app = Application.getInstance();
+		// Main.app = Application.getInstance();
 		
 		/**
 		 * GUI controlling thread.
 		 */
-//		Main.guiControlRunnable = new GUIController();
-//		Main.guiControlThread = new Thread(Main.guiControlRunnable);
-//		Main.guiControlThread.start();
+		Main.guiControlRunnable = new GUIController();
+		Main.guiControlThread = new Thread(Main.guiControlRunnable);
+		Main.guiControlThread.start();
 		
 		/**
 		 * Client (non-GUI) thread.
@@ -47,9 +47,7 @@ public class Main extends javafx.application.Application {
 		//init gui
 		Main.guiRunnable = new Screen(primaryStage);
 	
-		//register an observable (listening) to an observer (changing) 
-		//Main.guiControlRunnable.addObserver(Main.guiRunnable);
-		//Main.guiControlRunnable.setScreen(Main.guiRunnable);
+		Main.guiControlRunnable.setScreen(Main.guiRunnable);
 		
 		//run gui
 		Main.guiRunnable.run();

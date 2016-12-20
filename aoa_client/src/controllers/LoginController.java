@@ -44,8 +44,8 @@ public class LoginController implements Initializable {
 		if(UserInputValidator.validateUsername(nick)) {
 			this.app.registerPlayer(new Player(nick));
 			//Application.awaitAtGuiBarrier();
-			Application.awaitAtClientBarrier("GUI, relseases. Username entered. (G2R)");
-			this.screen.runChecking();
+			
+			Application.awaitAtGuiBarrier("GUI relseases. Username entered. (5GRG)");
 		}
 	}
 

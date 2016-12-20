@@ -5,11 +5,13 @@ CMakeFiles/aoa_server.dir/communication/CommunicationManager.cpp.o: ../communica
 CMakeFiles/aoa_server.dir/communication/CommunicationManager.cpp.o: ../communication/CommunicationManager.h
 CMakeFiles/aoa_server.dir/communication/CommunicationManager.cpp.o: ../connection/ConnectionManager.h
 CMakeFiles/aoa_server.dir/communication/CommunicationManager.cpp.o: ../core/Logger.h
+CMakeFiles/aoa_server.dir/communication/CommunicationManager.cpp.o: ../partial/StringBuilder.h
 CMakeFiles/aoa_server.dir/communication/CommunicationManager.cpp.o: ../partial/tools.h
 
 CMakeFiles/aoa_server.dir/connection/ConnectionManager.cpp.o: ../connection/ConnectionManager.cpp
 CMakeFiles/aoa_server.dir/connection/ConnectionManager.cpp.o: ../connection/ConnectionManager.h
 CMakeFiles/aoa_server.dir/connection/ConnectionManager.cpp.o: ../core/Logger.h
+CMakeFiles/aoa_server.dir/connection/ConnectionManager.cpp.o: ../partial/StringBuilder.h
 
 CMakeFiles/aoa_server.dir/core/App.cpp.o: ../communication/CommunicationManager.h
 CMakeFiles/aoa_server.dir/core/App.cpp.o: ../connection/ConnectionManager.h

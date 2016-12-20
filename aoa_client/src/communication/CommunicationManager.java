@@ -101,6 +101,21 @@ public class CommunicationManager {
 	
 	
 	
+	public Room[] requestRoomList(){
+		this.clearStringBuilder();
+
+		Room[] rooms;
+		
+		this.sb.append(CommunicationConfig.REQ_ROOM_LIST);
+		this.comm.writeMsg(this.sb.toString());
+	
+		String response = this.comm.recvMsg();
+		rooms = this.parser.parseRoomList(response);
+		
+		return rooms;
+	}
+	
+	
 	
 	
 	

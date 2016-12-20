@@ -63,13 +63,13 @@ void App::run() {
 	/**
 	*	Set of tracked sockets.
 	*/
-	fd_set cliSet;
+    fd_set cliSet;
 
 	/**
 	*	"Working" copy of a set of sockets. Collection that is being modified by select();
 	*/
 	fd_set readSockSet;
-	
+
 	/**
 	*	"Working" copy of a set of sockets. Collection that is being modified by select();
 	*/
@@ -78,57 +78,57 @@ void App::run() {
 	/**
 	*	IP adresa & port of a new client.
 	*/
-	struct sockaddr_in cliAddr;
+//	struct sockaddr_in cliAddr;
 
 	/**
 	*	Length of client address.
 	*/
-	int cliAddrLen;
+//	int cliAddrLen;
 
 
 
 
+    Logger::info("------ Starting server -------");
 
-	Logger::info("------ Starting server -------");
-
-	// check input arguments
-	if(!checkArgs()){
-		// Logger::info("Input args are WRONG!");
-		exit(Logger::printErr(ERR_INVALID_ARGS));
-	} else {
-		Logger::info("Input args are OK!");
-	}
+    // check input arguments
+    if(!checkArgs()){
+        // Logger::info("Input args are WRONG!");
+        exit(Logger::printErr(ERR_INVALID_ARGS));
+    } else {
+        Logger::info("Input args are OK!");
+    }
 
 
-	this->logMessage = new StringBuilder();
+    this->logMessage = new StringBuilder();
 
-	int port = atoi(this->argv[1]);
-	this->conn = new ConnectionManager(port);
-	
-	this->comm = new CommunicationManager();
+    this->conn = new ConnectionManager(this->argv[1]);
+
+    this->comm = new CommunicationManager();
 
 
 
-	result = this->conn->startListening();
+    result = this->conn->startListening();
 
-	if(!result){
-		exit(result);
-	}
-
-
-	srvSocket = this->conn->getServerSocket();
+    if(!result){
+        exit(result);
+    }
 
 
-	// clear a set of sockets
-	FD_ZERO(&cliSet);
-
-	// place a server socket into a set being checked with select()
-	FD_SET(srvSocket, &cliSet);
+    srvSocket = this->conn->getServerSocket();
 
 
-	for (;;){
+//	// clear a set of sockets
+//	FD_ZERO(&cliSet);
+//
+//	// place a server socket into a set being checked with select()
+//	FD_SET(srvSocket, &cliSet);
+
+    this->conn->prepareClientSocketSet();
+
+    for (;;){
 
 		// working copy of a set of sockets
+        cliSet = this->conn->getClientSocketSet();
 		readSockSet = cliSet;
 		writeSockSet = cliSet;
 
@@ -136,7 +136,7 @@ void App::run() {
 
 		// After every select() call is a set of descriptors overridden.
 		// waiting/checking until some readable data appear on a socket of a set
-		//result = select(FD_SETSIZE, &readSockSet, &writeSockSet, (fd_set *)0, (struct timeval *)0 );
+		//result = select(FD_SETSIZE, readSockSet, writeSockSet, (fd_set *)0, (struct timeval *)0 );
 		result = select(FD_SETSIZE, &readSockSet, (fd_set *)0, (fd_set *)0, (struct timeval *)0 );
 
 		Logger::info("Server recognized a new request.");
@@ -151,16 +151,10 @@ void App::run() {
 			// is a file descriptor in a readSocks set?
 			if(FD_ISSET(fdIndex, &readSockSet)){
 
-				if (fdIndex == srvSocket){
+				if (this->conn->isServerSocket(fdIndex)){
 					// server socket –> accept a new connetion
-					this->cliSocket = accept(srvSocket, (struct sockaddr *) &cliAddr, (socklen_t *) &cliAddrLen);
-					FD_SET(this->cliSocket, &cliSet);
-
-					this->logMessage->clear();
-					this->logMessage->append("New client connected to socket: ");
-					this->logMessage->append(this->cliSocket);
-					this->logMessage->append(".");
-					Logger::info(this->logMessage->getString());
+                    // FD_SET(this->cliSocket, &cliSet);
+                    this->conn->registerNewClient();
 
 				} else {
 
@@ -173,15 +167,16 @@ void App::run() {
 						this->comm->receiveMessage(fdIndex, bytesReceived);
 					} else {
 						// disconnection of a client
-						close(fdIndex);
-						FD_CLR(fdIndex, &cliSet);
-						Logger::info("A client was disconnected and removed from the set.");
+
+						//FD_CLR(fdIndex, &cliSet);
+						//Logger::info("A client was disconnected and removed from the set.");
+                        this->conn->deregisterNewClient(fdIndex);
 					}
 				}
 			}
 
 			// is a file descriptor in a writeSocks set?
-			// if(FD_ISSET(fdIndex, &writeSockSet)){
+			// if(FD_ISSET(fdIndex, writeSockSet)){
 				// vector<Message>::iterator msgIt;
 				// Message msg;
 				// for(msgIt = messageQueue.begin(); msgIt != messageQueue.end(); ++msgIt) {

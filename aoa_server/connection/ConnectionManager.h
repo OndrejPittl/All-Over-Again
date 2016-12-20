@@ -6,6 +6,8 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#include "../partial/StringBuilder.h"
+
 
 /**
 *	Default port.
@@ -38,6 +40,16 @@ class ConnectionManager {
 		int srvSocket;
 
 
+        StringBuilder *sb;
+
+
+        fd_set cliSockSet;
+
+        fd_set writeSockSet;
+
+        fd_set readSockSet;
+
+
 
 	public:
 		
@@ -50,7 +62,7 @@ class ConnectionManager {
 		/**
 		*	Constructor.
 		*/
-		ConnectionManager(int portNumber);
+        ConnectionManager(char *portNumber);
 
 		/**
 		*	Initializes a connection manager.
@@ -69,7 +81,18 @@ class ConnectionManager {
 		*/
 		int getServerSocket();
 
+        bool isServerSocket(int sock);
 
+
+
+
+        void prepareClientSocketSet();
+
+        fd_set getClientSocketSet();
+
+        void registerNewClient();
+
+        void deregisterNewClient(int sock);
 
 };
 

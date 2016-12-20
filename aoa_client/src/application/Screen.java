@@ -5,17 +5,16 @@ import java.io.InputStream;
 import java.util.Observable;
 import java.util.Observer;
 
-import config.AppConfig;
-import config.CommunicationConfig;
 import config.Routes;
 import config.ViewConfig;
+import controllers.GameCenterController;
 import controllers.LoginController;
 import controllers.MessageController;
 import io.DataLoader;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
@@ -34,19 +33,17 @@ public class Screen extends Stage implements Observer {
 	
 	public Screen(Stage window) {
 		this.stage = window;
-		this.app = Application.getInstance();
-		//this.app.setGUI(this);
-
-		//this.runLogin();
+		this.app = Application.getInstance(); 
 		this.runConnecting();
 	}
 	
 	public void run(){
 		this.stage.show();
+		this.centerStage();
 	}
 	
 	private Initializable runScreen(ScreenType screen) throws IOException {		
-		ScreenSettings cfg = AppConfig.getScreen(screen);
+		ScreenSettings cfg = ViewConfig.getScreen(screen);
 		InputStream in = Main.class.getResourceAsStream(Routes.getLayoutFile(cfg.getName()));
 		FXMLLoader loader = new FXMLLoader();
         //loader.setBuilderFactory(new JavaFXBuilderFactory());
@@ -70,7 +67,15 @@ public class Screen extends Stage implements Observer {
 		this.stage.setScene(scene);
 		//this.stage.sizeToScene();
 		
+		this.centerStage();		
+		
 		return loader.getController();		
+	}
+	
+	private void centerStage(){
+		Rectangle2D screenBounds = javafx.stage.Screen.getPrimary().getVisualBounds();
+	    this.stage.setX((screenBounds.getWidth() - this.stage.getWidth()) / 2); 
+	    this.stage.setY((screenBounds.getHeight() - this.stage.getHeight()) / 2);
 	}
 	
 	public Void runLogin(){
@@ -90,42 +95,58 @@ public class Screen extends Stage implements Observer {
 	}
 	
 	public void runConnecting(){
-		try {
-			MessageController controller = (MessageController) this.runScreen(ScreenType.Message);
-			controller.setMessage(ViewConfig.MSG_CONNECTION);
-			controller.setApp(this);
-			
-			
-			new Thread(new Task<Void>() {
-				protected Void call() throws Exception {
-					Application.awaitAtClientBarrier("GUI – waits for connection established (G1W)");
-					runLogin();
-					return null;
+		Screen scrn = this;
+		Platform.runLater(new Runnable() {
+		    public void run() {
+		    	try {
+					MessageController controller = (MessageController) scrn.runScreen(ScreenType.Message);
+					controller.setMessage(ViewConfig.MSG_CONNECTION);
+					controller.setApp(scrn);
+					
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
-		    }).start();
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		    }
+		});
 	}
 	
 	public void runChecking(){
-		try {
-			MessageController controller = (MessageController) this.runScreen(ScreenType.Message);
-			controller.setMessage(ViewConfig.MSG_CHECKING);
-			controller.setApp(this);
-			
-			new Thread(new Task<Void>() {
-				protected Void call() throws Exception {
-					Application.awaitAtClientBarrier("GUI – waits for client checks username.");
-					runLogin();
-					return null;
+		Screen scrn = this;
+		Platform.runLater(new Runnable() {
+		    public void run() {
+		    	try {
+					MessageController controller = (MessageController) scrn.runScreen(ScreenType.Message);
+					controller.setMessage(ViewConfig.MSG_CHECKING);
+					controller.setApp(scrn);
+					
+//					new Thread(new Task<Void>() {
+//						protected Void call() throws Exception {
+//							Application.awaitAtClientBarrier("GUI – waits for client checks username.");
+//							runLogin();
+//							return null;
+//						}
+//				    }).start();
+					
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
-		    }).start();
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		    }
+		});	
+	}
+	
+	public void runGameCenter(){
+		Screen scrn = this;
+		Platform.runLater(new Runnable() {
+		    public void run() {
+		    	try {
+					GameCenterController controller = (GameCenterController) scrn.runScreen(ScreenType.GameCenter);
+					controller.setApp(scrn);		
+					controller.updateRoomList();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+		    }
+		});	
 	}
 	
 	

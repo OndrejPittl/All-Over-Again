@@ -1,6 +1,9 @@
 package communication;
 
+import config.CommunicationConfig;
+import model.GameDifficulty;
 import model.Player;
+import model.Room;
 
 public class CommunicationParser {
 	
@@ -21,7 +24,7 @@ public class CommunicationParser {
 	 * @return
 	 */
 	public boolean parseUsernameAvailabilityResponse(String response, Player player){
-		String[] parts = response.split(";");
+		String[] parts = response.split(CommunicationConfig.MSG_DELIMITER);
 		
 		boolean ack = Integer.parseInt(parts[1]) == 1;
 		
@@ -34,6 +37,45 @@ public class CommunicationParser {
 		return true;
 	}
 	
+	public Room[] parseRoomList(String response){
+
+		// message split to blocks
+		String[] parts = response.split(CommunicationConfig.MSG_DELIMITER);
+		
+		int offset = 1,
+				
+			attribCount = 5,
+			
+			roomIndex = 0;
+		
+		// number of available rooms
+		int count = (parts.length - offset) / 5;
+		
+		// collection of rooms
+		Room[] rooms = new Room[count];
+		
+		
+		for (int i = offset; i < parts.length - offset; i+=attribCount) {
+			Room r = new Room();
+			
+			int id = Integer.parseInt(parts[i]),
+				playerCount = Integer.parseInt(parts[i+1]),
+				playerLimit = Integer.parseInt(parts[i+2]),
+				difficulty = Integer.parseInt(parts[i+3]);
+			
+			Player[] players = Player.parsePlayers(parts[i+4], CommunicationConfig.MSG_SUB_DELIMITER);
+				
+			r.setID(id);
+			r.setPlayerCount(playerCount);
+			r.setPlayerLimit(playerLimit);
+			r.setDifficulty(GameDifficulty.getNth(difficulty));
+			r.setPlayers(players);
+			
+			rooms[roomIndex++] = r;
+		}
+		
+		return rooms;
+	}
 	
 	
 	

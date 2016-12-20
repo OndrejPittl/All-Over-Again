@@ -25,28 +25,41 @@ void CommunicationManager::initBuffer() {
 }
 
 void CommunicationManager::receiveMessage(int fdIndex, int byteCount) {
-    bool broadDetected;
 
     // read data
     this->inputBuffer = recvMsg(fdIndex, byteCount);
 
 
 
-	// checks whether it is determined to be sent to all clients in a set or not
-	broadDetected = checkBroadcast(&this->inputBuffer);
-
-	// transforms a message
-	transformMsg(&this->inputBuffer);
-
-	if(broadDetected) {
-		// sends to all clients
-        sendMsg(this->cliSockSet, this->inputBuffer);
-	} else {
-		// send an automatic answer/response to a sender
-		//answerClient(fdIndex, this->inputBuffer);
-		sendMsg(fdIndex, this->inputBuffer + "\n");
-	}
+    // sendMsg(fdIndex, this->inputBuffer + "\n");
+    // sendMsg(this->cliSockSet, this->inputBuffer);
 }
+
+
+
+//void CommunicationManager::receiveMessage(int fdIndex, int byteCount) {
+//    bool broadDetected;
+//
+//    // read data
+//    this->inputBuffer = recvMsg(fdIndex, byteCount);
+//
+//
+//
+//	// checks whether it is determined to be sent to all clients in a set or not
+//	broadDetected = checkBroadcast(&this->inputBuffer);
+//
+//	// transforms a message
+//	transformMsg(&this->inputBuffer);
+//
+//	if(broadDetected) {
+//		// sends to all clients
+//        sendMsg(this->cliSockSet, this->inputBuffer);
+//	} else {
+//		// send an automatic answer/response to a sender
+//		//answerClient(fdIndex, this->inputBuffer);
+//		sendMsg(fdIndex, this->inputBuffer + "\n");
+//	}
+//}
 
 
 //void CommunicationManager::recvMsg(int sock, int byteCount, std::string *buff) {
@@ -67,9 +80,9 @@ std::string CommunicationManager::recvMsg(int sock, int byteCount) {
 	result = recv(sock, msgBuffer, msgLen, 0);
 	//result = read(sock, msgBuffer, BUFF_LEN);
 
-//    std::cout << "---------------------" << std::endl;
-//    std::cout << msgLen << " bytes received in a message: " << msgBuffer;
-//    std::cout << "---------------------" << std::endl;
+    std::cout << "---------------------" << std::endl;
+    std::cout << msgLen << " bytes received in a message: " << msgBuffer;
+    std::cout << "---------------------" << std::endl;
 
 
 	// an error during receiving data
