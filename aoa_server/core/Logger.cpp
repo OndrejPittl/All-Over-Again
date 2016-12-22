@@ -1,5 +1,6 @@
+#include <stdio.h>
 #include <string>
-#include <ctype.h>
+
 
 #include "../libs/easylogging++.h"
 #include "../partial/tools.h"

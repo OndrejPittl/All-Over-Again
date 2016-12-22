@@ -31,10 +31,6 @@ class Logger {
 		static bool logging;
 
 	public:
-		// static Logger& instance() {
-		// 	static Singleton INSTANCE;
-		// 	return INSTANCE;
-		// }
 
 		static void init(int argc, char **argv);
 

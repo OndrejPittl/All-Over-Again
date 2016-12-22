@@ -7,12 +7,7 @@
 // headers
 #include "../core/Logger.h"
 #include "ConnectionManager.h"
-#include "../partial/StringBuilder.h"
 
-
-
-
-const int PORT_NUM = 22222;
 
 const int ConnectionManager::CLIENT_FD_OFFSET = 4;
 
@@ -63,7 +58,6 @@ int ConnectionManager::startListening(){
 
 	log << "Server is listening on port " << getPortNumber() << ".";
 	Logger::info(log.str());
-
 	return true;
 }
 
@@ -84,15 +78,50 @@ void ConnectionManager::prepareClientSocketSet(){
     // clear a set of sockets
     FD_ZERO(&this->cliSockSet);
 
-    std::cout << "Hledam, kde je chyba." << std::endl;
-
     // place a server socket into a set being checked with select()
     FD_SET(this->srvSocket, &this->cliSockSet);
+}
+
+void ConnectionManager::restoreSocketSets(){
+    this->readSockSet = this->cliSockSet;
+    this->writeSockSet = this->cliSockSet;
+}
+
+int ConnectionManager::waitForRequests(){
+    int result;
+
+    // After every select() call is a set of descriptors overridden.
+    // waiting/checking until some readable data appear on a socket of a set
+    //result = select(FD_SETSIZE, readSockSet, writeSockSet, (fd_set *)0, (struct timeval *)0 );
+    result = select(FD_SETSIZE, &this->readSockSet, (fd_set *)0, (fd_set *)0, (struct timeval *)0 );
+
+    if (result < 0) {
+        return Logger::printErr(ERR_SELECT);
+    }
+
+    return true;
+}
+
+int ConnectionManager::isSockReadable(int sock){
+    return FD_ISSET(sock, &this->readSockSet);
+}
+
+int ConnectionManager::isSockWritable(int sock){
+    return FD_ISSET(sock, &this->writeSockSet);
 }
 
 fd_set ConnectionManager::getClientSocketSet(){
     return this->cliSockSet;
 }
+
+fd_set ConnectionManager::getReadSocketSet(){
+    return this->readSockSet;
+}
+
+fd_set ConnectionManager::getWriteSocketSet(){
+    return this->writeSockSet;
+}
+
 
 void ConnectionManager::registerNewClient(){
 	/**

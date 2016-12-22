@@ -1,0 +1,21 @@
+2016-12-21 20:22:31,778 INFO  [default] ------ Starting server -------
+2016-12-21 20:22:31,779 INFO  [default] Input args are OK!
+2016-12-21 20:22:31,779 INFO  [default] ConnectionManager is initialized.
+2016-12-21 20:22:31,779 INFO  [default] CommunicationManager is initialized.
+2016-12-21 20:22:31,779 INFO  [default] Server is listening on port 23456.
+2016-12-21 20:22:31,779 INFO  [default] Server is waiting for a request...
+2016-12-21 20:22:36,401 FATAL [default] CRASH HANDLED; Application has crashed due to [SIGINT] signal
+2016-12-21 20:22:36,402 WARN  [default] Aborting application. Reason: Fatal log at [./libs/easylogging++.h:5627]
+2016-12-21 20:31:11,791 INFO  [default] ------ Starting server -------
+2016-12-21 20:31:11,792 INFO  [default] Input args are OK!
+2016-12-21 20:31:11,792 INFO  [default] ConnectionManager is initialized.
+2016-12-21 20:31:11,792 INFO  [default] CommunicationManager is initialized.
+2016-12-21 20:31:11,792 ERROR [default] Bind error at bind().
+2016-12-21 20:31:11,792 INFO  [default] Server is waiting for a request...
+2016-12-21 20:31:20,120 FATAL [default] CRASH HANDLED; Application has crashed due to [SIGINT] signal
+2016-12-21 20:31:20,120 WARN  [default] Aborting application. Reason: Fatal log at [./libs/easylogging++.h:5627]
+2016-12-21 21:09:20,105 INFO  [default] ------ Starting server -------
+2016-12-21 21:09:20,106 INFO  [default] Input args are OK!
+2016-12-21 21:09:20,106 INFO  [default] ConnectionManager is initialized.
+2016-12-21 21:09:20,106 INFO  [default] CommunicationManager is initialized.
+2016-12-21 21:09:20,106 INFO  [default] Server is listening on port 23456.

@@ -9,11 +9,6 @@
 #include "../partial/StringBuilder.h"
 
 
-/**
-*	Default port.
-*/
-extern const int PORT_NUM;
-
 
 
 class ConnectionManager {
@@ -45,8 +40,14 @@ class ConnectionManager {
 
         fd_set cliSockSet;
 
+        /**
+        *	"Working" copy of a set of sockets. Collection that is being modified by select();
+        */
         fd_set writeSockSet;
 
+        /**
+        *	"Working" copy of a set of sockets. Collection that is being modified by select();
+        */
         fd_set readSockSet;
 
 
@@ -88,7 +89,19 @@ class ConnectionManager {
 
         void prepareClientSocketSet();
 
+        void restoreSocketSets();
+
+        int waitForRequests();
+
+        int isSockReadable(int sock);
+
+        int isSockWritable(int sock);
+
         fd_set getClientSocketSet();
+
+        fd_set getReadSocketSet();
+
+        fd_set getWriteSocketSet();
 
         void registerNewClient();
 
