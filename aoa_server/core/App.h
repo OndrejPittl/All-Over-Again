@@ -7,7 +7,9 @@
 #include "../partial/StringBuilder.h"
 #include "../connection/ConnectionManager.h"
 #include "../communication/CommunicationManager.h"
-#include "../communication/Receiver.h"
+#include "../communication/MessageProcessor.h"
+#include "../communication/Message.h"
+#include "../partial/SafeQueue.h"
 
 class App {
 	private:
@@ -19,6 +21,8 @@ class App {
 		ConnectionManager *conn;
 		CommunicationManager *comm;
 
+		SafeQueue<Message *> *messageQueue;
+
 		StringBuilder *logMessage;
 
 		int argc;
@@ -26,6 +30,7 @@ class App {
 
 
 		bool checkArgs();
+		void init();
 
 	public:
 		App(int argc, char **argv);

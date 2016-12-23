@@ -36,9 +36,9 @@ void ConnectionManager::init(){
 	Logger::info("ConnectionManager is initialized.");
 }
 
-int ConnectionManager::startListening(){
+int ConnectionManager::prepare(){
 	std::ostringstream log;
-	
+
 	// socket receiving connections, IPv4 & TCP
 	this->srvSocket = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -58,6 +58,15 @@ int ConnectionManager::startListening(){
 
 	log << "Server is listening on port " << getPortNumber() << ".";
 	Logger::info(log.str());
+
+
+    // clear a set of sockets
+    FD_ZERO(&this->cliSockSet);
+
+    // place a server socket into a set being checked with select()
+    FD_SET(this->srvSocket, &this->cliSockSet);
+
+
 	return true;
 }
 
@@ -75,11 +84,7 @@ bool ConnectionManager::isServerSocket(int sock){
 
 
 void ConnectionManager::prepareClientSocketSet(){
-    // clear a set of sockets
-    FD_ZERO(&this->cliSockSet);
 
-    // place a server socket into a set being checked with select()
-    FD_SET(this->srvSocket, &this->cliSockSet);
 }
 
 void ConnectionManager::restoreSocketSets(){

@@ -9,7 +9,7 @@
 //cmakovská
 const std::string Logger::CFG_PATH = "../config/log.conf";
 
-//mejkfa
+//mejkfajl
 //const std::string Logger::CFG_PATH = "config/log.conf";
 
 /**

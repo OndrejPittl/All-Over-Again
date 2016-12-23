@@ -97,8 +97,10 @@
 #ifndef SAFE_QUEUE_H
 #define SAFE_QUEUE_H
 
+#include <iostream>
 #include <pthread.h>
 #include <list>
+#include "../communication/Message.h"
 
 using namespace std;
 
@@ -138,6 +140,10 @@ public:
         int size = (int) m_queue.size();
         pthread_mutex_unlock(&m_mutex);
         return size;
+    }
+
+    void print() {
+
     }
 };
 

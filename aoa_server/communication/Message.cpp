@@ -4,8 +4,7 @@
 
 // headers
 #include "Message.h"
-#include "../partial/SafeQueue.h"
-#include "Receiver.h"
+#include "MessageProcessor.h"
 
 
 Message::Message() {}
@@ -13,6 +12,12 @@ Message::Message() {}
 Message::Message(int sock, std::string msg) {
 	this->sock = sock;
 	this->message = msg;
+}
+
+Message::Message(int sock, long byteSize, std::string msg) {
+    this->sock = sock;
+    this->byteSize = byteSize;
+    this->message = msg;
 }
 
 int Message::getSock(){
@@ -31,12 +36,11 @@ void Message::setMsg(std::string msg) {
 	this->message = msg;
 }
 
-void Message::setSize(int bytes) {
+void Message::setSize(long bytes) {
 	this->byteSize = bytes;
 }
 
-int Message::getSize() {
+long Message::getSize() {
     return this->byteSize;
 }
-
 

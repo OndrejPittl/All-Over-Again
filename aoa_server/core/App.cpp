@@ -18,6 +18,7 @@ const int App::PORT_NUM_UPPER_LIMIT = 65535;
 App::App(int argc, char **argv) {
 	this->argc = argc;
 	this->argv = argv;
+	this->messageQueue = new SafeQueue<Message *>();
 }
 
 void App::run() {
@@ -53,17 +54,15 @@ void App::run() {
     }
 
 
-    this->logMessage = new StringBuilder();
-    this->conn = new ConnectionManager(this->argv[1]);
-    this->comm = new CommunicationManager();
+    this->init();
 
-
-    if(!(result = this->conn->startListening())){
+    // basic server setup (port & ip definition etc.)
+    if(!(result = this->conn->prepare())){
         exit(result);
     }
 
-    this->conn->prepareClientSocketSet();
-	this->comm->startCommunication();
+    // run message processing thread
+    this->comm->startMessageProcessor();
 
 
     for (;;){
@@ -73,14 +72,12 @@ void App::run() {
 
 		Logger::info("Server is waiting for a request...");
 
-        // (select)
         // Server waits until being requested.
 		if(!(result = this->conn->waitForRequests())){
 			exit(result);
 		}
 
 		Logger::info("Server recognized a new request.");
-
 
 		// check all file descriptors excluding stdin, stdout, stderr
 		for(fdIndex = ConnectionManager::CLIENT_FD_OFFSET; fdIndex < FD_SETSIZE; fdIndex++ ){
@@ -97,14 +94,12 @@ void App::run() {
 				} else {
 
 					// CLI socket –> accept data.
+
 					// check number of bytes received
 					ioctl(fdIndex, FIONREAD, &bytesReceived);
 
-					std::cout << "rec: " << bytesReceived << std::endl;
-
 					if (bytesReceived > 0){
                         // Receive a message.
-						std::cout << "incoming" << std::endl;
 						this->comm->receiveMessage(fdIndex, bytesReceived);
 
 					} else {
@@ -144,4 +139,11 @@ bool App::checkArgs() {
 	}
 
 	return correct;
+}
+
+
+void App::init() {
+    this->logMessage = new StringBuilder();
+    this->conn = new ConnectionManager(this->argv[1]);
+    this->comm = new CommunicationManager(this->messageQueue);
 }

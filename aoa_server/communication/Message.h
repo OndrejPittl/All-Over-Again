@@ -10,12 +10,13 @@
 class Message {
 	private:
 		int sock;
-		int byteSize;
+		long byteSize;
 		std::string message;
 
 	public:
 		Message();
 		Message(int sock, std::string msg);
+		Message(int sock, long byteSize, std::string msg);
 
         int getSock();
         void setSock(int sock);
@@ -23,11 +24,8 @@ class Message {
         std::string getMsg();
         void setMsg(std::string msg);
 
-        int getSize();
-		void setSize(int bytes);
-
-//        static Message *buildMessages(std::string input);
-        std::string *separateMessages(std::string input);
+        long getSize();
+		void setSize(long bytes);
 
 };
 

@@ -2,6 +2,7 @@
 #define TOOLS_H
 
 #include <string>
+#include <vector>
 
 
 enum CommandType {
@@ -29,6 +30,12 @@ void println(std::string str);
 *
 */
 void printTrueFalse();
+
+void removeChar(std::string *str, char c);
+
+long checksum(std::string str);
+
+void printVector(std::vector<std::string> vec);
 
 
 #endif

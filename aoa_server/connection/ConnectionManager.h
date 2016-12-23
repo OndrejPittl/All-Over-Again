@@ -51,6 +51,10 @@ class ConnectionManager {
         fd_set readSockSet;
 
 
+		/**
+		*	Initializes a connection manager.
+		*/
+		void init();
 
 	public:
 		
@@ -65,12 +69,8 @@ class ConnectionManager {
 		*/
         ConnectionManager(char *portNumber);
 
-		/**
-		*	Initializes a connection manager.
-		*/
-		void init();
-		
-		int startListening();
+
+		int prepare();
 
 		/**
 		*	Port number getter.
@@ -83,7 +83,6 @@ class ConnectionManager {
 		int getServerSocket();
 
         bool isServerSocket(int sock);
-
 
 
 

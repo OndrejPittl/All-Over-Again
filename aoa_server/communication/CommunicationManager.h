@@ -6,8 +6,10 @@
 
 #include "../partial/Semaphore.h"
 #include "../partial/SafeQueue.h"
-#include "Receiver.h"
+#include "MessageProcessor.h"
 #include "Message.h"
+#include "RawMessage.h"
+
 
 
 class CommunicationManager {
@@ -18,56 +20,60 @@ class CommunicationManager {
 		*/
 		std::string inputBuffer;
 
+		/**
+		 * A queue of validated deserialized incoming messages.
+		 */
 		SafeQueue<Message *> *messageQueue;
-		SafeQueue<Message *> *readableMessages;
-//        Semaphore *semaphore;
-
-		Receiver *receiver;
-		std::thread receiverThrd;
-
-
-
-//		fd_set *cliSockSet;
-//		fd_set *writeSockSet;
-//		fd_set *readSockSet;
-
-		
-
-
-	public:
-		CommunicationManager();
-
-        void startCommunication();
 
 		/**
-		*	
-		*/
-		void receiveMessage(int fdIndex, int byteCount);
+		 * A queue of read raw messages from sockets.
+		 */
+		SafeQueue<RawMessage *> *readableMessages;
+
+
+		/**
+		 * Validates and deserializates raw incoming messages.
+		 */
+		MessageProcessor *msgProcessor;
+
+		/**
+		 *	Separate thread processing raw messages.
+		 */
+		std::thread msgProcessorThrd;
+
 
 		/**
 		*	Receives messages via a socket given.
 		*/
-//		void recvMsg(int sock, std::string *buff);
-//        std::string recvMsg(int sock, int byteCount);
-
+		std::string recvMsg(int sock, int byteCount);
 
 		/**
 		*	Sends a message via a socket given.
 		*/
 		bool sendMsg(int sock, std::string txt);
-		
+
 		/**
 		*	Broadcasts a message to all clients passed by arguments.
 		*/
 		void sendMsg(fd_set *socks, std::string txt);
 
 
-//		void setSocketSets(fd_set *cliSockSet, fd_set *writeSockSet, fd_set *readSockSet);
-//
-//		void setWriteSocketSet(fd_set *writeSockSet);
-//
-//		void setReadSocketSet(fd_set *readSockSet);
 
+	public:
+
+		/**
+		 * Constructor.
+		 * @param messageQueue
+		 */
+		CommunicationManager(SafeQueue<Message *> *messageQueue);
+
+
+        void startMessageProcessor();
+
+		/**
+		*	
+		*/
+		void receiveMessage(int fdIndex, int byteCount);
 
 
 };
