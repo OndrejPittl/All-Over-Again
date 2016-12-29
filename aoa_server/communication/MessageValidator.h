@@ -1,7 +1,7 @@
 #ifndef RECEIVER_H
 #define RECEIVER_H
 
-#include <string>
+#include <cstring>
 #include <vector>
 #include <thread>
 

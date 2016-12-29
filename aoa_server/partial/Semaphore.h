@@ -1,7 +1,7 @@
 #ifndef SEMAPHORE_H
 #define SEMAPHORE_H
 
-#include <string>
+#include <cstring>
 #include <mutex>
 #include <condition_variable>
 

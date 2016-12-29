@@ -1,5 +1,5 @@
 
-#include <string>
+#include <cstring>
 #include <thread>
 #include <iostream>
 

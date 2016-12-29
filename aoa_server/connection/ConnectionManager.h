@@ -1,7 +1,7 @@
 #ifndef ConnectionManager_H
 #define ConnectionManager_H
 
-#include <string>
+#include <cstring>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>

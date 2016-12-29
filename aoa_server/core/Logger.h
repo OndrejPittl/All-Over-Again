@@ -1,7 +1,7 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
-#include <string>
+#include <cstring>
 #include <ctype.h>
 
 

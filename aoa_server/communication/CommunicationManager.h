@@ -1,7 +1,7 @@
 #ifndef COMMUNICATION_MANAGER_H
 #define COMMUNICATION_MANAGER_H
 
-#include <string>
+#include <cstring>
 #include <sys/socket.h>
 
 #include "../partial/Semaphore.h"

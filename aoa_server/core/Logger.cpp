@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <string>
+#include <cstring>
 
 
 #include "../libs/easylogging++.h"

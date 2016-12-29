@@ -1,7 +1,7 @@
 #ifndef APP_H
 #define APP_H
 
-#include <string>
+#include <cstring>
 #include <thread>
 
 #include "../partial/StringBuilder.h"
