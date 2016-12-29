@@ -11,7 +11,8 @@
 *	Checks whether a string given is a number or not.
 */
 bool isNumber(std::string str){
-	std::regex regexInteger("^(0|[1-9][0-9]*)$");
+//	std::regex regexInteger("^(0|[1-9][0-9]*)$");
+	std::regex regexInteger("^([0-9]*)$");
 	return regex_match(str, regexInteger);
 }
 
@@ -44,12 +45,15 @@ void removeChar(std::string *str, char c) {
 	(*str).erase (std::remove((*str).begin(), (*str).end(), c), (*str).end());
 }
 
-long checksum(std::string str) {
+long checksum(std::string str, int mod) {
     long sum = 0;
 
     for(std::string::size_type i = 0; i < str.size(); ++i) {
         sum += (long) str[i];
     }
+
+    if(mod > 0)
+        sum = sum % mod;
 
     std::cout << "checksum: " << sum << std::endl;
     return sum;

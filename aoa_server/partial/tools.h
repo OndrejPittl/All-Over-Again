@@ -33,7 +33,7 @@ void printTrueFalse();
 
 void removeChar(std::string *str, char c);
 
-long checksum(std::string str);
+long checksum(std::string str, int modulo = -1);
 
 void printVector(std::vector<std::string> vec);
 

@@ -7,7 +7,7 @@
 #include "../partial/StringBuilder.h"
 #include "../connection/ConnectionManager.h"
 #include "../communication/CommunicationManager.h"
-#include "../communication/MessageProcessor.h"
+#include "../communication/MessageValidator.h"
 #include "../communication/Message.h"
 #include "../partial/SafeQueue.h"
 

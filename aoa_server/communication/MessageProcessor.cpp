@@ -1,126 +1,157 @@
-
-#include <string>
 #include <thread>
-#include <iostream>
+#include <stdlib.h>
+
 
 #include "MessageProcessor.h"
+#include "MessageType.h"
+#include "Message.h"
+#include "../partial/SafeQueue.h"
 #include "../partial/tools.h"
 
-//const std::string MessageProcessor::MSG_STX = "\u0002";
-const char MessageProcessor::MSG_STX = '*';  //'\x02'
-const char MessageProcessor::MSG_ETX = '#';  //'\x03'
-const char MessageProcessor::MSG_DELIMITER = ';';
 
 
-MessageProcessor::MessageProcessor(SafeQueue<Message *> *queue, SafeQueue<RawMessage *> *readableMessages) {
-    this->messageQueue = queue;
-    this->readableMessages = readableMessages;
+
+
+
+
+MessageProcessor::MessageProcessor(SafeQueue<Message *> *messageQueue, SafeQueue<Message *> *sendMessageQueue) {
+    this->messageQueue = messageQueue;
+    this->sendMessageQueue = sendMessageQueue;
+    this->sb = new StringBuilder();
 }
 
-std::thread MessageProcessor::run() {
+std::thread MessageProcessor::run(){
     return std::thread([=] { this->runProcessing(); });
 }
 
-void MessageProcessor::runProcessing() {
+void MessageProcessor::runProcessing(){
+
     bool stop = false;
 
     for(;;) {
+        if(stop) break;
 
-        if(stop) break; // TODO: Tmp - CLion warn highlight.
+        std::cout << "MSGProcessor: waiting for a message." << std::endl;
+        Message *msg = this->messageQueue->pop();
+        std::cout << "MSGProcessor: got a message." << std::endl;
 
-        int sock;
-        long size;
-        RawMessage *rawMsg;
-        std::vector<std::string> separatedMessages;
+        if(!this->handleMessageType(msg))
+            continue;
 
-        rawMsg = this->readableMessages->pop();
-        sock = rawMsg->getSock();
-        size = rawMsg->getSize();
+        this->perform(msg);
+        std::cout << "MSGProcessor: a message handled." << std::endl;
 
-
-        // separating messages
-        separatedMessages = this->separateMessages(*rawMsg);
-
-        for(std::string sMsg: separatedMessages) {
-            std::string msgValidText;
-
-            // checksum check
-            if(!this->checkMessageChecksum(sMsg, &msgValidText)) {
-                continue;
-            }
-
-            // msgValidText contains text of a valid message
-            Message *m = new Message(sock, size, msgValidText);
-
-            std::string logTxt = msgValidText;
-            removeChar(&logTxt, '\n');
-
-            std::cout << "A message (" << logTxt << ") accepted." << std::endl;
-            this->messageQueue->push(m);
-        }
+//        (this->*this->processFunctions[msg->getType()])();
     }
 }
 
-std::vector<std::string> MessageProcessor::separateMessages(RawMessage msg){
-    std::vector<std::string> messages;
+bool MessageProcessor::handleMessageType(Message *msg) {
+    MessageType msgType;
 
-    std::string txt = msg.getMessage();
+    std::string txt,
+                msgTypeStr,
+                msgBody;
 
-    long stxPos = -1,
-        etxPos = -1;
+    u_long delimPos;
 
+    txt = msg->getMessage();
+    delimPos = txt.find(Message::DELIMITER);
+    msgTypeStr = txt.substr(0, delimPos);
+    msgBody = txt.substr(delimPos + 1);
 
-    for(std::string::size_type i = 0; i < txt.size(); ++i) {
-        int aChar = txt[i],
-            aSTX = MSG_STX,
-            aETX = MSG_ETX;
-
-        if(aChar == aSTX) {
-            stxPos = (long) i;
-        } else if(aChar == aETX && stxPos > -1) {
-            etxPos = (long) i;
-        }
-
-        if(stxPos > -1 && etxPos > -1) {
-            messages.push_back(txt.substr(stxPos + 1lu, etxPos - stxPos - 1lu));
-            stxPos = etxPos = -1;
-        }
+    if(this->checkHelloPacket(txt)) {
+        msg->setType(convertInternalMessageType(0));
+        return true;
     }
 
-    printVector(messages);
-
-
-//    while(stxPosition != std::string::npos) {
-//        // STX exists
-//
-//
-//
-//
-//        break;
-//
-//    }
-
-
-    return messages;
-}
-
-bool MessageProcessor::checkMessageChecksum(std::string msg, std::string *pureMessage) {
-    // "checksum;message"
-    // STX + SUM + DELIM + TXT + ETX
-    // *608;Ahoooj#
-
-    long checkSum;
-
-    u_long delimPos = msg.find(MSG_DELIMITER);
-
-    std::string checkSumStr = msg.substr(0, delimPos),
-                message = msg.substr(delimPos + 1, msg.length() - delimPos);
-
-    if(!isNumber(checkSumStr))
+    if(!isNumber(msgTypeStr)) {
         return false;
+    }
 
-    checkSum = stol(checkSumStr);
-    (*pureMessage) = message;
+    msgType = convertInternalMessageType(atoi(msgTypeStr.c_str()));
+    std::cout << "setting type: " << msgType << std::endl;
+    msg->setType(msgType);
+    msg->setMessage(msgBody);
 
-    return checkSum == checksum(message);
+    return true;
+}
+
+bool MessageProcessor::checkHelloPacket(std::string msg) {
+    return msg.find(Message::HELLO_PACKET) == 0l && msg.length() == Message::HELLO_PACKET.length();
+}
+
+
+void MessageProcessor::perform(Message *msg){
+
+    this->clientSocket = msg->getSock();
+
+    switch(msg->getType()) {
+        case HELLO: this->proceedHelloPacket(); break;
+        case SIGN_IN: this->proceedSignIn(msg); break;
+        case GAME_LIST: this->proceedGameList(msg); break;
+        case GAME_NEW: this->proceedNewGame(msg); break;
+        case GAME_JOIN: this->proceedJoinGame(msg); break;
+        case GAME_START: this->proceedStartGame(msg); break;
+        case TURN_DATA: this->proceedTurnData(msg); break;
+        case GAME_LEAVE: this->proceedLeaveGame(msg); break;
+        default: case SIGN_OUT: this->proceedSignOut(msg); break;
+    }
+}
+
+void MessageProcessor::answerMessage(){
+    Message *m = new Message(this->clientSocket, this->sb->getString());
+    this->sendMessageQueue->push(m);
+    this->sb->clear();
+}
+
+void MessageProcessor::proceedHelloPacket() {
+    std::cout << "processing: hello" << std::endl;
+    this->sb->append(Message::HELLO_PACKET_RESPONSE);
+    this->answerMessage();
+}
+
+void MessageProcessor::proceedSignIn(Message *msg) {
+    std::cout << "processing: signin" << std::endl;
+    sb->append(msg->getType());
+    sb->append(Message::DELIMITER);
+    sb->append(Message::ACK);
+    sb->append(Message::DELIMITER);
+    sb->append("3");                    // UID
+    this->answerMessage();
+}
+
+void MessageProcessor::proceedGameList(Message *msg) {
+    std::cout << "processing: gamelist" << std::endl;
+    sb->append("2;1;1;2;1;marty;2;2;2;3;dendasda:gabin");
+    this->answerMessage();
+}
+
+void MessageProcessor::proceedNewGame(Message *msg) {
+    std::cout << "processing: newgame" << std::endl;
+    sb->append("3;1;2");
+    this->answerMessage();
+}
+
+void MessageProcessor::proceedJoinGame(Message *msg) {
+    std::cout << "processing: joingame" << std::endl;
+    sb->append("4;1;2");
+    this->answerMessage();
+}
+
+void MessageProcessor::proceedStartGame(Message *msg) {
+    std::cout << "processing: startgame" << std::endl;
+    sb->append("5;1");
+    this->answerMessage();
+}
+
+void MessageProcessor::proceedTurnData(Message *msg) {
+    std::cout << "processing: turndata" << std::endl;
+}
+
+void MessageProcessor::proceedLeaveGame(Message *msg) {
+    std::cout << "processing: leavegame" << std::endl;
+}
+
+void MessageProcessor::proceedSignOut(Message *msg) {
+    std::cout << "processing: signout" << std::endl;
 }

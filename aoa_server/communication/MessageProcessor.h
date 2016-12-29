@@ -1,47 +1,60 @@
-#ifndef RECEIVER_H
-#define RECEIVER_H
+#ifndef MESSAGE_PROCESSOR_H
+#define MESSAGE_PROCESSOR_H
 
-#include <string>
-#include <vector>
+
 #include <thread>
 
-
 #include "../partial/SafeQueue.h"
-#include "../partial/Semaphore.h"
+#include "../partial/StringBuilder.h"
 #include "Message.h"
-#include "RawMessage.h"
-
 
 class MessageProcessor {
 
     private:
-        static const char MSG_STX;
-        static const char MSG_ETX;
-        static const char MSG_DELIMITER;
+
+        int clientSocket;
+
+        StringBuilder *sb;
 
         SafeQueue<Message *> *messageQueue;
-        SafeQueue<RawMessage *> *readableMessages;
+        SafeQueue<Message *> *sendMessageQueue;
 
+        void perform(Message *msg);
+        bool handleMessageType(Message *msg);
         void runProcessing();
-        std::vector<std::string> separateMessages(RawMessage msg);
-        bool checkMessageChecksum(std::string msg, std::string *pureMessage);
+
+        bool checkHelloPacket(std::string msg);
+        void answerMessage();
+        void proceedHelloPacket();
+        void proceedSignIn(Message *msg);
+        void proceedGameList(Message *msg);
+        void proceedNewGame(Message *msg);
+        void proceedJoinGame(Message *msg);
+        void proceedStartGame(Message *msg);
+        void proceedTurnData(Message *msg);
+        void proceedLeaveGame(Message *msg);
+        void proceedSignOut(Message *msg);
 
 
+
+//        void (*processFunctions[7])() = {
+//                proceedSignIn(),
+//                proceedGameList,
+//                proceedNewGame,
+//                proceedJoinGame,
+//                proceedTurnData,
+//                proceedLeaveGame,
+//                proceedSignOut
+//        };
 
     public:
-        /**
-         * Constructor.
-         * @param queue
-         * @param readableMessages
-         */
-        MessageProcessor(SafeQueue<Message *> *queue, SafeQueue<RawMessage *> *readableMessages);
-
-        /**
-         * Runs a MSGProcessor in a separate thread.
-         * @return  thread
-         */
+        MessageProcessor(SafeQueue<Message *> *messageQueue, SafeQueue<Message *> *sendMessageQueue);
         std::thread run();
 
+
 };
+
+typedef void (MessageProcessor::*processFunction) ();
+
 
 #endif

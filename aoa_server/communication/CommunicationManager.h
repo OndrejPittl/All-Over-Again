@@ -6,10 +6,11 @@
 
 #include "../partial/Semaphore.h"
 #include "../partial/SafeQueue.h"
+#include "MessageValidator.h"
 #include "MessageProcessor.h"
 #include "Message.h"
 #include "RawMessage.h"
-
+#include "MessageSender.h"
 
 
 class CommunicationManager {
@@ -20,10 +21,15 @@ class CommunicationManager {
 		*/
 		std::string inputBuffer;
 
-		/**
-		 * A queue of validated deserialized incoming messages.
-		 */
-		SafeQueue<Message *> *messageQueue;
+        /**
+         * A queue of validated deserialized incoming messages.
+         */
+        SafeQueue<Message *> *messageQueue;
+
+        /**
+         *
+         */
+        SafeQueue<Message *> *sendMessageQueue;
 
 		/**
 		 * A queue of read raw messages from sockets.
@@ -31,31 +37,38 @@ class CommunicationManager {
 		SafeQueue<RawMessage *> *readableMessages;
 
 
-		/**
-		 * Validates and deserializates raw incoming messages.
-		 */
-		MessageProcessor *msgProcessor;
+        /**
+         * Validates and deserializates raw incoming messages.
+         */
+        MessageValidator *msgValidator;
 
-		/**
-		 *	Separate thread processing raw messages.
-		 */
-		std::thread msgProcessorThrd;
+        /**
+         *	Separate thread validating raw messages.
+         */
+        std::thread msgValidatorThrd;
+
+        /**
+         * Processes valid instantiated messages. Due to
+         * their type handles their process.
+         */
+        MessageProcessor *msgProcessor;
+
+        /**
+         *  A separate thread of a MSGProcessor.
+         */
+        std::thread msgProcessorThrd;
 
 
-		/**
+
+        MessageSender *msgSender;
+
+        std::thread msgSenderThrd;
+
+
+    /**
 		*	Receives messages via a socket given.
 		*/
 		std::string recvMsg(int sock, int byteCount);
-
-		/**
-		*	Sends a message via a socket given.
-		*/
-		bool sendMsg(int sock, std::string txt);
-
-		/**
-		*	Broadcasts a message to all clients passed by arguments.
-		*/
-		void sendMsg(fd_set *socks, std::string txt);
 
 
 
@@ -65,10 +78,15 @@ class CommunicationManager {
 		 * Constructor.
 		 * @param messageQueue
 		 */
-		CommunicationManager(SafeQueue<Message *> *messageQueue);
+//		CommunicationManager(SafeQueue<Message *> *messageQueue);
+		CommunicationManager();
 
+
+        void startMessageValidator();
 
         void startMessageProcessor();
+
+        void startMessageSender();
 
 		/**
 		*	

@@ -8,15 +8,28 @@
 #include "../connection/ConnectionManager.h"
 
 
-CommunicationManager::CommunicationManager(SafeQueue<Message *> *messageQueue) {
-    this->messageQueue = messageQueue;
+
+//CommunicationManager::CommunicationManager(SafeQueue<Message *> *messageQueue) {
+CommunicationManager::CommunicationManager() {
+    this->messageQueue = new SafeQueue<Message *>();
+    this->sendMessageQueue = new SafeQueue<Message *>();
     this->readableMessages = new SafeQueue<RawMessage *>();
 	Logger::info("CommunicationManager is initialized.");
 }
 
+void CommunicationManager::startMessageValidator(){
+    this->msgValidator = new MessageValidator(this->messageQueue, this->readableMessages);
+    this->msgValidatorThrd = this->msgValidator->run();
+}
+
 void CommunicationManager::startMessageProcessor(){
-    this->msgProcessor = new MessageProcessor(this->messageQueue, this->readableMessages);
+    this->msgProcessor = new MessageProcessor(this->messageQueue, this->sendMessageQueue);
     this->msgProcessorThrd = this->msgProcessor->run();
+}
+
+void CommunicationManager::startMessageSender(){
+    this->msgSender = new MessageSender(this->sendMessageQueue);
+    this->msgSenderThrd = this->msgSender->run();
 }
 
 void CommunicationManager::receiveMessage(int sock, int byteCount) {
@@ -57,20 +70,5 @@ std::string CommunicationManager::recvMsg(int sock, int byteCount) {
 }
 
 
-bool CommunicationManager::sendMsg(int sock, std::string txt) {
-    // std::cout << "---> Sending " << txt << " to: " << sock << "." << std::endl;
-	// return send(sock, txt.c_str(), txt.length(), MSG_NOSIGNAL) >= 0;
-	return send(sock, txt.c_str(), txt.length(), 0) >= 0;
-}
 
-void CommunicationManager::sendMsg(fd_set *socks, std::string txt) {
-	int fd;
-
-    // std::cout << "---> Sending " << txt << " to all." << std::endl;
-    for(fd = ConnectionManager::CLIENT_FD_OFFSET; fd < FD_SETSIZE; fd++) {
-        if (FD_ISSET(fd, socks)) {
-            sendMsg(fd, txt);
-        }
-    }
-}
 

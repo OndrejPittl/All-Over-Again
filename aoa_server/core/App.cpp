@@ -18,7 +18,7 @@ const int App::PORT_NUM_UPPER_LIMIT = 65535;
 App::App(int argc, char **argv) {
 	this->argc = argc;
 	this->argv = argv;
-	this->messageQueue = new SafeQueue<Message *>();
+//	this->messageQueue = new SafeQueue<Message *>();
 }
 
 void App::run() {
@@ -61,9 +61,14 @@ void App::run() {
         exit(result);
     }
 
-    // run message processing thread
-    this->comm->startMessageProcessor();
+    // run message validating thread
+	this->comm->startMessageValidator();
 
+	// run message processing thread
+	this->comm->startMessageProcessor();
+
+    // run message senging thread
+    this->comm->startMessageSender();
 
     for (;;){
 
@@ -145,5 +150,6 @@ bool App::checkArgs() {
 void App::init() {
     this->logMessage = new StringBuilder();
     this->conn = new ConnectionManager(this->argv[1]);
-    this->comm = new CommunicationManager(this->messageQueue);
+//    this->comm = new CommunicationManager(this->messageQueue);
+    this->comm = new CommunicationManager();
 }
