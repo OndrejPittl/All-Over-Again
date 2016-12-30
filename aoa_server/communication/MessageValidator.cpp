@@ -7,7 +7,6 @@
 #include "../partial/tools.h"
 
 //const std::string MessageValidator::STX = "\u0002";
-const int MessageValidator::MSG_CHECKSUM_MODULO = 235;
 
 
 MessageValidator::MessageValidator(SafeQueue<Message *> *queue, SafeQueue<RawMessage *> *readableMessages) {
@@ -122,7 +121,7 @@ bool MessageValidator::checkMessageChecksum(std::string msg, std::string *pureMe
     checkSum = stol(checkSumStr);
     (*pureMessage) = message;
 
-    return checkSum == checksum(message, MSG_CHECKSUM_MODULO);
+    return checkSum == checksum(message, Message::MSG_CHECKSUM_MODULO);
 }
 
 

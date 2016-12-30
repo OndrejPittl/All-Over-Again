@@ -17,7 +17,7 @@
 MessageProcessor::MessageProcessor(SafeQueue<Message *> *messageQueue, SafeQueue<Message *> *sendMessageQueue) {
     this->messageQueue = messageQueue;
     this->sendMessageQueue = sendMessageQueue;
-    this->sb = new StringBuilder();
+    this->sbMessage = new StringBuilder();
 }
 
 std::thread MessageProcessor::run(){
@@ -99,48 +99,48 @@ void MessageProcessor::perform(Message *msg){
 }
 
 void MessageProcessor::answerMessage(){
-    Message *m = new Message(this->clientSocket, this->sb->getString());
+    Message *m = new Message(this->clientSocket, this->sbMessage->getString());
     this->sendMessageQueue->push(m);
-    this->sb->clear();
+    this->sbMessage->clear();
 }
 
 void MessageProcessor::proceedHelloPacket() {
     std::cout << "processing: hello" << std::endl;
-    this->sb->append(Message::HELLO_PACKET_RESPONSE);
+    this->sbMessage->append(Message::HELLO_PACKET_RESPONSE);
     this->answerMessage();
 }
 
 void MessageProcessor::proceedSignIn(Message *msg) {
     std::cout << "processing: signin" << std::endl;
-    sb->append(msg->getType());
-    sb->append(Message::DELIMITER);
-    sb->append(Message::ACK);
-    sb->append(Message::DELIMITER);
-    sb->append("3");                    // UID
+    sbMessage->append(msg->getType());
+    sbMessage->append(Message::DELIMITER);
+    sbMessage->append(Message::ACK);
+    sbMessage->append(Message::DELIMITER);
+    sbMessage->append("3");                    // UID
     this->answerMessage();
 }
 
 void MessageProcessor::proceedGameList(Message *msg) {
     std::cout << "processing: gamelist" << std::endl;
-    sb->append("2;1;1;2;1;marty;2;2;2;3;dendasda:gabin");
+    sbMessage->append("2;1;1;2;1;marty;2;2;2;3;dendasda:gabin");
     this->answerMessage();
 }
 
 void MessageProcessor::proceedNewGame(Message *msg) {
     std::cout << "processing: newgame" << std::endl;
-    sb->append("3;1;2");
+    sbMessage->append("3;1;2");
     this->answerMessage();
 }
 
 void MessageProcessor::proceedJoinGame(Message *msg) {
     std::cout << "processing: joingame" << std::endl;
-    sb->append("4;1;2");
+    sbMessage->append("4;1;2");
     this->answerMessage();
 }
 
 void MessageProcessor::proceedStartGame(Message *msg) {
     std::cout << "processing: startgame" << std::endl;
-    sb->append("5;1");
+    sbMessage->append("5;1");
     this->answerMessage();
 }
 

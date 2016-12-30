@@ -1,5 +1,7 @@
 #include "MessageSender.h"
 #include "../connection/ConnectionManager.h"
+#include "../partial/tools.h"
+#include "MessageValidator.h"
 
 
 MessageSender::MessageSender(SafeQueue<Message *> *messageQueue) {
@@ -22,6 +24,8 @@ void MessageSender::runSending(){
         std::cout << "sending a message: " << msg->getMessage() << std::endl;
 
         this->sb->append(Message::STX);
+        this->sb->append(checksum(msg->getMessage(), Message::MSG_CHECKSUM_MODULO));
+        this->sb->append(Message::DELIMITER);
         this->sb->append(msg->getMessage());
         this->sb->append(Message::ETX);
 

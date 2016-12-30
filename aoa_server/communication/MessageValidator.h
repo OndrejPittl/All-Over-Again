@@ -28,7 +28,6 @@ class MessageValidator {
 
 
     private:
-        static const int MSG_CHECKSUM_MODULO;
         static const char MSG_STX;
         static const char MSG_ETX;
         static const char MSG_DELIMITER;

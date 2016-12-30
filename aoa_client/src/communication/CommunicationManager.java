@@ -1,7 +1,7 @@
 package communication;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import application.Application;
 import application.Connection;
@@ -25,16 +25,51 @@ public class CommunicationManager {
 	private CyclicBarrier barrier;
 	
 	private StringBuilder sb;
-	
-	
-	
-	public CommunicationManager() {
-		this.app = Application.getInstance();
-		this.comm = new Communicator();
-		this.parser = new CommunicationParser();
-		this.barrier = new CyclicBarrier(2);
-		this.sb = new StringBuilder();
+
+    LinkedBlockingQueue<Message> incomingMessages;
+
+    LinkedBlockingQueue<Message> outcomingMessages;
+
+
+    private MessageReceiver receiver;
+    private Thread receiverThrd;
+
+    private MessageSender sender;
+    private Thread senderThrd;
+
+
+    public CommunicationManager() {
+		this.init();
 	}
+
+	private void init(){
+        this.app = Application.getInstance();
+        this.comm = new Communicator();
+        this.parser = new CommunicationParser();
+
+        // this.incomingMessages = new ConcurrentLinkedQueue<>();
+        this.incomingMessages = new LinkedBlockingQueue<>();
+        this.outcomingMessages = new LinkedBlockingQueue<>();
+
+        this.barrier = new CyclicBarrier(2);
+        this.sb = new StringBuilder();
+
+        this.receiver = new MessageReceiver(this.conn, this.incomingMessages);
+        this.receiverThrd = new Thread(this.receiver);
+
+        this.sender = new MessageSender(this.conn, this.outcomingMessages);
+        this.senderThrd = new Thread(this.sender);
+    }
+
+    public void startService(){
+        this.receiverThrd.start();
+        this.senderThrd.start();
+    }
+
+    private void prepareMessage(){
+        this.outcomingMessages.add(new Message(this.sb.toString()));
+        this.clearStringBuilder();
+    }
 	
 	public boolean helloPacketHandShake(){
 		int count = 0;
@@ -59,10 +94,17 @@ public class CommunicationManager {
 	}
 	
 	private boolean helloServer(){
-		this.comm.writeMsg(CommunicationConfig.MSG_HELLO_SERVER);
-		
-		String msg = this.comm.recvMsg();
-		return msg.equals(CommunicationConfig.MSG_HELLO_SERVER_RESPONSE);
+        Message m = null;
+
+        this.sb.append(CommunicationConfig.MSG_HELLO_SERVER);
+        this.prepareMessage();
+
+        try {
+            m = this.incomingMessages.take();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return this.receiver.checkHelloPacket(m.getMessage());
 	}
 	
 	/**
@@ -80,39 +122,43 @@ public class CommunicationManager {
 	 * 
 	 * @return
 	 */
-	public boolean checkUsernamAvailability(){
-		this.clearStringBuilder();
-		
+	public boolean checkUsernameAvailability() {
+	    Message m;
+
 		Player p = this.app.getPlayerInfo();
 		String username = p.getName();
 		
-		this.sb.append(CommunicationConfig.REQ_USERNAME_AVAILABILITY);
+		this.sb.append(CommunicationConfig.REQ_SIGN_IN);
 		this.sb.append(CommunicationConfig.MSG_DELIMITER);
 		this.sb.append(username);
-		
-		this.comm.writeMsg(this.sb.toString());
-		
-		
-		String response = this.comm.recvMsg();
-		this.parser.parseUsernameAvailabilityResponse(response, p);
-		
-		return true;
+		this.prepareMessage();
+
+		try {
+            m = this.incomingMessages.take();
+            return this.parser.parseUsernameAvailabilityResponse(m.getMessage(), p);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return false;
+        }
 	}
 	
 	
 	
 	public Room[] requestRoomList(){
-		this.clearStringBuilder();
+	    Message m;
 
-		Room[] rooms;
-		
-		this.sb.append(CommunicationConfig.REQ_ROOM_LIST);
-		this.comm.writeMsg(this.sb.toString());
-	
-		String response = this.comm.recvMsg();
-		rooms = this.parser.parseRoomList(response);
-		
-		return rooms;
+		this.sb.append(CommunicationConfig.REQ_GAME_LIST);
+	    this.prepareMessage();
+
+        try {
+
+            m = this.incomingMessages.take();
+            return this.parser.parseRoomList(m.getMessage());
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return null;
+        }
 	}
 	
 	
@@ -125,11 +171,13 @@ public class CommunicationManager {
 	public void setConnection(Connection conn){
 		this.conn = conn;
 		this.comm.setConnection(this.conn);
+		this.receiver.setConnection(this.conn);
+		this.sender.setConnection(this.conn);
 	}
 	
-	private void clearStringBuilder(){
-		this.sb.setLength(0);
-	}
+//	private void clearStringBuilder(){
+//		this.sb.setLength(0);
+//	}
 	
 	
 	
@@ -154,53 +202,57 @@ public class CommunicationManager {
 	}
 	
 	public Room waitForSessionInfo(){
-		String sessionInfo = comm.recvMsg();
+//		String sessionInfo = comm.recvMsg();
 		//return this.commParser.parseSessionInfo(sessionInfo);
 		return null;
 	}
 	
 	public void confirmOnlinePingRq(){
-		String answer = "yesido",
-			   supposedQuestion = "doyoulive?",
-			   question = comm.recvMsg();
-		if(question.contains(supposedQuestion)) {
-			this.comm.writeMsg(answer);
-		} else {
-			System.out.println("ERROR! Another message incoming: " + question);
-		}
+//		String answer = "yesido",
+//			   supposedQuestion = "doyoulive?",
+//			   question = comm.recvMsg();
+//		if(question.contains(supposedQuestion)) {
+//			this.comm.writeMsg(answer);
+//		} else {
+//			System.out.println("ERROR! Another message incoming: " + question);
+//		}
 	}
 	
 	public ArrayList<Player> waitForSessionPlayerUpdate(){
 		ArrayList<Player> result;
 		
 		//n x (cliID;cliNick;cliAdr;online?;acitve?;), kde n je pocet hracu v mistnosti
-		String progress = comm.recvMsg();
-		System.out.println(progress);
+//		String progress = comm.recvMsg();
+//		System.out.println(progress);
+//
+//		//result = commParser.parseSessionPlayerUpdate(progress);
+//		result = null;
+//
+//		System.out.println("---AKTUALIZACE HRÁČŮ---");
+//		for (Player p : result) System.out.println(p);
+//		System.out.println("-----------------------");
 		
-		//result = commParser.parseSessionPlayerUpdate(progress);
-		result = null;
-		
-		System.out.println("---AKTUALIZACE HRÁČŮ---");
-		for (Player p : result) System.out.println(p);
-		System.out.println("-----------------------");
-		
-		return result;
+//		return result;
+        return null;
 	}
+
 	
 	public int[] waitForGameStatus(){
-		String status = comm.recvMsg();
-		System.out.println("game status: " + status);
-		
-		String[] parts = status.split(";");
-		int[] result = new int[parts.length - 1];
-		for (int i = 1; i < parts.length; i++) {
-			result[i-1] = Integer.parseInt(parts[i]);
-		}
-		
-		System.out.println("converted game status:");
-		System.out.println(Arrays.toString(result));
-		
-		return result;
+//		String status = comm.recvMsg();
+//		System.out.println("game status: " + status);
+//
+//		String[] parts = status.split(";");
+//		int[] result = new int[parts.length - 1];
+//		for (int i = 1; i < parts.length; i++) {
+//			result[i-1] = Integer.parseInt(parts[i]);
+//		}
+//
+//		System.out.println("converted game status:");
+//		System.out.println(Arrays.toString(result));
+//
+//		return result;
+
+        return null;
 	}
 	
 	public CyclicBarrier getBarrier(){
@@ -212,13 +264,21 @@ public class CommunicationManager {
 		//cli-id;n*(id-pole;symbol-pole)
 		//cli-id;n*(id-pole)
 		
-		this.comm.writeMsg(
-			//roomID + CommunicationConfig.MSG_DELIMITER
-			+ clientID + CommunicationConfig.MSG_DELIMITER
-			+ moves
-		);
+//		this.comm.writeMsg(
+//			//roomID + CommunicationConfig.MSG_DELIMITER
+//			+ clientID + CommunicationConfig.MSG_DELIMITER
+//			+ moves
+//		);
 	}
 
+
+
+
+
+
+    private void clearStringBuilder() {
+        this.sb.setLength(0);
+    }
 }
 
 

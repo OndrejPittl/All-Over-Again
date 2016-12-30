@@ -32,9 +32,11 @@ public class Connection {
 	
 
 
-	public Connection() {
-		this.serverIP = ConnectionConfig.SERVER_IP;
-		this.serverPort = ConnectionConfig.SERVER_PORT;
+	public Connection(String ip, int port) {
+//		this.serverIP = ConnectionConfig.SERVER_IP;
+//		this.serverPort = ConnectionConfig.SERVER_PORT;
+		this.serverIP = ip;
+		this.serverPort = port;
 	}
 	
 	/**

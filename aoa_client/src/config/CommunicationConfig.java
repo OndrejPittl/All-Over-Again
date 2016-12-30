@@ -11,8 +11,19 @@ public class CommunicationConfig {
 	 * Sub-blocks delimiting character. 
 	 */
 	public static final String MSG_SUB_DELIMITER = ":";
-	
-	
+
+
+	public static final int MSG_CHECKSUM_MODULO = 235;
+
+	/**
+	 *
+	 */
+	public static final char MSG_STX = '*';
+
+	/**
+	 *
+	 */
+	public static final char MSG_ETX = '#';
 	
 	/**
 	 * Request accepted/succeeded.
@@ -23,50 +34,61 @@ public class CommunicationConfig {
 	 * Request rejected/failed.
 	 */
 	public static final int REQ_NACK = 0;
-	
+
+
+
+
+    public static final int REQ_HELLO = 0;
+
 	/**
 	 * Flag of a request/message for a user availability.
 	 */
-	public static final int REQ_USERNAME_AVAILABILITY = 1;
-	
+	public static final int REQ_SIGN_IN = 1;
+
 	/**
 	 * Flag of a request/message for a list of available rooms.
 	 */
-	public static final int REQ_ROOM_LIST = 2;
-	
+	public static final int REQ_GAME_LIST = 2;
+
 	/**
-	 * Flag of a request/message for creating a new room. 
+	 * Flag of a request/message for creating a new room.
 	 */
-	public static final int REQ_ROOM_CREATION = 3;
-	
+	public static final int REQ_GAME_NEW = 3;
+
 	/**
 	 * Flag of a request/message for joining a room.
 	 */
-	public static final int REQ_ROOM_JOIN = 4;
-	
+	public static final int REQ_GAME_JOIN = 4;
+
 	/**
 	 * Flag of a request/message indicating change
 	 * of a status of a game initialization.
 	 */
-	public static final int REQ_GAME_INIT = 5;
-	
+	public static final int REQ_GAME_START = 5;
+
 	/**
 	 * Flag of a request/message indicating incoming
 	 * info of a last turn.
 	 */
-	public static final int REQ_TURN_INFO = 6;
-	
+//	public static final int REQ_TURN_INFO = 6;
+
 	/**
 	 * Flag of a request/message indicating outgoing
 	 * data of a current turn.
 	 */
-	public static final int REQ_TURN_DATA = 7;
-	
+	public static final int REQ_TURN_DATA = 6;
+
 	/**
 	 * Flag of a request/message indicating incoming
 	 * data about game result.
 	 */
-	public static final int REQ_GAME_RESULT = 8;
+    public static final int REQ_GAME_END = 7;
+
+    public static final int REQ_GAME_LEAVE = 8;
+
+    public static final int REQ_SIGN_OUT = 9;
+
+
 
 	/**
 	 * Hello packet sent by a client to a server.

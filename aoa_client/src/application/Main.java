@@ -1,6 +1,7 @@
 package application;
 	
 import javafx.stage.Stage;
+import partial.Tools;
 
 
 public class Main extends javafx.application.Application {
@@ -21,21 +22,26 @@ public class Main extends javafx.application.Application {
 	
 	public static void main(String[] args) {
 		// Main.app = Application.getInstance();
-		
+
+        if(!Main.checkArgs(args))
+            return;
+
 		/**
 		 * GUI controlling thread.
 		 */
 		Main.guiControlRunnable = new GUIController();
 		Main.guiControlThread = new Thread(Main.guiControlRunnable);
-		Main.guiControlThread.start();
-		
+        Main.guiControlThread.setDaemon(true);  // umře, když umře Main Thrd
+        Main.guiControlThread.start();
+
 		/**
 		 * Client (non-GUI) thread.
 		 */
-		Main.clientRunnable = new Client();
+		Main.clientRunnable = new Client(args);
 		Main.clientThread = new Thread(Main.clientRunnable);
+        Main.clientThread.setDaemon(true);  // umře, když umře Main Thrd
 		Main.clientThread.start();
-		
+
 		/**
 		 * Continues GUI thread.
 		 */
@@ -48,8 +54,34 @@ public class Main extends javafx.application.Application {
 		Main.guiRunnable = new Screen(primaryStage);
 	
 		Main.guiControlRunnable.setScreen(Main.guiRunnable);
-		
+
+        Application.awaitAtGuiBarrier("GUI Thrd releases GUIControl after init.");
+
 		//run gui
 		Main.guiRunnable.run();
 	}
+
+	private static boolean checkArgs(String[] args){
+        String ip, port;
+
+	    if(args.length != 2) {
+            System.out.println("INVALID NUMBER OF ARGUMENTS.");
+            return false;
+        }
+
+        ip = args[0];
+        port = args[1];
+
+        if(!Tools.isValidPort(port)) {
+            System.out.println("INVALID PORT.");
+            return false;
+        }
+
+        if(!Tools.isValidIP(ip)){
+            System.out.println("INVALID IP.");
+            return false;
+        }
+
+	    return true;
+    }
 }

@@ -14,7 +14,7 @@ class MessageProcessor {
 
         int clientSocket;
 
-        StringBuilder *sb;
+        StringBuilder *sbMessage;
 
         SafeQueue<Message *> *messageQueue;
         SafeQueue<Message *> *sendMessageQueue;
