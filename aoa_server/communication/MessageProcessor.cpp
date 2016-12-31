@@ -122,20 +122,25 @@ void MessageProcessor::proceedSignIn(Message *msg) {
 
 void MessageProcessor::proceedGameList(Message *msg) {
     std::cout << "processing: gamelist" << std::endl;
-    sbMessage->append("2;1;1;2;1;marty;2;2;2;3;dendasda:gabin");
+    sbMessage->append("2;1;1;2;1;marty;2;2;2;2;dendasda:gabin");
     this->answerMessage();
 }
 
 void MessageProcessor::proceedNewGame(Message *msg) {
     std::cout << "processing: newgame" << std::endl;
-    sbMessage->append("3;1;2");
+//    sbMessage->append("3;1;2");
+    sbMessage->append("3;1;1;1;2;1;marty");
     this->answerMessage();
 }
 
 void MessageProcessor::proceedJoinGame(Message *msg) {
     std::cout << "processing: joingame" << std::endl;
-    sbMessage->append("4;1;2");
+    sbMessage->append("4;1;0");
     this->answerMessage();
+
+    //tmp
+    this->proceedStartGame(msg);
+    this->proceedTurnData(msg);
 }
 
 void MessageProcessor::proceedStartGame(Message *msg) {
@@ -146,6 +151,10 @@ void MessageProcessor::proceedStartGame(Message *msg) {
 
 void MessageProcessor::proceedTurnData(Message *msg) {
     std::cout << "processing: turndata" << std::endl;
+
+    // msg-type;turn;move-pos;move-col;move-shape;move-pos;move-col;move-shape;...
+    sbMessage->append("6;5;1;1;2;2;3;3;4;4;5;5;6;6;7;7;8");
+    this->answerMessage();
 }
 
 void MessageProcessor::proceedLeaveGame(Message *msg) {
