@@ -12,8 +12,8 @@ public class GUIController extends Observable implements Runnable {
 	
 	
 	
-	public GUIController() {
-		this.app = Application.getInstance();
+	public GUIController(Application app) {
+		this.app = app;
 	}
 
 	@Override
@@ -50,16 +50,24 @@ public class GUIController extends Observable implements Runnable {
 		
 		
 		Application.awaitAtGuiBarrier("GUIControl waits for user room selection/creation. (10GCWG)");
-		
-		
-		
-		
-		
-		// (GUI, RELEASE: –> Client checks username)
-		 
-		//wait
-		//Application.awaitAtClientBarrier("CLI waits for gui thread (C2W)");
 
+        this.gui.runConnecting();
+
+		Application.awaitAtClientBarrier("GUIControl releases after room selection/creation. (12GCRC)");
+
+        Application.awaitAtClientBarrier("GUIControl waits for room selection/creation response. (13GCWC)");
+
+		this.gui.runWaiting();
+
+        Application.awaitAtClientBarrier("GUIControl waits for game initialization. (15GCWC)");
+
+        this.gui.runGamePlayground();
+
+        Application.awaitAtClientBarrier("GUIControl waits for game start. (17GCWC)");
+
+        // player plays a turn
+        // tmp wait
+        Application.awaitAtGuiBarrier("GUIControl TEMPORARILY waits.");
 		
 		
 		

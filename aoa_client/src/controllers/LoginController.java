@@ -33,9 +33,9 @@ public class LoginController implements Initializable {
 		
 	}
 	
-	public void setApp(Screen screen){
+	public void setApp(Screen screen, Application app){
         this.screen = screen;
-        this.app = Application.getInstance();
+        this.app = app;
     }
 
 	public void handleLogin(){

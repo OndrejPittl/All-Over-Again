@@ -19,7 +19,21 @@ public class Room {
 	
 	
 	//private int[] gameStatus;
-	
+
+
+	public Room() {
+	    this(-1);
+	}
+
+	public Room(int ID) {
+		this.ID = ID;
+	}
+
+	public Room(int playerLimit, GameDifficulty difficulty) {
+	    this();
+		this.playerLimit = playerLimit;
+		this.difficulty = difficulty;
+	}
 
 	/**
 	 * @return the id
@@ -33,6 +47,10 @@ public class Room {
 	 */
 	public void setID(int id) {
 		ID = id;
+	}
+
+	public boolean hasID(){
+		return this.ID != -1;
 	}
 
 	/**

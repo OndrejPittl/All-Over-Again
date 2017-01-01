@@ -46,10 +46,11 @@ public enum GameDifficulty {
 	public void setTitle(String title) {
 		this.title = title;
 	}
-	
-	
+
+
+
 	public static GameDifficulty getNth(int diff){
-		return GameDifficulty.values()[diff - 1];
+		return GameDifficulty.values()[diff];
 	}
 	
 

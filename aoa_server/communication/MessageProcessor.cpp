@@ -122,20 +122,22 @@ void MessageProcessor::proceedSignIn(Message *msg) {
 
 void MessageProcessor::proceedGameList(Message *msg) {
     std::cout << "processing: gamelist" << std::endl;
-    sbMessage->append("2;1;1;2;1;marty;2;2;2;2;dendasda:gabin");
+    // type ; r-id ; p-count ; p-limit ; diff ; dim ; nicks
+    sbMessage->append("2;1;1;2;1;3;marty;2;2;3;2;5;dendasda:gabin");
     this->answerMessage();
 }
 
 void MessageProcessor::proceedNewGame(Message *msg) {
     std::cout << "processing: newgame" << std::endl;
-//    sbMessage->append("3;1;2");
-    sbMessage->append("3;1;1;1;2;1;marty");
+
+    // type ; (N)ACK ; r-id ; p-count ; p-limit ; diff ; dim ; nicks
+    sbMessage->append("3;1;1;2;3;1;5;marty:denda");
     this->answerMessage();
 }
 
 void MessageProcessor::proceedJoinGame(Message *msg) {
     std::cout << "processing: joingame" << std::endl;
-    sbMessage->append("4;1;0");
+    sbMessage->append("4;1;1;2;3;1;5;marty:denda");
     this->answerMessage();
 
     //tmp

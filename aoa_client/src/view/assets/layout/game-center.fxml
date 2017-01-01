@@ -50,7 +50,7 @@
                   </VBox>
                </center>
                <bottom>
-                  <Button fx:id="btn_createGame" mnemonicParsing="false" prefWidth="150.0" text="Create a game" BorderPane.alignment="CENTER">
+                  <Button fx:id="btn_createGame" mnemonicParsing="false" onAction="#handleNewGame" prefWidth="150.0" text="Create a game" BorderPane.alignment="CENTER">
                      <BorderPane.margin>
                         <Insets bottom="50.0" />
                      </BorderPane.margin>
@@ -62,18 +62,8 @@
             </BorderPane>
             <Separator orientation="VERTICAL" prefHeight="200.0" GridPane.columnIndex="1" />
             <BorderPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2">
-               <top>
-                  <Label text="Join Game" BorderPane.alignment="CENTER">
-                     <font>
-                        <Font name="System Bold" size="18.0" />
-                     </font>
-                     <BorderPane.margin>
-                        <Insets top="50.0" />
-                     </BorderPane.margin>
-                  </Label>
-               </top>
                <bottom>
-                  <Button fx:id="btn_joinGame" mnemonicParsing="false" prefWidth="150.0" text="Join a game" BorderPane.alignment="CENTER">
+                  <Button fx:id="btn_joinGame" mnemonicParsing="false" onAction="#handleJoinGame" prefWidth="150.0" text="Join a game" BorderPane.alignment="CENTER">
                      <BorderPane.margin>
                         <Insets bottom="50.0" />
                      </BorderPane.margin>
@@ -101,6 +91,30 @@
                      </padding>
                   </GridPane>
                </center>
+               <top>
+                  <BorderPane BorderPane.alignment="CENTER">
+                     <right>
+                        <Button fx:id="btn_gameList" alignment="CENTER" mnemonicParsing="false" onAction="#handleRoomListRefresh" prefWidth="60.0" text="refresh" textAlignment="CENTER" BorderPane.alignment="CENTER">
+                           <font>
+                              <Font size="11.0" />
+                           </font>
+                        </Button>
+                     </right>
+                     <center>
+                        <Label text="Join Game" BorderPane.alignment="CENTER">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                           <BorderPane.margin>
+                              <Insets />
+                           </BorderPane.margin>
+                        </Label>
+                     </center>
+                     <padding>
+                        <Insets left="100.0" right="30.0" top="20.0" />
+                     </padding>
+                  </BorderPane>
+               </top>
             </BorderPane>
          </children>
       </GridPane>

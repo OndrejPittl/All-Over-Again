@@ -6,7 +6,7 @@ import partial.Tools;
 
 public class Main extends javafx.application.Application {
 	
-//	private static Application app;
+	private static Application app;
 	
 	private static Thread clientThread;
 	
@@ -26,10 +26,12 @@ public class Main extends javafx.application.Application {
         if(!Main.checkArgs(args))
             return;
 
+        Main.app = Application.getInstance();
+
 		/**
 		 * GUI controlling thread.
 		 */
-		Main.guiControlRunnable = new GUIController();
+		Main.guiControlRunnable = new GUIController(Main.app);
 		Main.guiControlThread = new Thread(Main.guiControlRunnable);
         Main.guiControlThread.setDaemon(true);  // umře, když umře Main Thrd
         Main.guiControlThread.start();
@@ -37,7 +39,7 @@ public class Main extends javafx.application.Application {
 		/**
 		 * Client (non-GUI) thread.
 		 */
-		Main.clientRunnable = new Client(args);
+		Main.clientRunnable = new Client(args, Main.app);
 		Main.clientThread = new Thread(Main.clientRunnable);
         Main.clientThread.setDaemon(true);  // umře, když umře Main Thrd
 		Main.clientThread.start();
@@ -51,7 +53,7 @@ public class Main extends javafx.application.Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		//init gui
-		Main.guiRunnable = new Screen(primaryStage);
+		Main.guiRunnable = new Screen(primaryStage, Main.app);
 	
 		Main.guiControlRunnable.setScreen(Main.guiRunnable);
 

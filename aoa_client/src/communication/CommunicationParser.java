@@ -4,6 +4,9 @@ import config.CommunicationConfig;
 import model.GameDifficulty;
 import model.Player;
 import model.Room;
+import partial.Tools;
+
+import java.util.Arrays;
 
 public class CommunicationParser {
 	
@@ -11,7 +14,17 @@ public class CommunicationParser {
 	
 	
 	
-	
+
+
+	private boolean checkACK(String response, int index){
+        String[] parts = response.split(CommunicationConfig.MSG_DELIMITER);
+        return parts[index].equals(CommunicationConfig.REQ_ACK);
+    }
+
+    private boolean checkACK(String response){
+	    return this.checkACK(response, 1);
+    }
+
 	/**
 	 * Parses a response of username availability request
 	 * from a server in a form:
@@ -36,20 +49,22 @@ public class CommunicationParser {
 		
 		return true;
 	}
-	
-	public Room[] parseRoomList(String response){
+
+    public Room[] parseRoomList(String response){
+	    return this.parseRoomList(response, 1);
+    }
+
+	public Room[] parseRoomList(String response, int offset) {
 
 		// message split to blocks
 		String[] parts = response.split(CommunicationConfig.MSG_DELIMITER);
 		
-		int offset = 1,
-				
-			attribCount = 5,
+		int attribCount = 5,
 			
 			roomIndex = 0;
 		
 		// number of available rooms
-		int count = (parts.length - offset) / 5;
+		int count = (parts.length - offset) / attribCount;
 		
 		// collection of rooms
 		Room[] rooms = new Room[count];
@@ -76,10 +91,55 @@ public class CommunicationParser {
 		
 		return rooms;
 	}
-	
-	
-	
-	
+
+	public Room parseSelectedRoom(String response){
+
+        if(!this.checkACK(response))
+            return null;
+
+        return this.parseRoomList(response, 2)[0];
+	}
+
+//	public Room parseNewRoom(String response){
+//
+//		return this.parseRoomList(response, 2)[0];
+//
+//	}
+
+    public boolean parseGameInitResult(String response) {
+
+	    // message split to blocks
+        String[] parts = response.split(CommunicationConfig.MSG_DELIMITER);
+
+        return parts[1].equals(CommunicationConfig.REQ_ACK);
+
+	}
+
+    public int[][] parseTurnInfo(String response) {
+
+	    // message split to blocks
+        String[] parts = response.split(CommunicationConfig.MSG_DELIMITER);
+
+        int offset = 2,
+            turn = Integer.parseInt(parts[1]),
+            diff = (parts.length - offset)/turn;
+
+        int[][] moves = new int[turn][diff];
+
+        for (int t = 0; t < turn; t++) {
+            for (int d = 0; d < diff; d++) {
+                int index = t * diff + d + offset;
+                moves[t][d] = Integer.parseInt(parts[index]);
+            }
+        }
+
+        System.out.println("Moves:");
+        System.out.println(Arrays.toString(moves));
+
+        return moves;
+    }
+
+
 //	private static int parseToInt(String str){
 //		return Integer.parseInt(str);
 //	}

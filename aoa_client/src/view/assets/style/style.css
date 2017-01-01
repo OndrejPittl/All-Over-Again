@@ -11,3 +11,8 @@
 .roomsTable .table-column.first {
   -fx-alignment: CENTER-LEFT;
 }
+
+
+.playgroundWindow .gameControlSection {
+    -fx-background-image: url('../images/transp_bg.png');
+}

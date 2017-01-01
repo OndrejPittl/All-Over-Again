@@ -1,38 +1,50 @@
 package io;
 
 import java.io.IOException;
+import java.io.InputStream;
 
+import application.Main;
 import config.Routes;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 public class DataLoader {
 	
 	
-	public static Parent loadLayout(Stage stage, String name){
-		try {
-			
-			Class<? extends Stage> c = stage.getClass();
-			return FXMLLoader.load(c.getResource(Routes.getLayoutFile(name)));
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		return null;
+	public static FXMLSource loadLayout(String path) {
+	    String p = Routes.getLayoutFile(path);
+	    System.out.println(p);
+        InputStream in = Main.class.getResourceAsStream(p);
+        return DataLoader.loadFXML(in);
 	}
-	
-	
+
+    public static FXMLSource loadPartialLayout(String path) {
+	    String p = Routes.getPartialLayoutFile(path);
+
+	    System.out.println(p);
+
+        InputStream in = Main.class.getResourceAsStream(p);
+        return DataLoader.loadFXML(in);
+    }
 	public static void loadStylesheet(Stage stage, Scene scene, String name) {
 		scene.getStylesheets().add(stage.getClass().getResource(Routes.getStyleFile(name)).toExternalForm());
 	}
-	
-	
-	
-//	private String determineLayout(Application scene){
-//		
-//	}
 
+	private static FXMLSource loadFXML(InputStream in) {
+	    FXMLLoader loader = new FXMLLoader();
+
+        try {
+            BorderPane root = (BorderPane) loader.load(in);
+            Initializable controller = loader.getController();
+            in.close();
+            return new FXMLSource(root, controller);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+	}
 }

@@ -1,10 +1,6 @@
 package application;
 
 import communication.CommunicationManager;
-import model.Room;
-
-
-
 
 
 public class Client implements Runnable {
@@ -25,29 +21,30 @@ public class Client implements Runnable {
 	
 	
 	
-	public Client(String[] args) {
+	public Client(String[] args, Application app) {
 		this.args = args;
+		this.app = app;
 		this.init();
 	}
 
 	private void init(){
-		this.app = Application.getInstance();
 		//this.app.setClient(this);
 		//this.barrier = Application.getBarrier();
 
-		this.comm = new CommunicationManager();
+		this.comm = new CommunicationManager(this.app);
 
 		this.conn = new Connection(
 				this.args[0],
 				Integer.parseInt(this.args[1])
 		);
 
+		this.app.setDependencies(this.conn, this.comm);
 	}
 	
 	
 
 	public void run() {
-        //connection try – max 10 tries
+	    //connection try – max 10 tries
         if(!this.conn.connect()) {
             System.exit(0);
         }
@@ -66,32 +63,42 @@ public class Client implements Runnable {
 		//release
 		Application.awaitAtClientBarrier("CLI releases after connection & hello packet. (2CRC)");
 
-		do {
-			//wait for entering username
-			Application.awaitAtClientBarrier("CLI waits for username. (3CWC)");
 
-			//check nickname availability
-			this.comm.checkUsernameAvailability();
+		this.app.handleSignIn();
 
-			Application.awaitAtClientBarrier("CLI releases. Username checked. (8CRC)");
-
-		} while(!this.app.isPlayerRegistered());
-		
-		
-		
-		Room[] rooms = this.comm.requestRoomList();
-		this.app.setRooms(rooms);
+		this.app.updateRoomList();
 		
 		
 		Application.awaitAtClientBarrier("Client releases with room list. (8_3CRC)");
 		
 		Application.awaitAtClientBarrier("Client waits for user room selection/creation. (9CWC)");
 		
-		
-		
-		
-		
-		_Developer.threadExecEnds("Client");
+
+		this.app.requestCreateJoinRoom();
+
+        Application.awaitAtClientBarrier("Client releases with room selection. (14CRC)");
+
+
+        //game init
+        this.app.waitForGameInit();
+
+        Application.awaitAtClientBarrier("Client releases after game initialization. (16CRC)");
+
+        // turn info
+        this.app.waitForTurnStart();
+
+        Application.awaitAtClientBarrier("Client releases after game start. (18CRC)");
+
+        Application.awaitAtClientBarrier("Client waits for user interaction. (19CWC)");
+
+
+
+
+
+
+
+
+        _Developer.threadExecEnds("Client");
 		
 	}
 	

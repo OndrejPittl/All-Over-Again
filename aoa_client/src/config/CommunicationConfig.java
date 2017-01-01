@@ -28,12 +28,12 @@ public class CommunicationConfig {
 	/**
 	 * Request accepted/succeeded.
 	 */
-	public static final int REQ_ACK = 1;
+	public static final String REQ_ACK = "1";
 	
 	/**
 	 * Request rejected/failed.
 	 */
-	public static final int REQ_NACK = 0;
+	public static final String REQ_NACK = "0";
 
 
 

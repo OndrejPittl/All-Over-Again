@@ -47,7 +47,7 @@ public class Connection {
 		
 		while(!this.createSocket()) {
 			count++;
-			
+            System.out.println("Running,");
 			Logger.logConnectionFailed(count);
 			
 			if(count >= ConnectionConfig.MAX_CONNECTION_TRY_COUNT) {

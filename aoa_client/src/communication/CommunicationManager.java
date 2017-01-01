@@ -38,12 +38,12 @@ public class CommunicationManager {
     private Thread senderThrd;
 
 
-    public CommunicationManager() {
+    public CommunicationManager(Application app) {
+        this.app = app;
 		this.init();
 	}
 
 	private void init(){
-        this.app = Application.getInstance();
         this.comm = new Communicator();
         this.parser = new CommunicationParser();
 
@@ -127,7 +127,7 @@ public class CommunicationManager {
 
 		Player p = this.app.getPlayerInfo();
 		String username = p.getName();
-		
+
 		this.sb.append(CommunicationConfig.REQ_SIGN_IN);
 		this.sb.append(CommunicationConfig.MSG_DELIMITER);
 		this.sb.append(username);
@@ -141,9 +141,7 @@ public class CommunicationManager {
             return false;
         }
 	}
-	
-	
-	
+
 	public Room[] requestRoomList(){
 	    Message m;
 
@@ -160,10 +158,61 @@ public class CommunicationManager {
             return null;
         }
 	}
-	
-	
-	
-	
+
+    public Room joinGame(Room selection){
+        this.sb.append(CommunicationConfig.REQ_GAME_JOIN);
+        this.sb.append(CommunicationConfig.MSG_DELIMITER);
+        this.sb.append(selection.getID());
+        this.prepareMessage();
+
+        return this.waitForRoomInfo();
+    }
+
+    public Room newGame(Room selection){
+        this.sb.append(CommunicationConfig.REQ_GAME_NEW);
+        this.sb.append(CommunicationConfig.MSG_DELIMITER);
+        this.sb.append(selection.getPlayerLimit());
+        this.sb.append(CommunicationConfig.MSG_DELIMITER);
+        this.sb.append(selection.getDifficulty());
+        this.prepareMessage();
+
+        return this.waitForRoomInfo();
+    }
+
+    private Room waitForRoomInfo(){
+        Message m;
+
+        try {
+            m = this.incomingMessages.take();
+            return this.parser.parseSelectedRoom(m.getMessage());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+	public boolean waitGameInitComplete(){
+        try {
+
+            Message m = this.incomingMessages.take();
+            return this.parser.parseGameInitResult(m.getMessage());
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public int[][] waitForTurn(){
+        try {
+            Message m = this.incomingMessages.take();
+            return this.parser.parseTurnInfo(m.getMessage());
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 	
 	
 	

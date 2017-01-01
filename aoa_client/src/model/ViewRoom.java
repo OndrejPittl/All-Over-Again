@@ -5,6 +5,8 @@ import javafx.beans.property.StringProperty;
 
 public class ViewRoom {
 
+	private Room room;
+
 	private final StringProperty viewNicknames;
     
 	private final StringProperty viewPlayers;
@@ -14,6 +16,7 @@ public class ViewRoom {
 	
 	public ViewRoom(Room room){
 		this(room.getPlayers(), room.getPlayerCount(), room.getPlayerLimit(), room.getDifficulty());
+		this.room = room;
 	}
 	
 	public ViewRoom(Player[] players, int playerCount, int playerLimit, GameDifficulty difficulty) {
@@ -29,7 +32,13 @@ public class ViewRoom {
 		this.viewDifficulty = new SimpleStringProperty(difficulty.getTitle());
 	}
 
+	public int getID() {
+		return this.room.getID();
+	}
 
+	public Room getRoom() {
+		return room;
+	}
 
 	/**
 	 * @return the viewNicknames
