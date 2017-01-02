@@ -137,7 +137,8 @@ void MessageProcessor::proceedNewGame(Message *msg) {
 
 void MessageProcessor::proceedJoinGame(Message *msg) {
     std::cout << "processing: joingame" << std::endl;
-    sbMessage->append("4;1;1;2;3;1;5;marty:denda");
+    // msg-type;ack;r-id;p-count;p-limit;diff;dim;
+    sbMessage->append("4;1;1;2;3;2;5;marty:denda");
     this->answerMessage();
 
     //tmp
