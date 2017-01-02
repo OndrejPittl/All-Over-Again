@@ -11,6 +11,12 @@
 <padding>
     <Insets left="10.0" right="10.0" />
 </padding>
+<left>
+    <ImageView fx:id="iv_activePlayerIcon" fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
+         <BorderPane.margin>
+            <Insets bottom="5.0" top="7.0" />
+         </BorderPane.margin></ImageView>
+</left>
 <center>
     <VBox alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER_LEFT">
         <children>
@@ -25,9 +31,9 @@
                 </font>
             </Label>
         </children>
+         <padding>
+            <Insets left="10.0" />
+         </padding>
     </VBox>
 </center>
-   <right>
-      <ImageView fx:id="iv_activePlayerIcon" fitHeight="45.0" fitWidth="45.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER" />
-   </right>
 </BorderPane>

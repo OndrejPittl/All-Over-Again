@@ -57,13 +57,14 @@ public class Screen extends Stage implements Observer {
 		);
 				
 		DataLoader.loadStylesheet(this, scene, "style");
-		
+
 		this.stage.setMinWidth(cfg.getMinWidth());
 		this.stage.setMinHeight(cfg.getMinHeight());
 		this.stage.setTitle(cfg.getTitle());
 		this.stage.setScene(scene);
-		//this.stage.sizeToScene();
-		
+//		this.stage.sizeToScene();
+
+
 		this.centerStage();		
 		return src.getController();
 	}

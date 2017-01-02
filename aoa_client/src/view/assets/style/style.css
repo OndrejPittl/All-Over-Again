@@ -16,3 +16,9 @@
 .playgroundWindow .gameControlSection {
     -fx-background-image: url('../images/transp_bg.png');
 }
+
+
+.boardField {
+    -fx-background-color: white;
+    /*-fx-border-color: black;*/
+}

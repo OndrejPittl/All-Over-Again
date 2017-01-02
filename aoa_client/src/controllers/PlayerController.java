@@ -7,6 +7,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import model.Player;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -14,6 +15,7 @@ import java.util.ResourceBundle;
 
 public class PlayerController implements Initializable {
 
+    private static boolean tmpActive = true;
 
     @FXML
     private Label lbl_name;
@@ -31,9 +33,14 @@ public class PlayerController implements Initializable {
         this.iv_activePlayerIcon.setImage(image);
     }
 
-    public void setData(String name){
-        this.lbl_name.setText(name);
+    public void setData(Player p){
+        this.iv_activePlayerIcon.setVisible(tmpActive);
+        // this.iv_activePlayerIcon.setVisible(p.isActive());
+
+        this.lbl_name.setText(p.getName());
         this.lbl_status.setText(ViewConfig.MSG_STATUS_ONLINE);
+
+        if(tmpActive) tmpActive = false;
     }
 
 

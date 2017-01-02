@@ -16,18 +16,12 @@ public class DataLoader {
 	
 	
 	public static FXMLSource loadLayout(String path) {
-	    String p = Routes.getLayoutFile(path);
-	    System.out.println(p);
-        InputStream in = Main.class.getResourceAsStream(p);
+        InputStream in = Main.class.getResourceAsStream(Routes.getLayoutFile(path));
         return DataLoader.loadFXML(in);
 	}
 
     public static FXMLSource loadPartialLayout(String path) {
-	    String p = Routes.getPartialLayoutFile(path);
-
-	    System.out.println(p);
-
-        InputStream in = Main.class.getResourceAsStream(p);
+	    InputStream in = Main.class.getResourceAsStream(Routes.getPartialLayoutFile(path));
         return DataLoader.loadFXML(in);
     }
 	public static void loadStylesheet(Stage stage, Scene scene, String name) {

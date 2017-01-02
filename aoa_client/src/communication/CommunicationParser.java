@@ -59,7 +59,7 @@ public class CommunicationParser {
 		// message split to blocks
 		String[] parts = response.split(CommunicationConfig.MSG_DELIMITER);
 		
-		int attribCount = 5,
+		int attribCount = 6,
 			
 			roomIndex = 0;
 		
@@ -76,14 +76,16 @@ public class CommunicationParser {
 			int id = Integer.parseInt(parts[i]),
 				playerCount = Integer.parseInt(parts[i+1]),
 				playerLimit = Integer.parseInt(parts[i+2]),
-				difficulty = Integer.parseInt(parts[i+3]);
-			
-			Player[] players = Player.parsePlayers(parts[i+4], CommunicationConfig.MSG_SUB_DELIMITER);
+				difficulty = Integer.parseInt(parts[i+3]),
+				dimension = Integer.parseInt(parts[i+4]);
+
+			Player[] players = Player.parsePlayers(parts[i+5], CommunicationConfig.MSG_SUB_DELIMITER);
 				
 			r.setID(id);
 			r.setPlayerCount(playerCount);
 			r.setPlayerLimit(playerLimit);
 			r.setDifficulty(GameDifficulty.getNth(difficulty));
+			r.setBoardDimension(dimension);
 			r.setPlayers(players);
 			
 			rooms[roomIndex++] = r;
