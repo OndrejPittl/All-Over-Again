@@ -155,8 +155,9 @@ void MessageProcessor::proceedStartGame(Message *msg) {
 void MessageProcessor::proceedTurnData(Message *msg) {
     std::cout << "processing: turndata" << std::endl;
 
-    // msg-type;turn;move-pos;move-col;move-shape;move-pos;move-col;move-shape;...
-    sbMessage->append("6;5;1;1;2;2;3;3;4;1;3;5;0;0;7;2;2");
+    // 4 s / tah?
+    // msg-type;turn;time;move-pos;move-col;move-shape;move-pos;move-col;move-shape;...
+    sbMessage->append("6;5;20;1;1;2;2;3;3;4;1;3;5;0;0;7;2;2");
     this->answerMessage();
 }
 
