@@ -8,6 +8,8 @@ import application.Connection;
 import application.Logger;
 import config.CommunicationConfig;
 import config.ConnectionConfig;
+import game.GameMove;
+import game.GameTurn;
 import model.Player;
 import model.Room;
 
@@ -70,7 +72,11 @@ public class CommunicationManager {
         this.outcomingMessages.add(new Message(this.sb.toString()));
         this.clearStringBuilder();
     }
-	
+
+    /**
+     *
+     * @return
+     */
 	public boolean helloPacketHandShake(){
 		int count = 0;
 		
@@ -94,17 +100,29 @@ public class CommunicationManager {
 	}
 	
 	private boolean helloServer(){
-        Message m = null;
+        boolean result = false;
+        Message m;
 
         this.sb.append(CommunicationConfig.MSG_HELLO_SERVER);
         this.prepareMessage();
 
-        try {
-            m = this.incomingMessages.take();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        return this.receiver.checkHelloPacket(m.getMessage());
+        do {
+
+            try {
+
+                // Expected message: answer to handshake, all other messages are being ignored.
+                m = this.incomingMessages.take();
+                result = this.receiver.checkHelloPacket(m.getMessage());
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            if(result) break;
+
+        } while (!this.incomingMessages.isEmpty());
+
+        return result;
 	}
 	
 	/**
@@ -123,7 +141,8 @@ public class CommunicationManager {
 	 * @return
 	 */
 	public boolean checkUsernameAvailability() {
-	    Message m;
+	    Player pResult = null;
+        Message m;
 
 		Player p = this.app.getPlayerInfo();
 		String username = p.getName();
@@ -133,30 +152,46 @@ public class CommunicationManager {
 		this.sb.append(username);
 		this.prepareMessage();
 
-		try {
-            m = this.incomingMessages.take();
-            return this.parser.parseUsernameAvailabilityResponse(m.getMessage(), p);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            return false;
-        }
+		do {
+
+            try {
+                m = this.incomingMessages.take();
+                pResult = this.parser.parseUsernameAvailabilityResponse(m.getMessage(), p);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            if(pResult != null) {
+                this.app.registerPlayer(pResult);
+                break;
+            }
+
+        } while (!this.incomingMessages.isEmpty());
+
+		return pResult != null;
 	}
 
 	public Room[] requestRoomList(){
+	    Room[] r = null;
 	    Message m;
 
 		this.sb.append(CommunicationConfig.REQ_GAME_LIST);
 	    this.prepareMessage();
 
-        try {
+        do {
 
-            m = this.incomingMessages.take();
-            return this.parser.parseRoomList(m.getMessage());
+            try {
+                m = this.incomingMessages.take();
+                r = this.parser.parseRoomList(m.getMessage());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            return null;
-        }
+            if(r != null) break;
+
+        } while (!this.incomingMessages.isEmpty());
+
+        return r;
 	}
 
     public Room joinGame(Room selection){
@@ -180,42 +215,81 @@ public class CommunicationManager {
     }
 
     private Room waitForRoomInfo(){
+        Room r;
         Message m;
 
-        try {
-            m = this.incomingMessages.take();
-            return this.parser.parseSelectedRoom(m.getMessage());
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            return null;
-        }
+        do {
+
+            try {
+                m = this.incomingMessages.take();
+                r = this.parser.parseSelectedRoom(m.getMessage());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                return null;
+            }
+
+            if(r != null) break;
+
+        } while (!this.incomingMessages.isEmpty());
+
+        return r;
     }
 
 	public boolean waitGameInitComplete(){
-        try {
+        boolean result = false;
 
-            Message m = this.incomingMessages.take();
-            return this.parser.parseGameInitResult(m.getMessage());
+        do {
 
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            return false;
-        }
+            try {
+
+                Message m = this.incomingMessages.take();
+                result = this.parser.parseGameInitResult(m.getMessage());
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            if(result) break;
+
+        } while (!this.incomingMessages.isEmpty());
+
+        return result;
     }
 
-    public int[][] waitForTurn(){
-        try {
-            Message m = this.incomingMessages.take();
-            return this.parser.parseTurnInfo(m.getMessage());
+    public GameTurn waitForTurn(){
+        GameTurn turn = null;
 
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            return null;
-        }
+        do {
+            try {
+                Message m = this.incomingMessages.take();
+                turn = this.parser.parseTurnInfo(m.getMessage());
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            if(turn != null) break;
+
+        } while (!this.incomingMessages.isEmpty());
+
+
+        return turn;
     }
-	
-	
-	
+
+
+    public void registerEndTurn(GameMove[] gameProgress) {
+        this.sb.append(CommunicationConfig.REQ_TURN_DATA);
+
+        for (int i = 0; i < gameProgress.length; i++) {
+            GameMove m = gameProgress[i];
+            this.sb.append(CommunicationConfig.MSG_DELIMITER);
+            this.sb.append(m.serialize());
+        }
+
+        // System.out.println("GAME PROGRESS: " + this.sb.toString());
+        this.prepareMessage();
+    }
+
 	
 	public void setConnection(Connection conn){
 		this.conn = conn;
@@ -328,6 +402,8 @@ public class CommunicationManager {
     private void clearStringBuilder() {
         this.sb.setLength(0);
     }
+
+
 }
 
 

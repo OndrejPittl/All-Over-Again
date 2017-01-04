@@ -18,6 +18,7 @@ public class GUIController extends Observable implements Runnable {
 
 	@Override
 	public void run() {
+
 		
 		//this.gui.runConnecting();
 
@@ -27,49 +28,88 @@ public class GUIController extends Observable implements Runnable {
 		//Application.awaitAtClientBarrier("GUIControl releases after init.");
         Application.awaitAtGuiBarrier("GUIControl waits for GUI init.");
 
-		do {
 
-			//Display "Enter username scene"
-			this.gui.runLogin();
+        do {
 
-			Application.awaitAtGuiBarrier("GUIControl – waits for entering username. (4GCWG)");
+            do {
 
-			this.gui.runChecking();
+                //Display "Enter username scene"
+                this.gui.runLogin();
 
-			Application.awaitAtClientBarrier("GUIControl releases. Username entered. (6GCRC)");
+                Application.awaitAtGuiBarrier("GUIControl – waits for entering username. (4GCWG)");
 
-			Application.awaitAtClientBarrier("GUIControl wsaits for checking username. (7GCWC)");
+                this.gui.runChecking();
 
-		} while(!this.app.isPlayerRegistered());
-		
-		
-		Application.awaitAtClientBarrier("GUIControl waits for room list. (8_2GCWC)");
-		
-		
-		this.gui.runGameCenter();
-		
-		
-		Application.awaitAtGuiBarrier("GUIControl waits for user room selection/creation. (10GCWG)");
+                Application.awaitAtClientBarrier("GUIControl releases. Username entered. (6GCRC)");
 
-        this.gui.runConnecting();
+                Application.awaitAtClientBarrier("GUIControl waits for checking username. (7GCWC)");
 
-		Application.awaitAtClientBarrier("GUIControl releases after room selection/creation. (12GCRC)");
+            } while (!this.app.isPlayerRegistered());
 
-        Application.awaitAtClientBarrier("GUIControl waits for room selection/creation response. (13GCWC)");
 
-		this.gui.runWaiting();
 
-        Application.awaitAtClientBarrier("GUIControl waits for game initialization. (15GCWC)");
+            do {
 
-        this.gui.runGamePlayground();
+                do {
 
-        Application.awaitAtClientBarrier("GUIControl waits for game start. (17GCWC)");
+                    Application.awaitAtClientBarrier("GUIControl waits for room list. (8_2GCWC)");
 
-        // player plays a turn
-        // tmp wait
-        Application.awaitAtGuiBarrier("GUIControl TEMPORARILY waits.");
-		
-		
+                    this.gui.runGameCenter();
+
+                    Application.awaitAtGuiBarrier("GUIControl waits for user room selection/creation. (10GCWG)");
+
+                    this.gui.runConnecting();
+
+                    Application.awaitAtClientBarrier("GUIControl releases after room selection/creation. (12GCRC)");
+
+                    Application.awaitAtClientBarrier("GUIControl waits for room selection/creation response. (13GCWC)");
+
+                } while (!this.app.isRoomJoined());
+
+
+                this.gui.runWaiting();
+
+                Application.awaitAtClientBarrier("GUIControl waits for game initialization. (15GCWC)");
+
+
+                // TODO: zkontrolovat!!!
+                if (!this.app.isGameStarted()) {
+                    continue;
+                }
+
+
+                this.gui.runGamePlayground();
+
+                Application.awaitAtGuiBarrier("GUIControl waits for board initialization.");
+
+
+
+                //---- cycle:
+                do {
+
+                    Application.awaitAtClientBarrier("GUIControl waits for turn start. (17GCWC)");
+
+                    // new turn has begun
+                    this.gui.beginTurn();
+                    // player plays a turn
+
+                    Application.awaitAtGuiBarrier("GUIControl waits for a player interaction / turn ends.");
+
+                    Application.awaitAtClientBarrier("GUIControl releases after turn ends.");
+
+                } while(!this.app.isGameFinished());
+
+
+                // game results
+
+
+            } while(this.app.isSignedIn());
+
+
+
+
+        } while(!this.app.isSignedIn());
+
 		
 		
 		_Developer.threadExecEnds("GUIController");

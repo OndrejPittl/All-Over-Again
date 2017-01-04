@@ -1,17 +1,11 @@
 package controllers;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
-
-import javax.imageio.ImageIO;
 
 import application.Application;
 import application.Screen;
 import config.Routes;
-import config.ViewConfig;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
@@ -32,7 +26,7 @@ public class MessageController implements Initializable {
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-	    Image image = new Image(Routes.getImagesDir() + ViewConfig.LAYOUT_IMAGE_LOADER);
+	    Image image = new Image(Routes.getImagesDir() + Routes.IMG_LOADER);
 	    this.iv_loading.setImage(image);
 	}
 

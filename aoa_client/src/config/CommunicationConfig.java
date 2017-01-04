@@ -88,6 +88,8 @@ public class CommunicationConfig {
 
     public static final int REQ_SIGN_OUT = 9;
 
+    public static final int REQ_PING = 10;
+
 
 
 	/**

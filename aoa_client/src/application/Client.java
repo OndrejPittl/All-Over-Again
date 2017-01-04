@@ -44,6 +44,7 @@ public class Client implements Runnable {
 	
 
 	public void run() {
+
 	    //connection try – max 10 tries
         if(!this.conn.connect()) {
             System.exit(0);
@@ -63,37 +64,81 @@ public class Client implements Runnable {
 		//release
 		Application.awaitAtClientBarrier("CLI releases after connection & hello packet. (2CRC)");
 
-
-		this.app.handleSignIn();
-
-		this.app.updateRoomList();
-		
-		
-		Application.awaitAtClientBarrier("Client releases with room list. (8_3CRC)");
-		
-		Application.awaitAtClientBarrier("Client waits for user room selection/creation. (9CWC)");
-		
-
-		this.app.requestCreateJoinRoom();
-
-        Application.awaitAtClientBarrier("Client releases with room selection. (14CRC)");
+        do {
 
 
-        //game init
-        this.app.waitForGameInit();
+            // sign-in loop until a username is accepted and a player signed in
 
-        Application.awaitAtClientBarrier("Client releases after game initialization. (16CRC)");
+            do {
 
-        // turn info
-        this.app.waitForTurnStart();
+                Application.awaitAtClientBarrier("CLI waits for username. (3CWC)");
 
-        Application.awaitAtClientBarrier("Client releases after game start. (18CRC)");
+                this.app.handleSignIn();
 
-        Application.awaitAtClientBarrier("Client waits for user interaction. (19CWC)");
+                Application.awaitAtClientBarrier("CLI releases. Username checked. (8CRC)");
+
+            } while(!this.app.isPlayerRegistered());
 
 
 
+            do {
 
+                // room selection loop until a room is joined
+
+                // the only acceptable message is NACK/ACK + room info,
+                // all other messages are being ignored
+
+                do {
+
+                    this.app.updateRoomList();
+
+                    Application.awaitAtClientBarrier("Client releases with room list. (8_3CRC)");
+
+                    Application.awaitAtClientBarrier("Client waits for user room selection/creation. (9CWC)");
+
+                    this.app.requestCreateJoinRoom();
+
+                    Application.awaitAtClientBarrier("Client releases with room selection. (14CRC)");
+
+                } while (!this.app.isRoomJoined());
+
+
+
+                //game init
+                this.app.waitForGameInit();
+
+                Application.awaitAtClientBarrier("Client releases after game initialization. (16CRC)");
+
+
+                // TODO: zkontrolovat!!!
+                if (!this.app.isGameStarted()) {
+                    continue;
+                }
+
+
+                //---- cycle:
+                do {
+
+                    // turn info
+                    this.app.waitForTurnStart();
+
+                    Application.awaitAtClientBarrier("Client releases after turn start. (18CRC)");
+
+                    Application.awaitAtClientBarrier("Client waits for user interaction. (19CWC)");
+
+                    this.app.proceedEndTurn();
+
+                } while (!this.app.isGameFinished());
+
+
+                // vyhodnocení hry
+
+
+            } while (this.app.isSignedIn());
+
+
+
+        } while(!this.app.isSignedIn());
 
 
 

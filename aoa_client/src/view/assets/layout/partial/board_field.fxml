@@ -8,67 +8,74 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane id="boardField" fx:id="comp_boardField" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" styleClass="boardField" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.BoardFieldController">
-   <padding>
-      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-   </padding>
+<BorderPane id="boardFieldWrapper" fx:id="comp_boardFieldWrapper" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" styleClass="boardFieldWrapper" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.BoardFieldController">
    <center>
-      <BorderPane BorderPane.alignment="CENTER">
-         <center>
-            <ImageView fx:id="iv_symbol" fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER" />
-         </center>
-         <right>
-            <VBox fx:id="vb_symbolPane" alignment="CENTER" visible="false" BorderPane.alignment="CENTER">
-               <children>
-                  <ImageView fx:id="iv_arrow4" fitHeight="8.0" fitWidth="8.0" opacity="0.25" pickOnBounds="true" preserveRatio="true" rotate="180.0">
-                     <VBox.margin>
-                        <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
-                     </VBox.margin>
-                  </ImageView>
-                  <Canvas fx:id="c_symbols" height="50.0" width="15.0" />
-                  <ImageView fx:id="iv_arrow3" fitHeight="8.0" fitWidth="8.0" opacity="0.25" pickOnBounds="true" preserveRatio="true">
-                     <VBox.margin>
-                        <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
-                     </VBox.margin>
-                  </ImageView>
-               </children>
-               <BorderPane.margin>
-                  <Insets left="10.0" />
-               </BorderPane.margin>
-            </VBox>
-         </right>
-         <bottom>
-            <HBox fx:id="hb_colorPane" alignment="CENTER" visible="false" BorderPane.alignment="CENTER">
-               <children>
-                  <ImageView fx:id="iv_arrow1" fitHeight="8.0" fitWidth="8.0" opacity="0.25" pickOnBounds="true" preserveRatio="true" rotate="90.0">
-                     <HBox.margin>
-                        <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
-                     </HBox.margin>
-                  </ImageView>
-                  <Canvas fx:id="c_colors" height="15.0" width="50.0" />
-                  <ImageView fx:id="iv_arrow2" fitHeight="8.0" fitWidth="8.0" opacity="0.25" pickOnBounds="true" preserveRatio="true" rotate="270.0">
-                     <HBox.margin>
-                        <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
-                     </HBox.margin>
-                  </ImageView>
-               </children>
-               <padding>
-                  <Insets left="10.0" right="10.0" />
-               </padding>
-            </HBox>
-         </bottom>
-         <top>
-            <Pane prefHeight="15.0" prefWidth="70.0" BorderPane.alignment="CENTER" />
-         </top>
-         <left>
-            <Pane prefHeight="70.0" prefWidth="15.0" BorderPane.alignment="CENTER">
-               <BorderPane.margin>
-                  <Insets right="10.0" />
-               </BorderPane.margin></Pane>
-         </left>
+      <BorderPane id="boardField" fx:id="comp_boardField" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" styleClass="boardField">
          <padding>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </padding>
+         <center>
+            <BorderPane BorderPane.alignment="CENTER">
+               <center>
+                  <ImageView fx:id="iv_symbol" fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER" />
+               </center>
+               <right>
+                  <VBox fx:id="vb_symbolPane" alignment="CENTER" visible="false" BorderPane.alignment="CENTER">
+                     <children>
+                        <ImageView fx:id="iv_arrow4" fitHeight="8.0" fitWidth="8.0" opacity="0.25" pickOnBounds="true" preserveRatio="true" rotate="180.0">
+                           <VBox.margin>
+                              <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
+                           </VBox.margin>
+                        </ImageView>
+                        <Canvas fx:id="c_symbols" height="50.0" width="15.0" />
+                        <ImageView fx:id="iv_arrow3" fitHeight="8.0" fitWidth="8.0" opacity="0.25" pickOnBounds="true" preserveRatio="true">
+                           <VBox.margin>
+                              <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
+                           </VBox.margin>
+                        </ImageView>
+                     </children>
+                     <BorderPane.margin>
+                        <Insets left="10.0" />
+                     </BorderPane.margin>
+                  </VBox>
+               </right>
+               <bottom>
+                  <HBox fx:id="hb_colorPane" alignment="CENTER" visible="false" BorderPane.alignment="CENTER">
+                     <children>
+                        <ImageView fx:id="iv_arrow1" fitHeight="8.0" fitWidth="8.0" opacity="0.25" pickOnBounds="true" preserveRatio="true" rotate="90.0">
+                           <HBox.margin>
+                              <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
+                           </HBox.margin>
+                        </ImageView>
+                        <Canvas fx:id="c_colors" height="15.0" width="50.0" />
+                        <ImageView fx:id="iv_arrow2" fitHeight="8.0" fitWidth="8.0" opacity="0.25" pickOnBounds="true" preserveRatio="true" rotate="270.0">
+                           <HBox.margin>
+                              <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
+                           </HBox.margin>
+                        </ImageView>
+                     </children>
+                     <padding>
+                        <Insets left="10.0" right="10.0" />
+                     </padding>
+                  </HBox>
+               </bottom>
+               <top>
+                  <Pane prefHeight="15.0" prefWidth="70.0" BorderPane.alignment="CENTER" />
+               </top>
+               <left>
+                  <Pane prefHeight="70.0" prefWidth="15.0" BorderPane.alignment="CENTER">
+                     <BorderPane.margin>
+                        <Insets right="10.0" />
+                     </BorderPane.margin></Pane>
+               </left>
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
+            </BorderPane>
+         </center>
       </BorderPane>
    </center>
+   <top>
+      <Pane fx:id="p_dump" prefHeight="0.0" prefWidth="0.0" BorderPane.alignment="CENTER" />
+   </top>
 </BorderPane>

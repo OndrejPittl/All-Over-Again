@@ -15,20 +15,11 @@ public class ViewConfig {
 	public static final String MSG_STATUS_ONLINE = "online";
 
 
+	public static final int TIMER_TURN_INTRO_MOVE_DURATION = 1500;
 
 
 
-	public static final String LAYOUT_PARTIAL_PLAYER_RECORD = "player";
 
-	public static final String LAYOUT_PARTIAL_BOARD_FIELD= "board_field";
-
-
-
-	public static final String LAYOUT_IMAGE_LOADER = "loading.gif";
-
-	public static final String LAYOUT_IMAGE_ACTIVE_PLAYER = "crown.png";
-
-	public static final String LAYOUT_IMAGE_ARROW = "arrow.png";
 
 
 
@@ -50,8 +41,8 @@ public class ViewConfig {
 			new Dimension2D(350, 330)
 		), new ScreenSettings(
 			ScreenType.Playground,
-			new Dimension2D(750, 550),
-			new Dimension2D(750, 550)
+			new Dimension2D(850, 650),
+			new Dimension2D(850, 650)
 		), new ScreenSettings(
 			ScreenType.GameResult,
 			new Dimension2D(400, 300),

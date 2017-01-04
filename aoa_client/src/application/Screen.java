@@ -1,20 +1,17 @@
 package application;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Observable;
 import java.util.Observer;
 
-import config.Routes;
 import config.ViewConfig;
 import controllers.GameCenterController;
 import controllers.LoginController;
 import controllers.MessageController;
 import controllers.PlaygroundController;
 import io.DataLoader;
-import io.FXMLSource;
+import model.FXMLSource;
 import javafx.application.Platform;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
@@ -30,6 +27,9 @@ public class Screen extends Stage implements Observer {
 	private Stage stage;
 
 	private Screen me;
+
+
+	private PlaygroundController playgroundController;
 	
 	
 	
@@ -140,9 +140,10 @@ public class Screen extends Stage implements Observer {
     public void runGamePlayground(){
         Platform.runLater(() -> {
             try {
-                PlaygroundController controller = (PlaygroundController) me.runScreen(ScreenType.Playground);
-                controller.setApp(me, app);
-                controller.prepare();
+                this.playgroundController = (PlaygroundController) me.runScreen(ScreenType.Playground);
+                this.playgroundController.setApp(me, app);
+                this.playgroundController.prepare();
+                Application.awaitAtGuiBarrier("GUI releases after board initialization.");
                 //controller.updateRoomList();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -161,4 +162,8 @@ public class Screen extends Stage implements Observer {
 	public Stage getWindow(){
 		return this.stage;
 	}
+
+    public void beginTurn() {
+        this.playgroundController.startTurn();
+    }
 }

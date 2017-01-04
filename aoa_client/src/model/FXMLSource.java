@@ -1,4 +1,4 @@
-package io;
+package model;
 
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;

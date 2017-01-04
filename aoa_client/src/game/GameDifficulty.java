@@ -1,4 +1,4 @@
-package model;
+package game;
 
 public enum GameDifficulty {
 	
@@ -52,6 +52,9 @@ public enum GameDifficulty {
 	public static GameDifficulty getNth(int diff){
 		return GameDifficulty.values()[diff];
 	}
-	
+
+	public boolean isGreaterEqualThan(GameDifficulty diff) {
+		return this.getDifficulty() >= diff.getDifficulty();
+	}
 
 }

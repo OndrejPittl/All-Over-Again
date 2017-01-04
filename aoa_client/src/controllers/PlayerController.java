@@ -29,7 +29,7 @@ public class PlayerController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        Image image = new Image(Routes.getImagesDir() + ViewConfig.LAYOUT_IMAGE_ACTIVE_PLAYER);
+        Image image = new Image(Routes.getImagesDir() + Routes.IMG_ACTIVE_PLAYER);
         this.iv_activePlayerIcon.setImage(image);
     }
 

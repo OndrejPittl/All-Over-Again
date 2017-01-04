@@ -1,5 +1,7 @@
 package model;
 
+import game.GameDifficulty;
+
 public class Room {
 	
 	private int ID;
@@ -16,9 +18,6 @@ public class Room {
 	
 	private int activePlayerID;
 	
-	
-	
-	//private int[] gameStatus;
 
 
 	public Room() {

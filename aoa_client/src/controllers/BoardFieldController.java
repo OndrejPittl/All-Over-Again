@@ -1,11 +1,10 @@
 package controllers;
 
 
-import application.Application;
-import application.Screen;
+import config.GameConfig;
 import config.Routes;
 import config.ViewConfig;
-import javafx.beans.binding.Bindings;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
@@ -17,12 +16,15 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.stage.Stage;
-import model.GameColors;
-import model.GameSymbols;
+import game.GameColor;
+import game.GameDifficulty;
+import game.GameMove;
+import game.GameSymbol;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class BoardFieldController implements Initializable {
 
@@ -30,9 +32,9 @@ public class BoardFieldController implements Initializable {
 
     private static final double PASSIVE_SPOT_SIZE = 0.9;
 
-    private static final int COLOR_COUNT = GameColors.values().length;
+    private static final int COLOR_COUNT = GameColor.count();
 
-    private static final int SYMBOL_COUNT = GameSymbols.values().length;
+    private static final int SYMBOL_COUNT = GameSymbol.count();
 
     private static final Background focusedBackground = new Background(
             new BackgroundFill(Color.web("e8fff9"),
@@ -46,26 +48,35 @@ public class BoardFieldController implements Initializable {
                     Insets.EMPTY)
     );
 
-
-    private int colorPosition;
-
-    private int symbolPosition;
+    private static BoardFieldController activeField = null;
 
 
+    private GameDifficulty difficulty;
+
+
+    private boolean isActive;
+
+    private int index;
+
+    private GameColor color;
+
+    private GameSymbol symbol;
 
 
 
 
-    private Stage window;
-
-    private Screen screen;
-
-    private Application app;
+    private PlaygroundController playgroundController;
 
 
 
     @FXML
+    private BorderPane comp_boardFieldWrapper;
+
+    @FXML
     private BorderPane comp_boardField;
+
+    @FXML
+    private Pane p_dump;
 
     @FXML
     private Canvas c_colors;
@@ -95,24 +106,19 @@ public class BoardFieldController implements Initializable {
     private ImageView iv_arrow4;
 
 
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         this.init();
-        this.initColorbar();
-        this.initSymbolbar();
-
+        //this.updateBars();
         this.bindEvents();
     }
 
     private void init(){
-        this.colorPosition = 1;
-        this.symbolPosition = 3;
 
-        //this.comp_boardField.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
-        Image image = new Image(Routes.getImagesDir() + ViewConfig.LAYOUT_IMAGE_ACTIVE_PLAYER);
-        this.iv_symbol.setImage(image);
+        this.resetField();
 
-        Image arr = new Image(Routes.getImagesDir() + ViewConfig.LAYOUT_IMAGE_ARROW);
+        Image arr = new Image(Routes.getImagesDir() + Routes.IMG_ARROW);
         this.iv_arrow1.setImage(arr);
         this.iv_arrow2.setImage(arr);
         this.iv_arrow3.setImage(arr);
@@ -121,11 +127,25 @@ public class BoardFieldController implements Initializable {
         this.iv_symbol.fitWidthProperty().bind(comp_boardField.widthProperty().divide(2));
     }
 
-    private void bindEvents(){
-        this.comp_boardField.setOnMouseClicked((e) -> {
-            this.comp_boardField.requestFocus();
+    private void updateBars(){
+        // umyslne bez breaku
+        switch (this.difficulty) {
+            case EXPERT:
+                if(this.isActive) this.initSymbolBar();
+                this.vb_symbolPane.setVisible(isActive);
+            case NORMAL:
+                if(this.isActive) this.initColorBar();
+                this.hb_colorPane.setVisible(isActive);
+            default:
+            case EASY:
+                break;
+        }
+    }
 
-        });
+    private void bindEvents(){
+        this.isActive = true;
+
+        this.comp_boardField.setOnMouseClicked((e) -> this.comp_boardField.requestFocus());
 
         this.comp_boardField.focusedProperty().addListener(new ChangeListener<Boolean>() {
             public void changed(ObservableValue<? extends Boolean> arg0, Boolean oldState, Boolean newState) {
@@ -134,46 +154,68 @@ public class BoardFieldController implements Initializable {
         });
 
         this.comp_boardField.setOnKeyPressed((e) -> {
-
             switch(e.getCode()) {
                 case UP:
+                    if(!this.difficulty.isGreaterEqualThan(GameDifficulty.EXPERT))
+                        break;
                     this.decreaseSymbolPosition();
+                    this.updateSymbol();
+                    this.updateBars();
                     break;
                 case DOWN:
+                    if(!this.difficulty.isGreaterEqualThan(GameDifficulty.EXPERT))
+                        break;
                     this.increaseSymbolPosition();
+                    this.updateSymbol();
+                    this.updateBars();
                     break;
                 case LEFT:
+                    if(!this.difficulty.isGreaterEqualThan(GameDifficulty.NORMAL))
+                        break;
                     this.decreaseColorPosition();
+                    this.updateSymbol();
+                    this.updateBars();
                     break;
                 case RIGHT:
+                    if(!this.difficulty.isGreaterEqualThan(GameDifficulty.NORMAL))
+                        break;
                     this.increaseColorPosition();
+                    this.updateSymbol();
+                    this.updateBars();
+                    break;
+                case SPACE:
+                case ENTER:
+                    this.registerMove();
+                    this.endMove();
+                    break;
+                case ESCAPE:
+                case DELETE:
+                    this.endMove();
                     break;
                 default:
-                case ENTER:
-                    this.comp_boardField.setDisable(true);
-                    this.comp_boardField.setDisable(false);
                     break;
             }
-
-            System.out.println(e.getCode());
         });
-
     }
 
     private void setFieldActivity(boolean isActive){
-        this.hb_colorPane.setVisible(isActive);
-        this.vb_symbolPane.setVisible(isActive);
+        this.isActive = isActive;
+        this.storeActiveFieldIndex();
+        this.updateBars();
+        this.updateSymbol();
     }
 
+    private void storeActiveFieldIndex() {
+        if(this.isActive) {
+            BoardFieldController.activeField = this;
+        } else {
+            BoardFieldController.activeField = null;
+        }
+    }
 
-
-    private void initColorbar(){
+    private void initColorBar(){
         GraphicsContext g = this.c_colors.getGraphicsContext2D();
-        GameColors[] gcs = GameColors.values();
-
-        int activeSpots = 1,
-            passiveSpots = COLOR_COUNT - activeSpots;
-
+        GameColor[] gcs = GameColor.values();
 
         double  w = this.c_colors.getWidth(),
                 h = this.c_colors.getHeight(),
@@ -184,10 +226,10 @@ public class BoardFieldController implements Initializable {
         this.clearCanvas(g, this.c_colors);
 
         for(int i = 0; i < COLOR_COUNT; i++) {
-            GameColors gc = gcs[i];
+            GameColor gc = gcs[i];
             Color c = gc.getColor();
 
-            double currentSize = i == this.colorPosition ? size * ACTIVE_SPOT_SIZE : size * PASSIVE_SPOT_SIZE,
+            double currentSize = i == this.color.getIndex() ? size * ACTIVE_SPOT_SIZE : size * PASSIVE_SPOT_SIZE,
                    y = (h - currentSize) / 2;
 
             g.setFill(c);
@@ -197,7 +239,7 @@ public class BoardFieldController implements Initializable {
         }
     }
 
-    private void initSymbolbar(){
+    private void initSymbolBar(){
         GraphicsContext g = this.c_symbols.getGraphicsContext2D();
 
         double  w = this.c_symbols.getWidth(),
@@ -212,12 +254,20 @@ public class BoardFieldController implements Initializable {
 
         for(int i = 0; i < SYMBOL_COUNT; i++) {
 
-            double currentSize = i == this.symbolPosition ? size * ACTIVE_SPOT_SIZE : size * PASSIVE_SPOT_SIZE,
+            double currentSize = i == this.symbol.getIndex() ? size * ACTIVE_SPOT_SIZE : size * PASSIVE_SPOT_SIZE,
                     x = (w - currentSize) / 2;
 
             g.fillOval(x, currentY, currentSize, currentSize);
             currentY += currentSize + 2 * offset;
         }
+    }
+
+    private void updateSymbol(){
+        if(this.isActive){
+            this.iv_symbol.setImage(GameConfig.getSymbolImage(this.color.getIndex(), this.symbol.getIndex()));
+        }
+
+        this.iv_symbol.setVisible(this.isActive);
     }
 
     private void clearCanvas(GraphicsContext g, Canvas c, Color col){
@@ -230,34 +280,104 @@ public class BoardFieldController implements Initializable {
     }
 
     private void increaseColorPosition(){
-        this.colorPosition = ++this.colorPosition % COLOR_COUNT;
-        this.initColorbar();
+        this.color = (GameColor) this.color.next();
+//        this.initColorBar();
     }
 
     private void decreaseColorPosition(){
-//        this.colorPosition = --this.colorPosition % COLOR_COUNT;
-        this.colorPosition = --this.colorPosition < 0 ? COLOR_COUNT - 1 : this.colorPosition;
-        this.initColorbar();
+        this.color = (GameColor) this.color.previous();
+//        this.initColorBar();
     }
 
     private void increaseSymbolPosition(){
-        this.symbolPosition = ++this.symbolPosition % SYMBOL_COUNT;
-        this.initSymbolbar();
+        this.symbol = (GameSymbol) this.symbol.next();
+//        this.initSymbolBar();
     }
 
     private void decreaseSymbolPosition(){
-//        this.symbolPosition = --this.symbolPosition % SYMBOL_COUNT;
-        this.symbolPosition = --this.symbolPosition  < 0 ? SYMBOL_COUNT - 1 : this.symbolPosition ;
-        this.initSymbolbar();
+        this.symbol = (GameSymbol) this.symbol.previous();
+//        this.initSymbolBar();
+    }
+
+    public void fitSize(int w) {
+        this.comp_boardField.setPrefWidth(w);
+        this.comp_boardField.setPrefHeight(w);
+        this.comp_boardFieldWrapper.setPrefWidth(w);
+        this.comp_boardFieldWrapper.setPrefHeight(w);
+    }
+
+    public GameMove serializeMove() {
+        switch (this.difficulty) {
+            case EXPERT:
+                return new GameMove(this.index, this.color, this.symbol);
+            case NORMAL:
+                return new GameMove(this.index, this.color);
+            default:
+            case EASY:
+                return new GameMove(this.index);
+        }
+    }
+
+    public void registerMove() {
+        this.playgroundController.registerMove(this.serializeMove());
+    }
+
+    public void endMove() {
+        this.p_dump.requestFocus();
+        this.isActive = false;
+        this.resetField();
     }
 
 
-    public void setApp(Screen screen, Application app){
-        this.screen = screen;
-        this.app = app;
+    private void resetField(){
+        this.color = GameColor.GOLD;
+        this.symbol = GameSymbol.Symbol1;
     }
 
-    public void setSymbol(){
+    public void setPlaygroundController(PlaygroundController playgroundController) {
+        this.playgroundController = playgroundController;
+    }
 
+
+
+    public BorderPane getControlElement() {
+        return this.comp_boardField;
+    }
+
+    public void setDifficulty(GameDifficulty difficulty) {
+        this.difficulty = difficulty;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
+    public void displayMove(GameMove m) {
+        this.isActive = true;
+        this.color = m.getColor();
+        this.symbol = m.getSymbol();
+        this.setFieldActivity(isActive);
+
+        new Timer().schedule(new TimerTask() {
+            public void run() {
+                Platform.runLater(() -> {
+                    resetField();
+                    endMove();
+                    setFieldActivity(isActive);
+                });
+
+            }
+        }, ViewConfig.TIMER_TURN_INTRO_MOVE_DURATION);
+    }
+
+
+    public static void stopActivity(){
+        if(isAnyFieldActive()) {
+            BoardFieldController.activeField.endMove();
+        }
+    }
+
+    private static boolean isAnyFieldActive(){
+        return BoardFieldController.activeField != null;
     }
 }

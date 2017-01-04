@@ -2,20 +2,29 @@ package controllers;
 
 import application.Application;
 import application.Screen;
-import config.GameConfig;
+import config.Routes;
 import config.ViewConfig;
+import game.GameMove;
 import io.DataLoader;
-import io.FXMLSource;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import javafx.util.Duration;
+import model.FXMLSource;
 import model.Player;
 import model.Room;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.ResourceBundle;
 
 
@@ -32,6 +41,10 @@ public class PlaygroundController implements Initializable {
     private Screen screen;
 
     private Application app;
+
+    private Timeline timer;
+    private int timerValue;
+
 
     @FXML
     private Label lbl_timer;
@@ -51,12 +64,16 @@ public class PlaygroundController implements Initializable {
     @FXML
     private VBox vb_playerWrapper;
 
+    @FXML
+    private VBox vb_timerWrapper;
+
 
 
     private int fieldCount;
 
     private BoardFieldController[] fieldControllers;
 
+    private ArrayList<GameMove> moves;
 
 
 
@@ -65,15 +82,39 @@ public class PlaygroundController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {}
 
     public void prepare(){
-        this.room = this.app.getSelectedRoom();
-        //this.dimension = this.room.getBoardDimension();
-        this.dimension = GameConfig.DEFAULT_BOARD_DIMENSION;
-
-        this.fieldCount = this.dimension * this.dimension;
-        this.fieldControllers = new BoardFieldController[this.fieldCount];
-
+        this.init();
         this.initPlayerList();
         this.initBoard();
+    }
+
+    private void init(){
+        this.moves = new ArrayList<>();
+        this.room = this.app.getSelectedRoom();
+        this.dimension = this.room.getBoardDimension();
+        //this.dimension = GameConfig.DEFAULT_BOARD_DIMENSION;
+        this.fieldCount = this.dimension * this.dimension;
+        this.fieldControllers = new BoardFieldController[this.fieldCount];
+    }
+
+    private void initTimer(){
+        this.timerValue = this.app.getTurnTime();
+        this.lbl_timer.setText(String.valueOf(this.timerValue));
+
+        this.timer = new Timeline (
+            new KeyFrame(Duration.millis(1000), (e) -> {
+
+                this.timerValue--;
+                this.lbl_timer.setText(String.valueOf(this.timerValue));
+
+                if(this.timerValue == 0) {
+                    this.endTurn();
+                }
+            })
+        );
+
+        System.out.println("Timer setting to: " + this.timerValue);
+        this.timer.setCycleCount(this.timerValue);
+//        this.timer.setDelay(Duration.millis(1000));
     }
 
     private void initPlayerList(){
@@ -89,7 +130,7 @@ public class PlaygroundController implements Initializable {
         vb_playerWrapper.getChildren().clear();
 
         for (Player p : players) {
-            src = DataLoader.loadPartialLayout(ViewConfig.LAYOUT_PARTIAL_PLAYER_RECORD);
+            src = DataLoader.loadPartialLayout(Routes.LAYOUT_PARTIAL_PLAYER_RECORD);
 
             controller = (PlayerController) src.getController();
             controller.setData(p);
@@ -122,35 +163,96 @@ public class PlaygroundController implements Initializable {
         }
 
         for (int i = 0 ; i < this.fieldCount; i++) {
-            FXMLSource src = DataLoader.loadPartialLayout(ViewConfig.LAYOUT_PARTIAL_BOARD_FIELD);
+            FXMLSource src = DataLoader.loadPartialLayout(Routes.LAYOUT_PARTIAL_BOARD_FIELD);
             this.fieldControllers[i] = (BoardFieldController) src.getController();
+            this.fieldControllers[i].fitSize(w);
+            this.fieldControllers[i].setPlaygroundController(this);
+            this.fieldControllers[i].setDifficulty(this.room.getDifficulty());
+            this.fieldControllers[i].setIndex(i);
 
             BorderPane field = (BorderPane) src.getRoot();
-            field.setPrefWidth(w);
-            field.setPrefHeight(w);
 
-            int c = i % GameConfig.DEFAULT_BOARD_DIMENSION,
-                r = (int) Math.floor(i / GameConfig.DEFAULT_BOARD_DIMENSION);
+            int c = i % this.dimension,
+                r = (int) Math.floor(i / this.dimension);
 
             this.gp_playground.add(field, c, r);
         }
 
     }
 
-
-    public void setApp(Screen screen, Application app){
+    public void setApp(Screen screen, Application app) {
         this.screen = screen;
         this.app = app;
     }
 
-    public void handleLogin(){
-        //String nick = tf_username.getText();
-        //
-        //if(UserInputValidator.validateUsername(nick)) {
-        //    this.app.registerPlayer(new Player(nick));
-        //    //Application.awaitAtGuiBarrier();
-        //
-        //    Application.awaitAtGuiBarrier("GUI relseases. Username entered. (5GRG)");
-        //}
+    public void registerMove(GameMove m){
+        this.moves.add(m);
+        System.out.println(Arrays.toString(this.moves.toArray()));
+    }
+
+//    public ArrayList<GameMove> getGameProgress(){
+//        return this.moves;
+//    }
+
+    public void startTurn() {
+        Platform.runLater(() -> {
+            this.initTimer();
+            this.playTurnTask();
+        });
+    }
+
+    private void proceedTurnStart(){
+        this.enableBoard();
+        //this.vb_timerWrapper.setVisible(true);
+        this.timer.play();
+    }
+
+
+    public void endTurn(){
+        this.disableBoard();
+        //this.vb_timerWrapper.setVisible(false);
+        this.timer.stop();
+        this.app.storeProgress(this.moves);
+
+        Application.awaitAtGuiBarrier("GUI releases. Turn ends.");
+
+//        this.app.proceedEndTurn(this.moves);
+    }
+
+    private void enableBoard(){
+        this.gp_playground.setDisable(false);
+    }
+
+    private void disableBoard(){
+        this.gp_playground.setDisable(true);
+        BoardFieldController.stopActivity();
+    }
+
+    private void playTurnTask(){
+        GameMove[] progress = this.app.getProgress();
+
+        Timeline timeline = new Timeline(
+            new KeyFrame(Duration.millis(ViewConfig.TIMER_TURN_INTRO_MOVE_DURATION), new EventHandler<ActionEvent>() {
+                int i = 0;
+                @Override
+                public void handle(ActionEvent event) {
+                    Platform.runLater(() -> {
+                        GameMove m = progress[i];
+                        BoardFieldController c = fieldControllers[m.getIndex()];
+                        c.displayMove(m);
+                        i++;
+                    });
+                }
+            })
+        );
+        timeline.setCycleCount(progress.length);
+        timeline.setOnFinished((e) ->
+            new Timeline(new KeyFrame(
+                Duration.millis(ViewConfig.TIMER_TURN_INTRO_MOVE_DURATION),
+                (ActionEvent) -> this.proceedTurnStart()
+            )).play()
+        );
+
+        timeline.play();
     }
 }

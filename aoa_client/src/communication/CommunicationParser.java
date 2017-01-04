@@ -1,10 +1,10 @@
 package communication;
 
 import config.CommunicationConfig;
-import model.GameDifficulty;
-import model.Player;
-import model.Room;
-import partial.Tools;
+import game.GameDifficulty;
+import game.GameMove;
+import game.GameTurn;
+import model.*;
 
 import java.util.Arrays;
 
@@ -16,13 +16,51 @@ public class CommunicationParser {
 	
 
 
-	private boolean checkACK(String response, int index){
-        String[] parts = response.split(CommunicationConfig.MSG_DELIMITER);
+//	private boolean checkACK(String response, int index){
+//        String[] parts = response.split(CommunicationConfig.MSG_DELIMITER);
+//        return parts[index].equals(CommunicationConfig.REQ_ACK);
+//    }
+//
+//    private boolean checkACK(String response){
+//	    return this.checkACK(response, 1);
+//    }
+
+    private boolean checkACK(String[] parts, int index) {
         return parts[index].equals(CommunicationConfig.REQ_ACK);
     }
 
-    private boolean checkACK(String response){
-	    return this.checkACK(response, 1);
+    private boolean checkACK(String[] parts) {
+        return this.checkACK(parts, 1);
+    }
+
+//    private boolean checkMessageType(String response, MessageType[] types, int index) {
+//        String[] parts = response.split(CommunicationConfig.MSG_DELIMITER);
+//
+//        for (MessageType t : types) {
+//            if(parts[index].equals(String.valueOf(t.getCode()))) {
+//                return true;
+//            }
+//        }
+//
+//        return false;
+//    }
+//
+//    private boolean checkMessageType(String response, MessageType[] types) {
+//        return this.checkMessageType(response, types, 0);
+//    }
+
+
+    private boolean checkMessageType(String[] parts, MessageType[] types, int index) {
+        for (MessageType t : types) {
+            if(parts[index].equals(String.valueOf(t.getCode()))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean checkMessageType(String[] parts, MessageType[] types) {
+        return this.checkMessageType(parts, types, 0);
     }
 
 	/**
@@ -36,28 +74,35 @@ public class CommunicationParser {
 	 * @param player	
 	 * @return
 	 */
-	public boolean parseUsernameAvailabilityResponse(String response, Player player){
+	public Player parseUsernameAvailabilityResponse(String response, Player player){
 		String[] parts = response.split(CommunicationConfig.MSG_DELIMITER);
-		
-		boolean ack = Integer.parseInt(parts[1]) == 1;
-		
-		if(!ack)
-			return false;
+
+        if(!this.checkMessageType(parts, new MessageType[]{MessageType.SIGN_IN}))
+            return null;
+
+        if(!this.checkACK(parts))
+            return null;
 		
 		int id = Integer.parseInt(parts[2]);
 		player.setID(id);
-		
-		return true;
+		return player;
 	}
 
     public Room[] parseRoomList(String response){
-	    return this.parseRoomList(response, 1);
+
+	    // message split to blocks
+        String[] parts = response.split(CommunicationConfig.MSG_DELIMITER);
+
+        if(!this.checkACK(parts))
+            return null;
+
+        if(!this.checkMessageType(parts, new MessageType[]{MessageType.GAME_LIST, MessageType.GAME_START}))
+            return null;
+
+	    return this.parseRoomList(parts, 1);
     }
 
-	public Room[] parseRoomList(String response, int offset) {
-
-		// message split to blocks
-		String[] parts = response.split(CommunicationConfig.MSG_DELIMITER);
+	public Room[] parseRoomList(String[] parts, int offset) {
 		
 		int attribCount = 6,
 			
@@ -96,11 +141,22 @@ public class CommunicationParser {
 
 	public Room parseSelectedRoom(String response){
 
-        if(!this.checkACK(response))
+        // the only acceptable message is NACK/ACK + room info,
+        // all other messages are being ignored
+
+        // message split to blocks
+        String[] parts = response.split(CommunicationConfig.MSG_DELIMITER);
+
+        if(!this.checkACK(parts))
             return null;
 
-        return this.parseRoomList(response, 2)[0];
+        if(!this.checkMessageType(parts, new MessageType[]{MessageType.GAME_JOIN, MessageType.GAME_NEW}))
+        	return null;
+
+        return this.parseRoomList(parts, 2)[0];
 	}
+
+
 
 //	public Room parseNewRoom(String response){
 //
@@ -117,28 +173,41 @@ public class CommunicationParser {
 
 	}
 
-    public int[][] parseTurnInfo(String response) {
+    public GameTurn parseTurnInfo(String response) {
 
 	    // message split to blocks
         String[] parts = response.split(CommunicationConfig.MSG_DELIMITER);
 
-        int offset = 2,
-            turn = Integer.parseInt(parts[1]),
-            diff = (parts.length - offset)/turn;
-
-        int[][] moves = new int[turn][diff];
-
-        for (int t = 0; t < turn; t++) {
-            for (int d = 0; d < diff; d++) {
-                int index = t * diff + d + offset;
-                moves[t][d] = Integer.parseInt(parts[index]);
-            }
+        if(!this.checkMessageType(parts, new MessageType[]{MessageType.TURN_DATA})) {
+            return null;
         }
+
+        GameTurn turn;
+
+        int offset = 4,
+            turnNum = Integer.parseInt(parts[1]),
+            time = Integer.parseInt(parts[2]),
+            activePlayerID = Integer.parseInt(parts[3]),
+            diff = (parts.length - offset)/turnNum;
+
+		GameMove[] moves = new GameMove[turnNum];
+
+        for (int t = 0; t < turnNum; t++) {
+
+        	int[] attrs = {-1, -1, -1};
+			for (int a = 0; a < diff; a++) {
+				int index = t * diff + a + offset;
+				attrs[a] = Integer.parseInt(parts[index]);
+			}
+        	moves[t] = new GameMove(attrs);
+        }
+
+        turn = new GameTurn(activePlayerID, time, moves);
 
         System.out.println("Moves:");
         System.out.println(Arrays.toString(moves));
 
-        return moves;
+        return turn;
     }
 
 

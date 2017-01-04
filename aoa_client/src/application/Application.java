@@ -1,9 +1,12 @@
 package application;
 
+import java.util.ArrayList;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
 import communication.CommunicationManager;
+import game.GameMove;
+import game.GameTurn;
 import model.Player;
 import model.Room;
 
@@ -25,6 +28,7 @@ public class Application {
 
 
 
+	private boolean gameFinished;
 
 	private  Player player;
 
@@ -32,7 +36,14 @@ public class Application {
 
 	private  Room selectedRoom;
 
-	private int[][] progress;
+	//private GameMove[] progress;
+    private GameTurn turn;
+
+
+    private boolean isJoinedRoom = false;
+    private boolean isGameStarted = false;
+    private boolean isSignedIn = false;
+
 
 //	private static Screen gui;
 //	private static Client cli;
@@ -45,6 +56,11 @@ public class Application {
 	private Application(){
 		this.clientBarrier = new CyclicBarrier(2);
 		this.guiBarrier = new CyclicBarrier(2);
+		this.init();
+	}
+
+	private void init(){
+		this.gameFinished = false;
 	}
 	
 	/**
@@ -57,28 +73,20 @@ public class Application {
 		return Application.instance;
 	}
 
-	public void updateRoomList(){
+	public synchronized void updateRoomList(){
         this.rooms = this.comm.requestRoomList();
     }
 
-    public void selectRoom(Room r){
+    public synchronized void selectRoom(Room r){
 	    this.selectedRoom = r;
     }
 
     public void handleSignIn(){
-        do {
-            //wait for entering username
-            Application.awaitAtClientBarrier("CLI waits for username. (3CWC)");
-
-            //check nickname availability
-            this.comm.checkUsernameAvailability();
-
-            Application.awaitAtClientBarrier("CLI releases. Username checked. (8CRC)");
-
-        } while(!this.isPlayerRegistered());
+		//check nickname availability
+		this.comm.checkUsernameAvailability();
     }
 
-    public boolean requestCreateJoinRoom(){
+    public void requestCreateJoinRoom(){
         Room selected;
 
         if(this.selectedRoom.hasID()) {
@@ -96,15 +104,18 @@ public class Application {
             this.selectRoom(selected);
         }
 
-        return selected != null;
+        this.isJoinedRoom = selected != null;
     }
 
-    public boolean waitForGameInit(){
-        return this.comm.waitGameInitComplete();
+
+
+
+    public void waitForGameInit(){
+		this.isGameStarted = this.comm.waitGameInitComplete();
     }
 
     public void waitForTurnStart(){
-        this.progress = this.comm.waitForTurn();
+        this.turn = this.comm.waitForTurn();
     }
 
 
@@ -129,20 +140,7 @@ public class Application {
 //		this.cli = cli;
 //	}
 	
-	public void registerPlayer(Player player){
-		this.player = player;
-	}
-	
-	public Player getPlayerInfo(){
-		return this.player;
-	}
-	
-	public boolean isPlayerRegistered(){
-		return this.player.hasID();
-	}
-	
-	
-	
+
 	
 //	public Screen getScreen(){
 //		return this.gui;
@@ -198,8 +196,62 @@ public class Application {
 
 
 
-	public Room getSelectedRoom(){
+	public synchronized Room getSelectedRoom(){
 	    return this.selectedRoom;
     }
 
+    public synchronized void proceedEndTurn() {
+        this.comm.registerEndTurn(this.turn.getMoves());
+    }
+
+    public synchronized GameMove[] getProgress() {
+        return this.turn.getMoves();
+    }
+
+	public synchronized void storeProgress(ArrayList<GameMove> gameProgress){
+		this.turn.setMoves(gameProgress);
+	}
+
+    public synchronized int getTurnTime() {
+        return this.turn.getTime();
+    }
+
+    public synchronized int getActivePlayerID() {
+        return this.turn.getActivePlayerID();
+    }
+
+    public synchronized void setGameFinished(){
+		this.gameFinished = true;
+	}
+
+
+
+
+	public synchronized void registerPlayer(Player player){
+		this.player = player;
+	}
+
+	public synchronized Player getPlayerInfo(){
+		return this.player;
+	}
+
+	public synchronized boolean isPlayerRegistered(){
+		return this.player.hasID();
+	}
+
+	public synchronized boolean isGameFinished() {
+		return gameFinished;
+	}
+
+	public synchronized boolean isRoomJoined(){
+    	return this.isJoinedRoom;
+	}
+
+	public synchronized boolean isGameStarted() {
+		return isGameStarted;
+	}
+
+	public synchronized boolean isSignedIn() {
+		return isSignedIn;
+	}
 }

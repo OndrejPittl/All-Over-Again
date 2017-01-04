@@ -1,5 +1,6 @@
 package model;
 
+import game.GameDifficulty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
