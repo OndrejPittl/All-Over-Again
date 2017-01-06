@@ -34,7 +34,7 @@ public class Tools {
         if(mod > 0)
             sum = sum % mod;
 
-        System.out.println("checksum'of \"" + str + "\": " + sum);
+//        System.out.println("checksum'of \"" + str + "\": " + sum);
         return (int) sum;
     }
 }

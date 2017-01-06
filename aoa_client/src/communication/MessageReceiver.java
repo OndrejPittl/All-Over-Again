@@ -94,7 +94,7 @@ public class MessageReceiver implements Runnable {
         String checkSumStr = msg.substring(0, delimPos),
                message = msg.substring(delimPos + 1, msgLen);
 
-        System.out.println("len: " + msgLen + " delimPos: " + delimPos + " of a message: " + msg + " with result: " + message);
+//        System.out.println("len: " + msgLen + " delimPos: " + delimPos + " of a message: " + msg + " with result: " + message);
 
         if(!Tools.isNumber(checkSumStr))
             return null;
@@ -161,7 +161,7 @@ public class MessageReceiver implements Runnable {
             }
 
         } catch (IOException e) {
-            System.err.print("Error: BufferedInputStream initialization.\n");
+            System.err.print("ErrorConfig: BufferedInputStream initialization.\n");
             e.printStackTrace();
         }
 

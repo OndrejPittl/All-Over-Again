@@ -28,19 +28,11 @@ import java.util.Arrays;
 import java.util.ResourceBundle;
 
 
-public class PlaygroundController implements Initializable {
+public class PlaygroundController extends ScreenController {
 
     private Room room;
 
     private int dimension;
-
-
-
-    private Stage window;
-
-    private Screen screen;
-
-    private Application app;
 
     private Timeline timer;
     private int timerValue;
@@ -78,16 +70,13 @@ public class PlaygroundController implements Initializable {
 
 
 
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {}
-
     public void prepare(){
-        this.init();
+        this.updateInfo();
         this.initPlayerList();
         this.initBoard();
     }
 
-    private void init(){
+    private void updateInfo(){
         this.moves = new ArrayList<>();
         this.room = this.app.getSelectedRoom();
         this.dimension = this.room.getBoardDimension();
@@ -180,19 +169,10 @@ public class PlaygroundController implements Initializable {
 
     }
 
-    public void setApp(Screen screen, Application app) {
-        this.screen = screen;
-        this.app = app;
-    }
-
     public void registerMove(GameMove m){
         this.moves.add(m);
         System.out.println(Arrays.toString(this.moves.toArray()));
     }
-
-//    public ArrayList<GameMove> getGameProgress(){
-//        return this.moves;
-//    }
 
     public void startTurn() {
         Platform.runLater(() -> {

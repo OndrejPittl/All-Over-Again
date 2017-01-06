@@ -1,12 +1,16 @@
 package application;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
 import communication.CommunicationManager;
 import game.GameMove;
 import game.GameTurn;
+import model.Error;
 import model.Player;
 import model.Room;
 
@@ -27,6 +31,8 @@ public class Application {
 	private static CyclicBarrier guiBarrier;
 
 
+
+    private ArrayList<Error> errors;
 
 	private boolean gameFinished;
 
@@ -61,6 +67,7 @@ public class Application {
 
 	private void init(){
 		this.gameFinished = false;
+        this.errors = new ArrayList<>();
 	}
 	
 	/**
@@ -254,4 +261,24 @@ public class Application {
 	public synchronized boolean isSignedIn() {
 		return isSignedIn;
 	}
+
+	public synchronized void registerError(Error err){
+	    this.errors.add(err);
+    }
+
+    public synchronized void clearErrors(){
+        this.errors.clear();
+    }
+
+    public ArrayList<Error> getErrors() {
+        ArrayList<Error> errs = new ArrayList<>();
+
+        for (Error e : this.errors) {
+            errs.add(e);
+        }
+
+        this.clearErrors();
+
+        return errs;
+    }
 }

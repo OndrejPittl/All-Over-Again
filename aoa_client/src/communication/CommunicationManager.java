@@ -198,6 +198,10 @@ public class CommunicationManager {
         this.sb.append(CommunicationConfig.REQ_GAME_JOIN);
         this.sb.append(CommunicationConfig.MSG_DELIMITER);
         this.sb.append(selection.getID());
+
+        System.out.println("********* SENDING: " + this.sb.toString());
+
+
         this.prepareMessage();
 
         return this.waitForRoomInfo();
@@ -222,6 +226,9 @@ public class CommunicationManager {
 
             try {
                 m = this.incomingMessages.take();
+
+                System.out.println("********* RECEIVED: " + m.getMessage());
+
                 r = this.parser.parseSelectedRoom(m.getMessage());
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -248,7 +255,7 @@ public class CommunicationManager {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
+            // || (msgFound && !result)
             if(result) break;
 
         } while (!this.incomingMessages.isEmpty());

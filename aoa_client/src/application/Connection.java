@@ -47,7 +47,6 @@ public class Connection {
 		
 		while(!this.createSocket()) {
 			count++;
-            System.out.println("Running,");
 			Logger.logConnectionFailed(count);
 			
 			if(count >= ConnectionConfig.MAX_CONNECTION_TRY_COUNT) {
@@ -55,7 +54,7 @@ public class Connection {
 			}
 			
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(ConnectionConfig.CONNECTION_TRY_PERIOD_MS);
 			} catch (InterruptedException e) {}
 		}
 		
@@ -75,7 +74,7 @@ public class Connection {
 			try {
 				this.clientSocket.close();
 			} catch (IOException e) {
-				System.err.print("Error: closing socket.\n");
+				System.err.print("ErrorConfig: closing socket.\n");
 				e.printStackTrace();
 			}
 		}
@@ -106,10 +105,10 @@ public class Connection {
 			this.clientSocket = new Socket(this.serverIP, this.serverPort);
 			this.address = this.clientSocket.getInetAddress();
 		} catch (UnknownHostException e) {
-			System.err.print("Error: creating connection.\n");
+			System.err.print("ErrorConfig: creating connection.\n");
 			//e.printStackTrace();
 		} catch (IOException e) {
-			System.err.print("Error: creating connection.\n");
+			System.err.print("ErrorConfig: creating connection.\n");
 			//e.printStackTrace();
 		}
 

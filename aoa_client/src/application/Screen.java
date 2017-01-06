@@ -37,17 +37,23 @@ public class Screen extends Stage implements Observer {
 		this.stage = window;
 		this.app = app;
 		this.me = this;
-		this.runConnecting();
 	}
+
+    public void run(){
+        Platform.runLater(() -> {
+            this.centerStage();
+            this.stage.show();
+        });
+    }
 	
-	public void run(){
-		this.stage.show();
-		this.centerStage();
-	}
-	
-	private Initializable runScreen(ScreenType screen) throws IOException {		
+	private Initializable runScreen(ScreenType screen) throws IOException {
+        System.out.println("--- running: " + screen.getName());
+
 		ScreenSettings cfg = ViewConfig.getScreen(screen);
+
+//		System.out.println("before loading.................");
         FXMLSource src = DataLoader.loadLayout(cfg.getName());
+//		System.out.println("after loading.................");
 		BorderPane root = (BorderPane) src.getRoot();
 
 		Scene scene = new Scene(
@@ -55,32 +61,34 @@ public class Screen extends Stage implements Observer {
 			cfg.getWidth(),
 			cfg.getHeight()
 		);
-				
+
 		DataLoader.loadStylesheet(this, scene, "style");
 
 		this.stage.setMinWidth(cfg.getMinWidth());
 		this.stage.setMinHeight(cfg.getMinHeight());
 		this.stage.setTitle(cfg.getTitle());
-		this.stage.setScene(scene);
-//		this.stage.sizeToScene();
+        this.stage.setScene(scene);
+        this.centerStage();
 
-
-		this.centerStage();		
 		return src.getController();
 	}
-	
-	private void centerStage(){
-		Rectangle2D screenBounds = javafx.stage.Screen.getPrimary().getVisualBounds();
-	    this.stage.setX((screenBounds.getWidth() - this.stage.getWidth()) / 2); 
-	    this.stage.setY((screenBounds.getHeight() - this.stage.getHeight()) / 2);
-	}
+
+    private void centerStage(double w, double h){
+        Rectangle2D screenBounds = javafx.stage.Screen.getPrimary().getVisualBounds();
+        this.stage.setX((screenBounds.getWidth() - w) / 2);
+        this.stage.setY((screenBounds.getHeight() - h) / 2);
+    }
+
+    private void centerStage(){
+        this.centerStage(this.stage.getWidth(), this.stage.getHeight());
+    }
 	
 	public Void runLogin(){
 		// new Runnable() -> run()
 		Platform.runLater(() -> {
 			try {
 				LoginController controller = (LoginController) me.runScreen(ScreenType.Login);
-				controller.setApp(me, app);
+				controller.setApp(app);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -94,7 +102,7 @@ public class Screen extends Stage implements Observer {
 			try {
 				MessageController controller = (MessageController) me.runScreen(ScreenType.Message);
 				controller.setMessage(ViewConfig.MSG_CONNECTION);
-				controller.setApp(me, app);
+				controller.setApp(app);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -106,7 +114,7 @@ public class Screen extends Stage implements Observer {
 			try {
 				MessageController controller = (MessageController) me.runScreen(ScreenType.Message);
 				controller.setMessage(ViewConfig.MSG_WAITING_GAME_INIT);
-				controller.setApp(me, app);
+				controller.setApp(app);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -118,7 +126,7 @@ public class Screen extends Stage implements Observer {
 			try {
 				MessageController controller = (MessageController) me.runScreen(ScreenType.Message);
 				controller.setMessage(ViewConfig.MSG_CHECKING);
-				controller.setApp(me, app);
+				controller.setApp(app);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -129,7 +137,7 @@ public class Screen extends Stage implements Observer {
         Platform.runLater(() -> {
             try {
                 GameCenterController controller = (GameCenterController) me.runScreen(ScreenType.GameCenter);
-                controller.setApp(me, app);
+                controller.setApp(app);
                 controller.updateRoomList();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -141,7 +149,7 @@ public class Screen extends Stage implements Observer {
         Platform.runLater(() -> {
             try {
                 this.playgroundController = (PlaygroundController) me.runScreen(ScreenType.Playground);
-                this.playgroundController.setApp(me, app);
+                this.playgroundController.setApp(app);
                 this.playgroundController.prepare();
                 Application.awaitAtGuiBarrier("GUI releases after board initialization.");
                 //controller.updateRoomList();

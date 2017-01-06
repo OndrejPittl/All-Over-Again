@@ -1,27 +1,18 @@
 package controllers;
 
-import java.net.URL;
-import java.util.ResourceBundle;
-
 import application.Application;
-import application.Screen;
+import game.GameDifficulty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import game.GameDifficulty;
 import model.Room;
 import model.ViewRoom;
 
-public class GameCenterController implements Initializable {
-
-	private Screen screen;
-	
-	private Application app;
+public class GameCenterController extends ScreenController {
 
     private ObservableList<ViewRoom> rooms = FXCollections.observableArrayList();
 
@@ -54,16 +45,18 @@ public class GameCenterController implements Initializable {
 	private TableColumn<ViewRoom, String> difficultyColumn;
 	
 	
-	
-	@Override
-	public void initialize(URL location, ResourceBundle resources) {
+
+
+	protected void init(){
 		this.initJoinGameSection();
-        this.initNewGameSection();
+		this.initNewGameSection();
 	}
 
 	private void initNewGameSection(){
         cb_players.getItems().addAll("Singleplayer", "Multiplayer");
         cb_difficulty.getItems().addAll("Easy", "Medium", "Expert");
+        this.cb_players.getSelectionModel().select(0);
+        this.cb_difficulty.getSelectionModel().select(0);
     }
 
 	private void initJoinGameSection(){
@@ -79,13 +72,12 @@ public class GameCenterController implements Initializable {
         nicknamesColumn.setMaxWidth(1f * Integer.MAX_VALUE * 60);
         playersColumn.setMaxWidth(1f * Integer.MAX_VALUE * 20);
         difficultyColumn.setMaxWidth(1f * Integer.MAX_VALUE * 20);
+
+        this.tv_rooms.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            this.btn_joinGame.setDisable(newSelection == null);
+        });
     }
-	
-	public void setApp(Screen screen, Application app){
-        this.screen = screen;
-        this.app = app;
-    }
-	
+
 	public void updateRoomList(){
 		this.rooms.clear();
 		
@@ -94,13 +86,17 @@ public class GameCenterController implements Initializable {
 		}
 		
 		this.tv_rooms.setItems(this.rooms);
+
+        int itemCount = tv_rooms.getItems().size();
+        if(itemCount > 0) {
+            this.tv_rooms.getSelectionModel().select(0);
+        }
+
 	}
 
 	public void handleRoomListRefresh(){
-	    System.out.println("Requesting room list.");
         this.app.updateRoomList();
         this.updateRoomList();
-        System.out.println("Room list updated.");
 	}
 
     public void handleNewGame(){

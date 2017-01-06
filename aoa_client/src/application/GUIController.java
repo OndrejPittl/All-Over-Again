@@ -2,8 +2,6 @@ package application;
 
 import java.util.Observable;
 
-import javafx.application.Platform;
-
 public class GUIController extends Observable implements Runnable {
 
 	private Application app;
@@ -19,14 +17,17 @@ public class GUIController extends Observable implements Runnable {
 	@Override
 	public void run() {
 
-		
-		//this.gui.runConnecting();
+        //Application.awaitAtClientBarrier("GUIControl releases after init.");
+        Application.awaitAtGuiBarrier("GUIControl waits for GUI init.");
+
+        this.gui.run();
+
+        this.gui.runConnecting();
+
+        this.waitAtScreen(2500);
 
 		//GUIController, WAIT: at "Connecting..." scene for a connection to a server.
 		Application.awaitAtClientBarrier("GUIControl – waits for connection established (1GCWC)");
-
-		//Application.awaitAtClientBarrier("GUIControl releases after init.");
-        Application.awaitAtGuiBarrier("GUIControl waits for GUI init.");
 
 
         do {
@@ -39,6 +40,7 @@ public class GUIController extends Observable implements Runnable {
                 Application.awaitAtGuiBarrier("GUIControl – waits for entering username. (4GCWG)");
 
                 this.gui.runChecking();
+                this.waitAtScreen(1000);
 
                 Application.awaitAtClientBarrier("GUIControl releases. Username entered. (6GCRC)");
 
@@ -115,7 +117,14 @@ public class GUIController extends Observable implements Runnable {
 		_Developer.threadExecEnds("GUIController");
 		
 	}
-	
+
+	private void waitAtScreen(int milis){
+        try {
+            Thread.sleep(milis);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 	
 
 

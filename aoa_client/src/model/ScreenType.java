@@ -12,7 +12,7 @@ public enum ScreenType {
 	/**
 	 * Scene where a player creates a new game or selects an existing one.
 	 */
-	GameCenter(1, "game-center", "Playground Center"),
+	GameCenter(1, "game-center", "Game Center"),
 	
 	/**
 	 * Scene indicating user that game is being prepared == waiting for players.

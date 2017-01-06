@@ -2,8 +2,9 @@ package validation;
 
 public class UserInputValidator {
 	
-	private static String inputRegex = "^[a-zA-Z0-9-_*#<>]{3,10}$";
-	
+//	private static String inputRegex = "^[a-zA-Z0-9-_*#<>]{3,15}$";
+	private static String inputRegex = "^[a-zA-Z0-9-_<>]{3,15}$";
+
 	
 	
 	

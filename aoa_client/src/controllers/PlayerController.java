@@ -3,17 +3,13 @@ package controllers;
 import config.Routes;
 import config.ViewConfig;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import model.Player;
 
-import java.net.URL;
-import java.util.ResourceBundle;
 
-
-public class PlayerController implements Initializable {
+public class PlayerController extends ScreenController {
 
     private static boolean tmpActive = true;
 
@@ -26,9 +22,7 @@ public class PlayerController implements Initializable {
     @FXML
     private ImageView iv_activePlayerIcon;
 
-
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
+    protected void init(){
         Image image = new Image(Routes.getImagesDir() + Routes.IMG_ACTIVE_PLAYER);
         this.iv_activePlayerIcon.setImage(image);
     }
@@ -40,7 +34,7 @@ public class PlayerController implements Initializable {
         this.lbl_name.setText(p.getName());
         this.lbl_status.setText(ViewConfig.MSG_STATUS_ONLINE);
 
-        if(tmpActive) tmpActive = false;
+        this.tmpActive = false;
     }
 
 

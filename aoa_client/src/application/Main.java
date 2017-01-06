@@ -1,5 +1,6 @@
 package application;
 	
+import config.ErrorConfig;
 import javafx.stage.Stage;
 import partial.Tools;
 
@@ -21,9 +22,7 @@ public class Main extends javafx.application.Application {
 	
 	
 	public static void main(String[] args) {
-		// Main.app = Application.getInstance();
-
-        if(!Main.checkArgs(args))
+		if(!Main.checkArgs(args))
             return;
 
         Main.app = Application.getInstance();
@@ -60,7 +59,7 @@ public class Main extends javafx.application.Application {
         Application.awaitAtGuiBarrier("GUI Thrd releases GUIControl after init.");
 
 		//run gui
-		Main.guiRunnable.run();
+		//Main.guiRunnable.run();
 	}
 
 	private static boolean checkArgs(String[] args){

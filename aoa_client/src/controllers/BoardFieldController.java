@@ -4,11 +4,14 @@ package controllers;
 import config.GameConfig;
 import config.Routes;
 import config.ViewConfig;
+import game.GameColor;
+import game.GameDifficulty;
+import game.GameMove;
+import game.GameSymbol;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -16,17 +19,11 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import game.GameColor;
-import game.GameDifficulty;
-import game.GameMove;
-import game.GameSymbol;
 
-import java.net.URL;
-import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class BoardFieldController implements Initializable {
+public class BoardFieldController extends ScreenController {
 
     private static final double ACTIVE_SPOT_SIZE = 1.3;
 
@@ -107,15 +104,12 @@ public class BoardFieldController implements Initializable {
 
 
 
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        this.init();
-        //this.updateBars();
+    protected void init(){
+        this.initLayout();
         this.bindEvents();
     }
 
-    private void init(){
-
+    private void initLayout(){
         this.resetField();
 
         Image arr = new Image(Routes.getImagesDir() + Routes.IMG_ARROW);

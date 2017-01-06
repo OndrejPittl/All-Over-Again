@@ -1,6 +1,7 @@
 package application;
 
 import communication.CommunicationManager;
+import model.Error;
 
 
 public class Client implements Runnable {
@@ -45,6 +46,8 @@ public class Client implements Runnable {
 
 	public void run() {
 
+	    boolean result;
+
 	    //connection try – max 10 tries
         if(!this.conn.connect()) {
             System.exit(0);
@@ -77,7 +80,13 @@ public class Client implements Runnable {
 
                 Application.awaitAtClientBarrier("CLI releases. Username checked. (8CRC)");
 
-            } while(!this.app.isPlayerRegistered());
+                if(!(result = this.app.isPlayerRegistered())){
+                    System.out.println("--- REGISTERING ERROR: USERNAME TAKEN");
+                    this.app.registerError(Error.USERNAME_TAKEN);
+                }
+
+
+            } while(!result);
 
 
 

@@ -63,7 +63,7 @@
             <Separator orientation="VERTICAL" prefHeight="200.0" GridPane.columnIndex="1" />
             <BorderPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2">
                <bottom>
-                  <Button fx:id="btn_joinGame" mnemonicParsing="false" onAction="#handleJoinGame" prefWidth="150.0" text="Join a game" BorderPane.alignment="CENTER">
+                  <Button fx:id="btn_joinGame" disable="true" mnemonicParsing="false" onAction="#handleJoinGame" prefWidth="150.0" text="Join a game" BorderPane.alignment="CENTER">
                      <BorderPane.margin>
                         <Insets bottom="50.0" />
                      </BorderPane.margin>

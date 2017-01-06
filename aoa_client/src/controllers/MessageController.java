@@ -12,27 +12,18 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
-public class MessageController implements Initializable {
-
-	private Application app;
+public class MessageController extends ScreenController {
 
 	@FXML
 	private ImageView iv_loading;
 	
 	@FXML
 	private Label lbl_message;
-	
-	private Screen screen;
 
-	@Override
-	public void initialize(URL location, ResourceBundle resources) {
-	    Image image = new Image(Routes.getImagesDir() + Routes.IMG_LOADER);
-	    this.iv_loading.setImage(image);
-	}
-
-	public void setApp(Screen screen, Application app){
-        this.screen = screen;
-        this.app = app;
+	protected void init(){
+		Image image = new Image(Routes.getImagesDir() + Routes.IMG_LOADER);
+		this.iv_loading.setImage(image);
+//		System.out.println("after init.................");
     }
 
 	public void setMessage(String msg){

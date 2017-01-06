@@ -1,52 +1,43 @@
 package controllers;
 
-import java.net.URL;
-import java.util.ResourceBundle;
-
 import application.Application;
-import application.Main;
-import application.Screen;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.stage.Stage;
+import model.Error;
 import model.Player;
 import validation.UserInputValidator;
 
-public class LoginController implements Initializable {
+public class LoginController extends ScreenController {
 
-	private Stage window;
-	
-	private Screen screen;
-	
-	private Application app;
-	
 	@FXML
 	private TextField tf_username;
 	
 	@FXML
 	private Button btn_login;
-		
-	
-	public void initialize(URL location, ResourceBundle resources) {
-		
+
+	@FXML
+	private Label lbl_err_username;
+
+
+	@Override
+	protected void init() {
+
 	}
-	
-	public void setApp(Screen screen, Application app){
-        this.screen = screen;
-        this.app = app;
-    }
 
 	public void handleLogin(){
 		String nick = tf_username.getText();
 		
 		if(UserInputValidator.validateUsername(nick)) {
 			this.app.registerPlayer(new Player(nick));
-			//Application.awaitAtGuiBarrier();
-			
 			Application.awaitAtGuiBarrier("GUI relseases. Username entered. (5GRG)");
 		}
+	}
+
+	@Override
+	protected void registerErrorLabels(){
+		this.registerErrorLabel(Error.USERNAME_TAKEN, this.lbl_err_username);
 	}
 
 	

@@ -69,12 +69,12 @@ public class MessageSender implements Runnable {
      */
     public void writeMsg(String msg) {
         try {
-            System.out.print("sending...\n");
+//            System.out.print("sending...\n");
             this.initBufferedOutputStream();
             this.bos.write(msg.getBytes(), 0, msg.length());
             this.bos.flush();
         } catch (IOException e) {
-            System.err.print("Error: BufferedOutputStream initialization.\n");
+            System.err.print("ErrorConfig: BufferedOutputStream initialization.\n");
             e.printStackTrace();
         }
     }
