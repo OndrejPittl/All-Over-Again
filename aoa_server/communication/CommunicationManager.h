@@ -11,8 +11,9 @@
 #include "Message.h"
 #include "RawMessage.h"
 #include "MessageSender.h"
-#include "../core/Application.h"
 
+
+class Application;
 
 class CommunicationManager {
 	private:
@@ -88,8 +89,10 @@ class CommunicationManager {
 		 * Constructor.
 		 * @param messageQueue
 		 */
-//		CommunicationManager(SafeQueue<Message *> *messageQueue);
-		CommunicationManager(Application *app);
+		CommunicationManager();
+//      CommunicationManager(SafeQueue<Message *> *messageQueue);
+//		CommunicationManager(Application *app);
+
 
 
         void startMessageValidator();
@@ -102,6 +105,8 @@ class CommunicationManager {
 		*	
 		*/
 		void receiveMessage(int fdIndex, int byteCount);
+
+		void setApp(Application *app);
 
 
 

@@ -1,8 +1,6 @@
-// libraries
 #include <iostream>
 #include <sys/socket.h>
 
-// headers
 #include "../core/Logger.h"
 #include "CommunicationManager.h"
 #include "../partial/StringBuilder.h"
@@ -10,16 +8,23 @@
 
 
 
+// libraries
+// headers
+
+CommunicationManager::CommunicationManager() {
+    this->init();
+}
+
 //CommunicationManager::CommunicationManager(SafeQueue<Message *> *messageQueue) {
-CommunicationManager::CommunicationManager(Application *app) {
-    this->app = app;
+//CommunicationManager::CommunicationManager(Application *app) {
+//    this->app = app;
+//	this->init();
+//}
+
+void CommunicationManager::init() {
     this->messageQueue = new SafeQueue<Message *>();
     this->sendMessageQueue = new SafeQueue<Message *>();
     this->rawMessageQueue = new SafeQueue<RawMessage *>();
-	this->init();
-}
-
-void CommunicationManager::init() {
     this->log = new StringBuilder();
     Logger::info("CommunicationManager is initialized.");
 }
@@ -84,6 +89,10 @@ std::string CommunicationManager::recvMsg(int sock, int byteCount) {
     }
 
     return std::string(buffer);
+}
+
+void CommunicationManager::setApp(Application *app) {
+    this->app = app;
 }
 
 

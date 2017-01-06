@@ -7,13 +7,19 @@
 #include "../game/Player.h"
 #include "Logger.h"
 #include "Developer.h"
-//#include "../connection/ConnectionManager.h"
-//#include "../communication/CommunicationManager.h"
+#include "../connection/ConnectionManager.h"
+#include "../communication/CommunicationManager.h"
 
 
 const std::string Application::USERNAME_VALIDATION_REGEX = "^[a-zA-Z0-9-_<>]{3,15}$";
 
 Application::Application() {
+    this->init();
+}
+
+Application::Application(ConnectionManager *conn, CommunicationManager *comm) {
+    this->conn = conn;
+    this->comm = comm;
     this->init();
 }
 
@@ -78,14 +84,4 @@ void Application::deregisterUser(int uid) {
     this->log->append(" was marked as offline.");
     Logger::info(this->log->getString());
 }
-
-//Application::Application(ConnectionManager *conn, CommunicationManager *comm) {
-//    this->conn = conn;
-//    this->comm = comm;
-//}
-
-//void Application::setDependencies(ConnectionManager *conn, CommunicationManager *comm) {
-//    this->conn = conn;
-//    this->comm = comm;
-//}
 

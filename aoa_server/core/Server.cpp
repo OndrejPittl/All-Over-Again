@@ -149,10 +149,10 @@ bool Server::checkArgs() {
 
 
 void Server::init() {
-//    this->app = new Application(this->conn, this->comm);
-    this->app = new Application();
     this->conn = new ConnectionManager(this->argv[1]);
-    this->comm = new CommunicationManager(this->app);
+    this->comm = new CommunicationManager();
+    this->app = new Application(this->conn, this->comm);
+    this->comm->setApp(this->app);
 
     this->logMessage = new StringBuilder();
     // this->app = new Application();

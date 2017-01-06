@@ -9,19 +9,18 @@
 #include "../game/Player.h"
 #include "../game/Room.h"
 #include "../partial/StringBuilder.h"
-//#include "../connection/ConnectionManager.h"
-//#include "../communication/CommunicationManager.h"
 
-//class ConnectionManager;
-//class CommunicationManager;
+
+class ConnectionManager;
+class CommunicationManager;
 
 
 class Application {
     private:
 
-//        ConnectionManager *conn;
+        ConnectionManager *conn;
 
-//        CommunicationManager *comm;
+        CommunicationManager *comm;
 
         /**
          * Used for assigning an existing user to a relevant game.
@@ -61,7 +60,7 @@ class Application {
 
         Application();
 
-//        Application(ConnectionManager *conn, CommunicationManager *comm);
+        Application(ConnectionManager *conn, CommunicationManager *comm);
 
         bool validateUsername(std::string basic_string);
 
