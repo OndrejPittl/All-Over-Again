@@ -2,26 +2,26 @@
 #include <sys/ioctl.h>
 
 
-#include "App.h"
+#include "Server.h"
 #include "../core/Logger.h"
 #include "../partial/tools.h"
 
 
-const int App::INPUT_ARGS_NUM = 2;
+const int Server::INPUT_ARGS_NUM = 2;
 
-const int App::PORT_NUM_LOWER_LIMIT = 1024;
+const int Server::PORT_NUM_LOWER_LIMIT = 1024;
 
-const int App::PORT_NUM_UPPER_LIMIT = 65535;
+const int Server::PORT_NUM_UPPER_LIMIT = 65535;
 
 
 
-App::App(int argc, char **argv) {
+Server::Server(int argc, char **argv) {
 	this->argc = argc;
 	this->argv = argv;
 //	this->messageQueue = new SafeQueue<Message *>();
 }
 
-void App::run() {
+void Server::run() {
 
 	/**
 	*	Operation result / return value being used to check its successful.
@@ -110,6 +110,7 @@ void App::run() {
 					} else {
 						// Disconnect a client.
                         this->conn->deregisterNewClient(fdIndex);
+						this->app->deregisterUser(fdIndex);
 					}
 
 				}
@@ -131,7 +132,7 @@ void App::run() {
 	Logger::info("---------- Finished ----------");
 }
 
-bool App::checkArgs() {
+bool Server::checkArgs() {
 	bool correct = true;
 
 	// number of args
@@ -147,9 +148,14 @@ bool App::checkArgs() {
 }
 
 
-void App::init() {
-    this->logMessage = new StringBuilder();
+void Server::init() {
+//    this->app = new Application(this->conn, this->comm);
+    this->app = new Application();
     this->conn = new ConnectionManager(this->argv[1]);
-//    this->comm = new CommunicationManager(this->messageQueue);
-    this->comm = new CommunicationManager();
+    this->comm = new CommunicationManager(this->app);
+
+    this->logMessage = new StringBuilder();
+    // this->app = new Application();
+
+
 }

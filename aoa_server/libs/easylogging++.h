@@ -319,7 +319,7 @@ ELPP_INTERNAL_DEBUGGING_OUT_INFO << ELPP_INTERNAL_DEBUGGING_MSG(internalInfoStre
 #   include <syslog.h>
 #endif  // defined(ELPP_SYSLOG)
 #include <ctime>
-#include <cstring>
+#include <string>
 #include <cstdlib>
 #include <cctype>
 #include <cwchar>
@@ -1383,16 +1383,16 @@ namespace el {
                                         return str;
                                     }
                                     
-                                    /// @brief Compares cstring equality - uses strcmp
-                                    static inline bool cStringEq(const char* s1, const char* s2) {
+                                    /// @brief Compares string equality - uses strcmp
+                                    static inline bool stringEq(const char* s1, const char* s2) {
                                         if (s1 == nullptr && s2 == nullptr) return true;
                                         if (s1 == nullptr || s2 == nullptr) return false;
                                         return strcmp(s1, s2) == 0;
                                     }
                                     
-                                    /// @brief Compares cstring equality (case-insensitive) - uses toupper(char)
+                                    /// @brief Compares string equality (case-insensitive) - uses toupper(char)
                                     /// Dont use strcasecmp because of CRT (VC++)
-                                    static bool cStringCaseEq(const char* s1, const char* s2) {
+                                    static bool stringCaseEq(const char* s1, const char* s2) {
                                         if (s1 == nullptr && s2 == nullptr) return true;
                                         if (s1 == nullptr || s2 == nullptr) return false;
                                         if (strlen(s1) != strlen(s2)) return false;
@@ -4420,7 +4420,7 @@ inline void FUNCTION_NAME(const T&);
                 char buff[base::consts::kSourceFilenameMaxLength + base::consts::kSourceLineMaxLength] = "";
                 const char* bufLim = buff + sizeof(buff);
                 if (logFormat->hasFlag(base::FormatFlags::AppName)) {
-                    // App name
+                    // Server name
                     base::utils::Str::replaceFirstWithEscape(logLine, base::consts::kAppNameFormatSpecifier,
                                                              logMessage->logger()->parentApplicationName());
                 }
@@ -6582,13 +6582,13 @@ if (ELPP_DEBUG_LOG) C##LEVEL##_EVERY_N(el::base::Writer, n, el::base::DispatchAc
 #define CHECK_GE(a, b) CCHECK_GE(a, b, ELPP_CURR_FILE_LOGGER_ID)
 #define CHECK_BOUNDS(val, min, max) CCHECK_BOUNDS(val, min, max, ELPP_CURR_FILE_LOGGER_ID)
 #define CCHECK_NOTNULL(ptr, ...) CCHECK((ptr) != nullptr, __VA_ARGS__)
-#define CCHECK_STREQ(str1, str2, ...) CLOG_IF(!el::base::utils::Str::cStringEq(str1, str2), FATAL, __VA_ARGS__) \
+#define CCHECK_STREQ(str1, str2, ...) CLOG_IF(!el::base::utils::Str::stringEq(str1, str2), FATAL, __VA_ARGS__) \
 << "Check failed: [" << #str1 << " == " << #str2 << "] "
-#define CCHECK_STRNE(str1, str2, ...) CLOG_IF(el::base::utils::Str::cStringEq(str1, str2), FATAL, __VA_ARGS__) \
+#define CCHECK_STRNE(str1, str2, ...) CLOG_IF(el::base::utils::Str::stringEq(str1, str2), FATAL, __VA_ARGS__) \
 << "Check failed: [" << #str1 << " != " << #str2 << "] "
-#define CCHECK_STRCASEEQ(str1, str2, ...) CLOG_IF(!el::base::utils::Str::cStringCaseEq(str1, str2), FATAL, __VA_ARGS__) \
+#define CCHECK_STRCASEEQ(str1, str2, ...) CLOG_IF(!el::base::utils::Str::stringCaseEq(str1, str2), FATAL, __VA_ARGS__) \
 << "Check failed: [" << #str1 << " == " << #str2 << "] "
-#define CCHECK_STRCASENE(str1, str2, ...) CLOG_IF(el::base::utils::Str::cStringCaseEq(str1, str2), FATAL, __VA_ARGS__) \
+#define CCHECK_STRCASENE(str1, str2, ...) CLOG_IF(el::base::utils::Str::stringCaseEq(str1, str2), FATAL, __VA_ARGS__) \
 << "Check failed: [" << #str1 << " != " << #str2 << "] "
 #define CHECK_NOTNULL(ptr) CCHECK_NOTNULL((ptr), ELPP_CURR_FILE_LOGGER_ID)
 #define CHECK_STREQ(str1, str2) CCHECK_STREQ(str1, str2, ELPP_CURR_FILE_LOGGER_ID)

@@ -1,5 +1,5 @@
 // libraries
-#include <cstring>
+#include <string>
 #include <iostream>
 #include <sstream>
 #include <zconf.h>
@@ -7,6 +7,7 @@
 // headers
 #include "../core/Logger.h"
 #include "ConnectionManager.h"
+#include "../partial/StringBuilder.h"
 
 
 const int ConnectionManager::CLIENT_FD_OFFSET = 4;
@@ -19,7 +20,7 @@ ConnectionManager::ConnectionManager(char *portNumber) {
 }
 
 void ConnectionManager::init(){
-    this->sb = new StringBuilder();
+    this->log = new StringBuilder();
 
 	// clearing a memory
 	memset(&this->srvAddr, 0, sizeof(struct sockaddr_in));
@@ -37,13 +38,17 @@ void ConnectionManager::init(){
 }
 
 int ConnectionManager::prepare(){
-	std::ostringstream log;
 
 	// socket receiving connections, IPv4 & TCP
 	this->srvSocket = socket(AF_INET, SOCK_STREAM, 0);
 
 	// binding a socket with a port, using global namespace
 	this->result = ::bind(this->srvSocket, (struct sockaddr *) &this->srvAddr, sizeof(struct sockaddr_in));
+
+    this->log->clear();
+    this->log->append("bind result: ");
+    this->log->append(this->result);
+    Logger::info(this->log->getString());
 
 	if (this->result != 0) {
 		return Logger::printErr(ERR_BIND);
@@ -56,9 +61,12 @@ int ConnectionManager::prepare(){
 		return Logger::printErr(ERR_LISTEN);
 	}
 
-	log << "Server is listening on port " << getPortNumber() << ".";
-	Logger::info(log.str());
-
+    this->log->clear();
+    this->log->append("Server is listening on port ");
+    this->log->append(getPortNumber());
+    this->log->append(".\n");
+    this->log->append("------------------------------");
+    Logger::info(this->log->getString());
 
     // clear a set of sockets
     FD_ZERO(&this->cliSockSet);
@@ -146,11 +154,11 @@ void ConnectionManager::registerNewClient(){
 
     FD_SET(cliSock, &this->cliSockSet);
 
-    this->sb->clear();
-    this->sb->append("New client connected to socket: ");
-    this->sb->append(cliSock);
-    this->sb->append(".");
-    Logger::info(this->sb->getString());
+    this->log->clear();
+    this->log->append("New client connected to socket: ");
+    this->log->append(cliSock);
+    this->log->append(".");
+    Logger::info(this->log->getString());
 }
 
 void ConnectionManager::deregisterNewClient(int sock){

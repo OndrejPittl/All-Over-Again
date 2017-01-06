@@ -1,8 +1,9 @@
-#ifndef APP_H
-#define APP_H
+#ifndef SERVER_H
+#define SERVER_H
 
-#include <cstring>
+#include <string>
 #include <thread>
+
 
 #include "../partial/StringBuilder.h"
 #include "../connection/ConnectionManager.h"
@@ -10,19 +11,18 @@
 #include "../communication/MessageValidator.h"
 #include "../communication/Message.h"
 #include "../partial/SafeQueue.h"
+#include "Application.h"
 
-class App {
+
+class Server {
 	private:
 		static const int INPUT_ARGS_NUM;
 		static const int PORT_NUM_LOWER_LIMIT;
 		static const int PORT_NUM_UPPER_LIMIT;
 
-
+		Application *app;
 		ConnectionManager *conn;
 		CommunicationManager *comm;
-
-		SafeQueue<Message *> *messageQueue;
-
 		StringBuilder *logMessage;
 
 		int argc;
@@ -33,7 +33,7 @@ class App {
 		void init();
 
 	public:
-		App(int argc, char **argv);
+		Server(int argc, char **argv);
 
 		/**
 		*	Main function, starts the server.

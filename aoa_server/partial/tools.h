@@ -1,8 +1,10 @@
 #ifndef TOOLS_H
 #define TOOLS_H
 
-#include <cstring>
+#include <string>
 #include <vector>
+#include <map>
+#include "../game/Player.h"
 
 
 enum CommandType {
@@ -10,6 +12,8 @@ enum CommandType {
 	CMD_EXAMPLE2
 };
 
+
+bool validate(std::string str, std::string regexp);
 
 /**
 *	Checks whether a string given is a number or not.
@@ -36,6 +40,8 @@ void removeChar(std::string *str, char c);
 long checksum(std::string str, int modulo = -1);
 
 void printVector(std::vector<std::string> vec);
+
+void printMap(std::map<int, Player> m);
 
 
 #endif

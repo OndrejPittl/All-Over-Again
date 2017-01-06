@@ -7,6 +7,8 @@
 #include "../partial/SafeQueue.h"
 #include "../partial/StringBuilder.h"
 #include "Message.h"
+#include "../core/Application.h"
+
 
 class MessageProcessor {
 
@@ -14,8 +16,10 @@ class MessageProcessor {
 
         int clientSocket;
 
-        StringBuilder *sbMessage;
+        StringBuilder *sbMsg;
+        StringBuilder *log;
 
+        Application *app;
         SafeQueue<Message *> *messageQueue;
         SafeQueue<Message *> *sendMessageQueue;
 
@@ -50,6 +54,8 @@ class MessageProcessor {
     public:
         MessageProcessor(SafeQueue<Message *> *messageQueue, SafeQueue<Message *> *sendMessageQueue);
         std::thread run();
+
+    void setApp(Application *app);
 
 
 };

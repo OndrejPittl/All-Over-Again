@@ -15,23 +15,13 @@ class RawMessage {
         std::string message;
 
     public:
-        RawMessage(int sock, size_t size, std::string msg) {
-            this->sock = sock;
-            this->size = size;
-            this->message = msg;
-        }
+        RawMessage(int sock, size_t size, std::string msg);
 
-        int getSock(){
-            return this->sock;
-        }
+        int getSock();
 
-        size_t getSize(){
-            return this->size;
-        }
+        size_t getSize();
 
-        std::string getMessage(){
-            return this->message;
-        }
+        std::string getMessage();
 };
 
 

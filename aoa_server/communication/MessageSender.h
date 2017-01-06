@@ -12,6 +12,7 @@
 class MessageSender {
     private:
         StringBuilder *sb;
+        StringBuilder *log;
         SafeQueue<Message *> *messageQueue;
         void runSending();
 

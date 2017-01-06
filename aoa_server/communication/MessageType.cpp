@@ -31,7 +31,7 @@ MessageType convertInternalMessageType(int index) {
 };
 
 // not being used already
-int convertExternalMessageType(int type) {
-    return type;
-};
+//int convertExternalMessageType(int type) {
+//    return type;
+//};
 

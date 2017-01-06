@@ -1,17 +1,23 @@
 
-#include <cstring>
+#include <string>
 #include <thread>
 #include <iostream>
 
 #include "MessageValidator.h"
 #include "../partial/tools.h"
+#include "../partial/StringBuilder.h"
 
 //const std::string MessageValidator::STX = "\u0002";
 
 
-MessageValidator::MessageValidator(SafeQueue<Message *> *queue, SafeQueue<RawMessage *> *readableMessages) {
+MessageValidator::MessageValidator(SafeQueue<Message *> *queue, SafeQueue<RawMessage *> *rawMessageQueue) {
     this->messageQueue = queue;
-    this->readableMessages = readableMessages;
+    this->rawMessageQueue = rawMessageQueue;
+    this->init();
+}
+
+void MessageValidator::init() {
+    this->log = new StringBuilder();
 }
 
 std::thread MessageValidator::run() {
@@ -31,7 +37,7 @@ void MessageValidator::runValidation() {
         RawMessage *rawMsg;
         std::vector<std::string> separatedMessages;
 
-        rawMsg = this->readableMessages->pop();
+        rawMsg = this->rawMessageQueue->pop();
         sock = rawMsg->getSock();
         size = rawMsg->getSize();
 
@@ -92,7 +98,7 @@ std::vector<std::string> MessageValidator::separateMessages(RawMessage msg){
 }
 
 bool MessageValidator::checkHelloPacket(std::string msg, std::string *pureMessage) {
-    if(msg.find(Message::HELLO_PACKET) < 0 || msg.length() != Message::HELLO_PACKET.length())
+    if(msg.find(Message::HELLO_PACKET) == std::string::npos || msg.length() != Message::HELLO_PACKET.length())
         return false;
 
     (*pureMessage) = msg;
@@ -112,8 +118,6 @@ bool MessageValidator::checkMessageChecksum(std::string msg, std::string *pureMe
 
     std::string checkSumStr = msg.substr(0, delimPos),
                 message = msg.substr(delimPos + 1, msgLen - delimPos);
-
-//    std::cout << "len: " << msgLen << " delimPos: " << delimPos << " of a message: " << msg << " with result: " << message << std::endl;
 
     if(!isNumber(checkSumStr))
         return false;

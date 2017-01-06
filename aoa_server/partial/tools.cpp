@@ -2,18 +2,23 @@
 #include <iostream>
 #include <regex>
 
-// headers
 #include "tools.h"
 
 
+
+// headers
+
+
+bool validate(std::string str, std::string regexp) {
+    std::regex regex(regexp);
+    return regex_match(str, regex);
+}
 
 /**
 *	Checks whether a string given is a number or not.
 */
 bool isNumber(std::string str){
-//	std::regex regexInteger("^(0|[1-9][0-9]*)$");
-	std::regex regexInteger("^([0-9]*)$");
-	return regex_match(str, regexInteger);
+	return validate(str, "^([0-9]*)$");
 }
 
 /**
@@ -23,7 +28,7 @@ bool isNumberInRange(std::string str, int lowerLimit, int upperLimit) {
 	int number;
 
 	if(!isNumber(str))
-		return false;	
+		return false;
 
 	number = atoi(str.c_str());
 	return number >= lowerLimit && number <= upperLimit;
@@ -55,14 +60,11 @@ long checksum(std::string str, int mod) {
     if(mod > 0)
         sum = sum % mod;
 
-    std::cout << "checksum: " << sum << std::endl;
     return sum;
 }
 
 void printVector(std::vector<std::string> vec) {
-
     std::cout << "Printing vector:" << std::endl;
-
 
     if(vec.size() <= 0)
         std::cout << "Vector is empty." << std::endl;
@@ -74,4 +76,15 @@ void printVector(std::vector<std::string> vec) {
         std::cout << i++ << ". polozka: " << str << std::endl;
     }
 
+}
+
+void printMap(std::map<int, Player> m) {
+    std::cout << "Printing a map:" << std::endl;
+
+    if(m.size() <= 0)
+        std::cout << "Map is empty." << std::endl;
+
+    for(auto it = m.cbegin(); it != m.cend(); ++it) {
+        std::cout << "key: " << it->first << " - " << it->second.getUsername() << std::endl;
+    }
 }

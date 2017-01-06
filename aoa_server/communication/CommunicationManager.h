@@ -1,16 +1,17 @@
 #ifndef COMMUNICATION_MANAGER_H
 #define COMMUNICATION_MANAGER_H
 
-#include <cstring>
+#include <string>
 #include <sys/socket.h>
 
-#include "../partial/Semaphore.h"
 #include "../partial/SafeQueue.h"
+#include "../partial/StringBuilder.h"
 #include "MessageValidator.h"
 #include "MessageProcessor.h"
 #include "Message.h"
 #include "RawMessage.h"
 #include "MessageSender.h"
+#include "../core/Application.h"
 
 
 class CommunicationManager {
@@ -20,6 +21,8 @@ class CommunicationManager {
 		*	Input message buffer.
 		*/
 		std::string inputBuffer;
+
+		Application *app;
 
         /**
          * A queue of validated deserialized incoming messages.
@@ -34,7 +37,7 @@ class CommunicationManager {
 		/**
 		 * A queue of read raw messages from sockets.
 		 */
-		SafeQueue<RawMessage *> *readableMessages;
+		SafeQueue<RawMessage *> *rawMessageQueue;
 
 
         /**
@@ -65,7 +68,14 @@ class CommunicationManager {
         std::thread msgSenderThrd;
 
 
-    /**
+
+		StringBuilder *log;
+
+
+
+		void init();
+
+	    /**
 		*	Receives messages via a socket given.
 		*/
 		std::string recvMsg(int sock, int byteCount);
@@ -79,7 +89,7 @@ class CommunicationManager {
 		 * @param messageQueue
 		 */
 //		CommunicationManager(SafeQueue<Message *> *messageQueue);
-		CommunicationManager();
+		CommunicationManager(Application *app);
 
 
         void startMessageValidator();
@@ -92,6 +102,7 @@ class CommunicationManager {
 		*	
 		*/
 		void receiveMessage(int fdIndex, int byteCount);
+
 
 
 };

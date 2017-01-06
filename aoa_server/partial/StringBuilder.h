@@ -1,7 +1,7 @@
 #ifndef STRING_BUILDER_H
 #define STRING_BUILDER_H
 
-#include <cstring>
+#include <string>
 #include <sstream>
 
 

@@ -1,7 +1,7 @@
 #ifndef ConnectionManager_H
 #define ConnectionManager_H
 
-#include <cstring>
+#include <string>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -35,7 +35,7 @@ class ConnectionManager {
 		int srvSocket;
 
 
-        StringBuilder *sb;
+        StringBuilder *log;
 
 
         fd_set cliSockSet;

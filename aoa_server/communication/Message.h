@@ -2,7 +2,7 @@
 #define MESSAGE_H
 
 // libraries
-#include <cstring>
+#include <string>
 #include "../partial/SafeQueue.h"
 #include "MessageType.h"
 

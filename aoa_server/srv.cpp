@@ -1,6 +1,6 @@
 // headers
 #include "libs/easylogging++.h"
-#include "core/App.h"
+#include "core/Server.h"
 #include "core/Logger.h"
 
 
@@ -17,8 +17,8 @@ int main(int argc, char **argv) {
 
 	Logger::init(argc, argv);
 
-	App *app = new App(argc, argv);
-	app->run();
+	Server *server = new Server(argc, argv);
+	server->run();
 
 	return 0;
 }

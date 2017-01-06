@@ -1,30 +1,37 @@
 // libraries
 #include <iostream>
-#include <cstring>
 #include <sys/socket.h>
 
 // headers
 #include "../core/Logger.h"
 #include "CommunicationManager.h"
-#include "../connection/ConnectionManager.h"
+#include "../partial/StringBuilder.h"
+#include "../core/Application.h"
 
 
 
 //CommunicationManager::CommunicationManager(SafeQueue<Message *> *messageQueue) {
-CommunicationManager::CommunicationManager() {
+CommunicationManager::CommunicationManager(Application *app) {
+    this->app = app;
     this->messageQueue = new SafeQueue<Message *>();
     this->sendMessageQueue = new SafeQueue<Message *>();
-    this->readableMessages = new SafeQueue<RawMessage *>();
-	Logger::info("CommunicationManager is initialized.");
+    this->rawMessageQueue = new SafeQueue<RawMessage *>();
+	this->init();
+}
+
+void CommunicationManager::init() {
+    this->log = new StringBuilder();
+    Logger::info("CommunicationManager is initialized.");
 }
 
 void CommunicationManager::startMessageValidator(){
-    this->msgValidator = new MessageValidator(this->messageQueue, this->readableMessages);
+    this->msgValidator = new MessageValidator(this->messageQueue, this->rawMessageQueue);
     this->msgValidatorThrd = this->msgValidator->run();
 }
 
 void CommunicationManager::startMessageProcessor(){
     this->msgProcessor = new MessageProcessor(this->messageQueue, this->sendMessageQueue);
+    this->msgProcessor->setApp(this->app);
     this->msgProcessorThrd = this->msgProcessor->run();
 }
 
@@ -38,7 +45,7 @@ void CommunicationManager::receiveMessage(int sock, int byteCount) {
     std::string strMsg = this->recvMsg(sock, byteCount);
 
     RawMessage *msg = new RawMessage(sock, byteCount, strMsg);
-    this->readableMessages->push(msg);
+    this->rawMessageQueue->push(msg);
 }
 
 //void CommunicationManager::recvMsg(int sock, int byteCount, std::string *buff) {
@@ -60,7 +67,16 @@ std::string CommunicationManager::recvMsg(int sock, int byteCount) {
     result = recv(sock, buffer, msgLen, 0);
     //result = read(sock, msgBuffer, BUFF_LEN);
 
-    std::cout << "---------------------" << std::endl << msgLen << " bytes received from: " << sock << " in a message: " << buffer << "---------------------" << std::endl;
+
+    this->log->clear();
+    this->log->append(msgLen);
+    this->log->append(" bytes received from: ");
+    this->log->append(sock);
+    this->log->append(" in a message: ");
+    this->log->append(buffer);
+    this->log->append("\n");
+
+    Logger::info(this->log->getString());
 
     // an error during receiving data
     if(result < 0) {

@@ -3,21 +3,16 @@
 
 
 #include "MessageProcessor.h"
-#include "MessageType.h"
-#include "Message.h"
-#include "../partial/SafeQueue.h"
 #include "../partial/tools.h"
-
-
-
-
-
-
+#include "../core/Logger.h"
+#include "../partial/StringBuilder.h"
+#include "../core/Application.h"
 
 MessageProcessor::MessageProcessor(SafeQueue<Message *> *messageQueue, SafeQueue<Message *> *sendMessageQueue) {
     this->messageQueue = messageQueue;
     this->sendMessageQueue = sendMessageQueue;
-    this->sbMessage = new StringBuilder();
+    this->sbMsg = new StringBuilder();
+    this->log = new StringBuilder();
 }
 
 std::thread MessageProcessor::run(){
@@ -31,17 +26,15 @@ void MessageProcessor::runProcessing(){
     for(;;) {
         if(stop) break;
 
-        std::cout << "MSGProcessor: waiting for a message." << std::endl;
         Message *msg = this->messageQueue->pop();
-        std::cout << "MSGProcessor: got a message." << std::endl;
+        this->log->clear();
+        this->log->append("MSGProcessor: got a message.");
+        Logger::info(this->log->getString());
 
         if(!this->handleMessageType(msg))
             continue;
 
         this->perform(msg);
-        std::cout << "MSGProcessor: a message handled." << std::endl;
-
-//        (this->*this->processFunctions[msg->getType()])();
     }
 }
 
@@ -69,7 +62,6 @@ bool MessageProcessor::handleMessageType(Message *msg) {
     }
 
     msgType = convertInternalMessageType(atoi(msgTypeStr.c_str()));
-    std::cout << "setting type: " << msgType << std::endl;
     msg->setType(msgType);
     msg->setMessage(msgBody);
 
@@ -99,46 +91,77 @@ void MessageProcessor::perform(Message *msg){
 }
 
 void MessageProcessor::answerMessage(){
-    Message *m = new Message(this->clientSocket, this->sbMessage->getString());
+    Message *m = new Message(this->clientSocket, this->sbMsg->getString());
     this->sendMessageQueue->push(m);
-    this->sbMessage->clear();
+    this->sbMsg->clear();
 }
 
 void MessageProcessor::proceedHelloPacket() {
-    std::cout << "processing: hello" << std::endl;
-    this->sbMessage->append(Message::HELLO_PACKET_RESPONSE);
+    this->log->clear();
+    this->log->append("MSGProcessor, processing: hello.");
+    Logger::info(this->log->getString());
+
+    this->sbMsg->append(Message::HELLO_PACKET_RESPONSE);
     this->answerMessage();
 }
 
+/**
+ * Task: check username availability. Store
+ * @param msg
+ */
 void MessageProcessor::proceedSignIn(Message *msg) {
-    std::cout << "processing: signin" << std::endl;
-    sbMessage->append(msg->getType());
-    sbMessage->append(Message::DELIMITER);
-    sbMessage->append(Message::ACK);
-    sbMessage->append(Message::DELIMITER);
-    sbMessage->append("3");                    // UID
+
+    int uID = msg->getSock();
+    std::string username = msg->getMessage();
+
+    this->log->clear();
+    this->log->append("MSGProcessor, processing signin: ");
+    this->log->append(username);
+    Logger::info(this->log->getString());
+
+    sbMsg->append(msg->getType());
+    sbMsg->append(Message::DELIMITER);
+
+    if(this->app->registerUser(uID, username)) {
+        // accepted
+        sbMsg->append(Message::ACK);
+        sbMsg->append(Message::DELIMITER);
+        sbMsg->append(uID); // UID
+    } else {
+        // rejected
+        sbMsg->append(Message::NACK);
+    }
+
     this->answerMessage();
 }
 
 void MessageProcessor::proceedGameList(Message *msg) {
-    std::cout << "processing: gamelist" << std::endl;
+    this->log->clear();
+    this->log->append("MSGProcessor, processing gamelist:");
+    Logger::info(this->log->getString());
+
     // type ; r-id ; p-count ; p-limit ; diff ; dim ; nicks
-    sbMessage->append("2;1;1;2;1;3;marty;2;2;3;2;5;dendasda:gabin");
+    sbMsg->append("2;1;1;2;1;3;marty;2;2;3;2;5;dendasda:gabin");
     this->answerMessage();
 }
 
 void MessageProcessor::proceedNewGame(Message *msg) {
-    std::cout << "processing: newgame" << std::endl;
+    this->log->clear();
+    this->log->append("MSGProcessor, processing newgame:");
+    Logger::info(this->log->getString());
 
     // type ; (N)ACK ; r-id ; p-count ; p-limit ; diff ; dim ; nicks
-    sbMessage->append("3;1;1;2;3;1;5;marty:denda");
+    sbMsg->append("3;1;1;2;3;1;5;marty:denda");
     this->answerMessage();
 }
 
 void MessageProcessor::proceedJoinGame(Message *msg) {
-    std::cout << "processing: joingame" << std::endl;
+    this->log->clear();
+    this->log->append("MSGProcessor, processing joingame:");
+    Logger::info(this->log->getString());
+
     // msg-type;ack;r-id;p-count;p-limit;diff;dim;
-    sbMessage->append("4;1;1;2;3;2;5;marty:denda");
+    sbMsg->append("4;1;1;2;3;2;5;marty:denda");
     this->answerMessage();
 
     //tmp
@@ -147,24 +170,40 @@ void MessageProcessor::proceedJoinGame(Message *msg) {
 }
 
 void MessageProcessor::proceedStartGame(Message *msg) {
-    std::cout << "processing: startgame" << std::endl;
-    sbMessage->append("5;1");
+    this->log->clear();
+    this->log->append("MSGProcessor, processing startgame:");
+    Logger::info(this->log->getString());
+
+    sbMsg->append("5;1");
     this->answerMessage();
 }
 
 void MessageProcessor::proceedTurnData(Message *msg) {
-    std::cout << "processing: turndata" << std::endl;
+    this->log->clear();
+    this->log->append("MSGProcessor, processing turndata:");
+    Logger::info(this->log->getString());
+
 
     // 4 s / tah?
     // msg-type;turn;time;move-pos;move-col;move-shape;move-pos;move-col;move-shape;...
-    sbMessage->append("6;5;20;0;1;1;2;2;3;3;4;1;3;5;0;0;7;2;2");
+    sbMsg->append("6;5;20;0;1;1;2;2;3;3;4;1;3;5;0;0;7;2;2");
     this->answerMessage();
 }
 
 void MessageProcessor::proceedLeaveGame(Message *msg) {
-    std::cout << "processing: leavegame" << std::endl;
+    this->log->clear();
+    this->log->append("MSGProcessor, processing leavegame:");
+    Logger::info(this->log->getString());
+
 }
 
 void MessageProcessor::proceedSignOut(Message *msg) {
-    std::cout << "processing: signout" << std::endl;
+    this->log->clear();
+    this->log->append("MSGProcessor, processing signout:");
+    Logger::info(this->log->getString());
+
+}
+
+void MessageProcessor::setApp(Application *app) {
+    this->app = app;
 }

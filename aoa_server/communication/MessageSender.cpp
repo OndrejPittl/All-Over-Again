@@ -2,11 +2,13 @@
 #include "../connection/ConnectionManager.h"
 #include "../partial/tools.h"
 #include "MessageValidator.h"
+#include "../core/Logger.h"
 
 
 MessageSender::MessageSender(SafeQueue<Message *> *messageQueue) {
     this->messageQueue = messageQueue;
     this->sb = new StringBuilder();
+    this->log = new StringBuilder();
 }
 
 std::thread MessageSender::run(){
@@ -21,7 +23,10 @@ void MessageSender::runSending(){
 
         Message *msg = this->messageQueue->pop();
 
-        std::cout << "sending a message: " << msg->getMessage() << std::endl;
+        this->log->clear();
+        this->log->append(">> sending a message: ");
+        this->log->append(msg->getMessage());
+        Logger::info(this->log->getString());
 
         this->sb->append(Message::STX);
         this->sb->append(checksum(msg->getMessage(), Message::MSG_CHECKSUM_MODULO));
@@ -36,15 +41,12 @@ void MessageSender::runSending(){
 
 
 bool MessageSender::sendMsg(int sock, std::string txt) {
-    // std::cout << "---> Sending " << txt << " to: " << sock << "." << std::endl;
     // return send(sock, txt.c_str(), txt.length(), MSG_NOSIGNAL) >= 0;
     return send(sock, txt.c_str(), txt.length(), 0) >= 0;
 }
 
 void MessageSender::sendMsg(fd_set *socks, std::string txt) {
     int fd;
-
-    // std::cout << "---> Sending " << txt << " to all." << std::endl;
     for(fd = ConnectionManager::CLIENT_FD_OFFSET; fd < FD_SETSIZE; fd++) {
         if (FD_ISSET(fd, socks)) {
             sendMsg(fd, txt);

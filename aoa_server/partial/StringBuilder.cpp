@@ -1,4 +1,4 @@
-#include <cstring>
+#include <string>
 #include <sstream>
 
 #include "StringBuilder.h"

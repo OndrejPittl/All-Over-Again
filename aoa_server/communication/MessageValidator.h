@@ -1,7 +1,7 @@
 #ifndef RECEIVER_H
 #define RECEIVER_H
 
-#include <cstring>
+#include <string>
 #include <vector>
 #include <thread>
 
@@ -10,6 +10,7 @@
 #include "../partial/Semaphore.h"
 #include "Message.h"
 #include "RawMessage.h"
+#include "../partial/StringBuilder.h"
 
 
 class MessageValidator {
@@ -33,8 +34,10 @@ class MessageValidator {
         static const char MSG_DELIMITER;
 
         SafeQueue<Message *> *messageQueue;
-        SafeQueue<RawMessage *> *readableMessages;
+        SafeQueue<RawMessage *> *rawMessageQueue;
+        StringBuilder *log;
 
+        void init();
         void runValidation();
         std::vector<std::string> separateMessages(RawMessage msg);
         bool checkMessageChecksum(std::string msg, std::string *pureMessage);
