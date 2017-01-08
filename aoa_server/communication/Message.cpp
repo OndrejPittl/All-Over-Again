@@ -10,6 +10,7 @@
 const char Message::STX = '*';  //'\x02'
 const char Message::ETX = '#';  //'\x03'
 const char Message::DELIMITER = ';';
+const char Message::SUBDELIMITER = ':';
 const int Message::MSG_CHECKSUM_MODULO = 235;
 const std::string Message::ACK = std::string("1");
 const std::string Message::NACK = std::string("0");

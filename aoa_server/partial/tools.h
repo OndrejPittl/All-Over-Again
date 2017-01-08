@@ -5,6 +5,7 @@
 #include <vector>
 #include <map>
 #include "../game/Player.h"
+#include "../game/Room.h"
 
 
 enum CommandType {
@@ -42,6 +43,8 @@ long checksum(std::string str, int modulo = -1);
 void printVector(std::vector<std::string> vec);
 
 void printMap(std::map<int, Player> m);
+
+void printRooms(std::map<int, Room> m);
 
 
 #endif

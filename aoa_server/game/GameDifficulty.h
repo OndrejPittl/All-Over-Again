@@ -3,7 +3,7 @@
 
 
 //class GameDifficulty {};
-enum GameDifficulty {
+enum class GameDifficulty {
     EASY,
     NORMAL,
     EXPERT

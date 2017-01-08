@@ -7,7 +7,8 @@
 class Player {
 
     private:
-        int id;
+
+    int id;
         int roomID;
         bool isConnected;
         std::string username;

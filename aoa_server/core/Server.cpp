@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sys/ioctl.h>
+#include <zconf.h>
 
 
 #include "Server.h"
@@ -57,9 +58,7 @@ void Server::run() {
     this->init();
 
     // basic server setup (port & ip definition etc.)
-    if(!(result = this->conn->prepare())){
-        exit(result);
-    }
+    this->conn->prepare();
 
     // run message validating thread
 	this->comm->startMessageValidator();
@@ -78,9 +77,7 @@ void Server::run() {
 		Logger::info("Server is waiting for a request...");
 
         // Server waits until being requested.
-		if(!(result = this->conn->waitForRequests())){
-			exit(result);
-		}
+        this->conn->waitForRequests();
 
 		Logger::info("Server recognized a new request.");
 
@@ -109,8 +106,9 @@ void Server::run() {
 
 					} else {
 						// Disconnect a client.
-                        this->conn->deregisterNewClient(fdIndex);
-						this->app->deregisterUser(fdIndex);
+                        this->conn->deregisterClient(fdIndex);
+                        this->app->deregisterOnlineUser(fdIndex);
+						//close(fdIndex);
 					}
 
 				}

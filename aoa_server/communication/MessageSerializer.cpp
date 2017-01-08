@@ -1,0 +1,66 @@
+#include <iostream>
+#include <map>
+
+#include "MessageSerializer.h"
+#include "CommunicationManager.h"
+#include "../partial/tools.h"
+
+
+MessageSerializer::MessageSerializer() {
+    this->init();
+}
+
+void MessageSerializer::init() {
+    this->sb = new StringBuilder();
+    std::cout << "MSGSerializer initialized." << std::endl;
+}
+
+std::string MessageSerializer::serializeRooms(std::map<int, Room>& rooms) {
+    unsigned long roomCount;
+
+    std::cout << "serializing rooms...."<< std::endl;
+
+    printRooms(rooms);
+
+    this->sb->clear();
+    roomCount = rooms.size();
+
+    for(auto it = rooms.cbegin(); it != rooms.cend(); ++it) {
+        Room r = it->second;
+        this->serializeRoomAndJoin(r);
+        if(--roomCount > 0) this->sb->append(Message::DELIMITER);
+    }
+
+    return this->sb->getString();
+}
+
+void MessageSerializer::serializeRoomAndJoin(Room& r) {
+    unsigned long playerCount;
+    this->sb->append(r.getID());
+    this->sb->append(Message::DELIMITER);
+    this->sb->append(r.getPlayerCount());
+    this->sb->append(Message::DELIMITER);
+    this->sb->append((int) r.getGameType());
+    this->sb->append(Message::DELIMITER);
+    this->sb->append((int) r.getDifficulty());
+    this->sb->append(Message::DELIMITER);
+    this->sb->append((int) r.getBoardDimension());
+    this->sb->append(Message::DELIMITER);
+
+    std::map<int, Player> players = r.getPlayers();
+    playerCount = players.size();
+
+    for(auto it = players.cbegin(); it != players.cend(); ++it) {
+        this->sb->append(it->second.getUsername());
+        if(--playerCount > 0) this->sb->append(Message::SUBDELIMITER);
+    }
+}
+
+std::string MessageSerializer::serializeRoom(Room& r) {
+    this->sb->clear();
+    std::cout << "++++++ 3" << std::endl;
+    this->serializeRoomAndJoin(r);
+    std::cout << "++++++ 4" << std::endl;
+    return this->sb->getString();
+}
+

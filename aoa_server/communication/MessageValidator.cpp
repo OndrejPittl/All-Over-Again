@@ -25,11 +25,7 @@ std::thread MessageValidator::run() {
 }
 
 void MessageValidator::runValidation() {
-    bool stop = false;
-
     for(;;) {
-
-        if(stop) break; // TODO: Tmp - CLion warn highlight.
 
         bool hello;
         int sock;

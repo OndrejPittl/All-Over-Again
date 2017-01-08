@@ -8,6 +8,8 @@
 #include "../partial/StringBuilder.h"
 #include "Message.h"
 #include "../core/Application.h"
+#include "MessageSerializer.h"
+#include "MessageParser.h"
 
 
 class MessageProcessor {
@@ -20,6 +22,9 @@ class MessageProcessor {
         StringBuilder *log;
 
         Application *app;
+        MessageSerializer *serializer;
+        MessageParser *parser;
+
         SafeQueue<Message *> *messageQueue;
         SafeQueue<Message *> *sendMessageQueue;
 
@@ -31,11 +36,11 @@ class MessageProcessor {
         void answerMessage();
         void proceedHelloPacket();
         void proceedSignIn(Message *msg);
-        void proceedGameList(Message *msg);
+        void proceedGameList();
         void proceedNewGame(Message *msg);
         void proceedJoinGame(Message *msg);
-        void proceedStartGame(Message *msg);
-        void proceedTurnData(Message *msg);
+        void proceedStartGame();
+        void proceedTurnData();
         void proceedLeaveGame(Message *msg);
         void proceedSignOut(Message *msg);
 
@@ -54,10 +59,11 @@ class MessageProcessor {
     public:
         MessageProcessor(SafeQueue<Message *> *messageQueue, SafeQueue<Message *> *sendMessageQueue);
         std::thread run();
+        void setApp(Application *app);
+        void init();
+        void proceedStartGame(Room& r);
 
-    void setApp(Application *app);
-
-
+    void proceedTurnData(Message *msg);
 };
 
 typedef void (MessageProcessor::*processFunction) ();

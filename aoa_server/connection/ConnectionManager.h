@@ -70,7 +70,7 @@ class ConnectionManager {
         ConnectionManager(char *portNumber);
 
 
-		int prepare();
+		void prepare();
 
 		/**
 		*	Port number getter.
@@ -90,7 +90,7 @@ class ConnectionManager {
 
         void restoreSocketSets();
 
-        int waitForRequests();
+        void waitForRequests();
 
         int isSockReadable(int sock);
 
@@ -104,7 +104,7 @@ class ConnectionManager {
 
         void registerNewClient();
 
-        void deregisterNewClient(int sock);
+        void deregisterClient(int sock);
 
 };
 

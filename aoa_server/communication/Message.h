@@ -38,6 +38,7 @@ class Message {
         static const char ETX;
 		static const int MSG_CHECKSUM_MODULO;
         static const char DELIMITER;
+        static const char SUBDELIMITER;
         static const std::string ACK;
         static const std::string NACK;
         static const std::string HELLO_PACKET;

@@ -37,7 +37,7 @@ void ConnectionManager::init(){
 	Logger::info("ConnectionManager is initialized.");
 }
 
-int ConnectionManager::prepare(){
+void ConnectionManager::prepare(){
 
 	// socket receiving connections, IPv4 & TCP
 	this->srvSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -51,14 +51,14 @@ int ConnectionManager::prepare(){
     Logger::info(this->log->getString());
 
 	if (this->result != 0) {
-		return Logger::printErr(ERR_BIND);
+		exit(Logger::printErr(ERR_BIND));
 	}
 
 	// listen for new connecitons
 	this->result = listen(this->srvSocket, 5);
 
 	if (this->result != 0){
-		return Logger::printErr(ERR_LISTEN);
+		exit(Logger::printErr(ERR_LISTEN));
 	}
 
     this->log->clear();
@@ -73,9 +73,6 @@ int ConnectionManager::prepare(){
 
     // place a server socket into a set being checked with select()
     FD_SET(this->srvSocket, &this->cliSockSet);
-
-
-	return true;
 }
 
 int ConnectionManager::getPortNumber(){
@@ -100,7 +97,7 @@ void ConnectionManager::restoreSocketSets(){
     this->writeSockSet = this->cliSockSet;
 }
 
-int ConnectionManager::waitForRequests(){
+void ConnectionManager::waitForRequests(){
     int result;
 
     // After every select() call is a set of descriptors overridden.
@@ -109,10 +106,9 @@ int ConnectionManager::waitForRequests(){
     result = select(FD_SETSIZE, &this->readSockSet, (fd_set *)0, (fd_set *)0, (struct timeval *)0 );
 
     if (result < 0) {
-        return Logger::printErr(ERR_SELECT);
+        exit(Logger::printErr(ERR_SELECT));
     }
 
-    return true;
 }
 
 int ConnectionManager::isSockReadable(int sock){
@@ -161,7 +157,7 @@ void ConnectionManager::registerNewClient(){
     Logger::info(this->log->getString());
 }
 
-void ConnectionManager::deregisterNewClient(int sock){
+void ConnectionManager::deregisterClient(int sock){
     close(sock);
     FD_CLR(sock, &this->cliSockSet);
     Logger::info("A client was disconnected and removed from the set.");

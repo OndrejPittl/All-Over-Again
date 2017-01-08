@@ -3,6 +3,7 @@
 #include <regex>
 
 #include "tools.h"
+#include "../game/Room.h"
 
 
 
@@ -86,5 +87,19 @@ void printMap(std::map<int, Player> m) {
 
     for(auto it = m.cbegin(); it != m.cend(); ++it) {
         std::cout << "key: " << it->first << " - " << it->second.getUsername() << std::endl;
+    }
+}
+
+void printRooms(std::map<int, Room> m) {
+    std::cout << "Printing rooms:" << std::endl;
+
+    if(m.size() <= 0)
+        std::cout << "No room." << std::endl;
+
+    for(auto it = m.cbegin(); it != m.cend(); ++it) {
+        Room r = it->second;
+
+        std::cout << "key: " << it->first << " - id: " << r.getID() << ", diff: " << (int) r.getDifficulty()
+                  << ", dim: " << (int) r.getBoardDimension() << ", type: " << (int) r.getGameType() << ", players: " << r.getPlayerCount() << std::endl;
     }
 }

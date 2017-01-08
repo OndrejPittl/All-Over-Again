@@ -5,10 +5,12 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <queue>
 
 #include "../game/Player.h"
 #include "../game/Room.h"
 #include "../partial/StringBuilder.h"
+#include "../game/Game.h"
 
 
 class ConnectionManager;
@@ -17,6 +19,8 @@ class CommunicationManager;
 
 class Application {
     private:
+
+        Game *game;
 
         ConnectionManager *conn;
 
@@ -42,7 +46,13 @@ class Application {
         /**
          * Existing rooms.
          */
-        std::vector<Room*> rooms;
+        std::map<int, Room> rooms;
+
+
+        int roomIndex;
+
+        std::queue<int> freedRoomIndexeQueue;
+
 
 
 
@@ -53,6 +63,9 @@ class Application {
         void init();
 
         bool checkUsernameAvailability(std::string username);
+
+        void deregisterUserFrom(Player& p, std::map<int, Player>& users);
+
 
     public:
 
@@ -66,9 +79,35 @@ class Application {
 
         bool registerUser(int uid, std::string username);
 
-        void deregisterUser(int uid);
+        void deregisterOnlineUser(int uid);
 
         //void setDependencies(ConnectionManager *conn, CommunicationManager *comm);
+
+        std::map<int, Room> getRooms();
+
+        int createNewRoom(Room *room);
+
+        int getFreeRoomIndex();
+
+        void assignPlayer(int uid, int roomID);
+
+        Room& getRoom(int rid);
+
+        void setRoom(Room& r);
+
+        void startGameIfReady(int rid);
+
+        bool joinRoom(int uid, int rid);
+
+        Player getPlayer(int uid);
+
+    bool isGameReady(int rid);
+
+    void cancelRoomIfEmpty(int rid);
+
+    void deregisterOfflineUser(int uid);
+
+    bool proceedTurn(int rid, std::queue<int> &progress);
 };
 
 
