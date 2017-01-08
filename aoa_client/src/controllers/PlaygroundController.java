@@ -79,7 +79,7 @@ public class PlaygroundController extends ScreenController {
     private void updateInfo(){
         this.moves = new ArrayList<>();
         this.room = this.app.getSelectedRoom();
-        this.dimension = this.room.getBoardDimension();
+        this.dimension = this.room.getBoardDimension().getDimension();
         //this.dimension = GameConfig.DEFAULT_BOARD_DIMENSION;
         this.fieldCount = this.dimension * this.dimension;
         this.fieldControllers = new BoardFieldController[this.fieldCount];

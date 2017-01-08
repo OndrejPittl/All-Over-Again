@@ -1,9 +1,7 @@
 package communication;
 
 import config.CommunicationConfig;
-import game.GameDifficulty;
-import game.GameMove;
-import game.GameTurn;
+import game.*;
 import model.*;
 
 import java.util.Arrays;
@@ -93,8 +91,8 @@ public class CommunicationParser {
 	    // message split to blocks
         String[] parts = response.split(CommunicationConfig.MSG_DELIMITER);
 
-        if(!this.checkACK(parts))
-            return null;
+//        if(!this.checkACK(parts))
+//            return null;
 
         if(!this.checkMessageType(parts, new MessageType[]{MessageType.GAME_LIST, MessageType.GAME_START}))
             return null;
@@ -120,17 +118,17 @@ public class CommunicationParser {
 			
 			int id = Integer.parseInt(parts[i]),
 				playerCount = Integer.parseInt(parts[i+1]),
-				playerLimit = Integer.parseInt(parts[i+2]),
+				playerLimit = Integer.parseInt(parts[i+2]) - 1,
 				difficulty = Integer.parseInt(parts[i+3]),
-				dimension = Integer.parseInt(parts[i+4]);
+				dimension = Integer.parseInt(parts[i+4]) - 1;
 
 			Player[] players = Player.parsePlayers(parts[i+5], CommunicationConfig.MSG_SUB_DELIMITER);
-				
+
 			r.setID(id);
 			r.setPlayerCount(playerCount);
-			r.setPlayerLimit(playerLimit);
+			r.setType(GameType.getNth(playerLimit));	// player limit
 			r.setDifficulty(GameDifficulty.getNth(difficulty));
-			r.setBoardDimension(dimension);
+			r.setBoardDimension(BoardDimension.getNth(dimension));
 			r.setPlayers(players);
 			
 			rooms[roomIndex++] = r;

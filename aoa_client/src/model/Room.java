@@ -1,19 +1,22 @@
 package model;
 
+import game.BoardDimension;
 import game.GameDifficulty;
+import game.GameType;
 
 public class Room {
 	
 	private int ID;
 
-	private int playerLimit;
-	
 	private int playerCount;
-	
+
+	private GameType type;
+
 	private GameDifficulty difficulty;
 
-	private int boardDimension;
-	
+//	private int boardDimension;
+	private BoardDimension boardDimension;
+
 	private Player[] players;
 	
 	private int activePlayerID;
@@ -28,13 +31,15 @@ public class Room {
 		this.ID = ID;
 	}
 
-	public Room(int playerLimit, GameDifficulty difficulty) {
-	    this();
-		this.playerLimit = playerLimit;
-		this.difficulty = difficulty;
+
+	public Room(GameType type, GameDifficulty diff, BoardDimension dim) {
+		this();
+		this.type = type;
+		this.difficulty = diff;
+		this.boardDimension = dim;
 	}
 
-	/**
+    /**
 	 * @return the id
 	 */
 	public int getID() {
@@ -50,20 +55,6 @@ public class Room {
 
 	public boolean hasID(){
 		return this.ID != -1;
-	}
-
-	/**
-	 * @return the playerLimit
-	 */
-	public int getPlayerLimit() {
-		return playerLimit;
-	}
-
-	/**
-	 * @param playerLimit the playerLimit to set
-	 */
-	public void setPlayerLimit(int playerLimit) {
-		this.playerLimit = playerLimit;
 	}
 
 	/**
@@ -97,14 +88,14 @@ public class Room {
 	/**
 	 * @return the boardDimension
 	 */
-	public int getBoardDimension() {
+	public BoardDimension getBoardDimension() {
 		return boardDimension;
 	}
 
 	/**
 	 * @param boardDimension the boardDimension to set
 	 */
-	public void setBoardDimension(int boardDimension) {
+	public void setBoardDimension(BoardDimension boardDimension) {
 		this.boardDimension = boardDimension;
 	}
 
@@ -137,12 +128,11 @@ public class Room {
 	}
 
 
-	
-	
-	
-	
-	
-	
-	
+	public GameType getType() {
+		return type;
+	}
 
+	public void setType(GameType type) {
+		this.type = type;
+	}
 }

@@ -1,7 +1,9 @@
 package controllers;
 
 import application.Application;
+import game.BoardDimension;
 import game.GameDifficulty;
+import game.GameType;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -18,10 +20,13 @@ public class GameCenterController extends ScreenController {
 
 	
 	@FXML
-	private ComboBox<String> cb_players;
+	private ComboBox<GameType> cb_players;
 	
 	@FXML
-	private ComboBox<String> cb_difficulty;
+	private ComboBox<GameDifficulty> cb_difficulty;
+
+	@FXML
+	private ComboBox<BoardDimension> cb_dimension;
 	
 	@FXML
 	private Button btn_createGame;
@@ -40,9 +45,12 @@ public class GameCenterController extends ScreenController {
 	
 	@FXML
 	private TableColumn<ViewRoom, String> playersColumn;
-	
-	@FXML
-	private TableColumn<ViewRoom, String> difficultyColumn;
+
+    @FXML
+    private TableColumn<ViewRoom, String> difficultyColumn;
+
+    @FXML
+    private TableColumn<ViewRoom, String> dimensionColumn;
 	
 	
 
@@ -53,25 +61,51 @@ public class GameCenterController extends ScreenController {
 	}
 
 	private void initNewGameSection(){
-        cb_players.getItems().addAll("Singleplayer", "Multiplayer");
-        cb_difficulty.getItems().addAll("Easy", "Medium", "Expert");
-        this.cb_players.getSelectionModel().select(0);
-        this.cb_difficulty.getSelectionModel().select(0);
+        this.cb_players.getItems().addAll(GameType.values());
+        this.cb_difficulty.getItems().addAll(GameDifficulty.values());
+        this.cb_dimension.getItems().addAll(BoardDimension.values());
+
+//        this.cb_players.getSelectionModel().select(0);
+//        this.cb_difficulty.getSelectionModel().select(1);
+//        this.cb_dimension.getSelectionModel().select(3);
+
+        this.cb_players.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            this.enableNewGame();
+        });
+
+        this.cb_difficulty.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            this.enableNewGame();
+        });
+
+        this.cb_dimension.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            this.enableNewGame();
+        });
+
+    }
+
+    private void enableNewGame(){
+	    boolean gameTypeSelected = this.cb_players.getSelectionModel().getSelectedItem() != null,
+                diffSelected = this.cb_difficulty.getSelectionModel().getSelectedItem() != null,
+                dimSelected = this.cb_dimension.getSelectionModel().getSelectedItem() != null;
+
+        this.btn_createGame.setDisable(!(gameTypeSelected && diffSelected && dimSelected));
     }
 
 	private void initJoinGameSection(){
         nicknamesColumn.setCellValueFactory(cellData -> cellData.getValue().getViewNicknames());
         playersColumn.setCellValueFactory(cellData -> cellData.getValue().getViewPlayers());
         difficultyColumn.setCellValueFactory(cellData -> cellData.getValue().getViewDifficulty());
+        dimensionColumn.setCellValueFactory(cellData -> cellData.getValue().getViewDimension());
 
 //		nicknamesColumn.prefWidthProperty().bind(tv_rooms.widthProperty().multiply(0.5));
 //		playersColumn.prefWidthProperty().bind(tv_rooms.widthProperty().multiply(0.25));
 //		difficultyColumn.prefWidthProperty().bind(tv_rooms.widthProperty().multiply(0.25));
 
         tv_rooms.setColumnResizePolicy( TableView.CONSTRAINED_RESIZE_POLICY );
-        nicknamesColumn.setMaxWidth(1f * Integer.MAX_VALUE * 60);
-        playersColumn.setMaxWidth(1f * Integer.MAX_VALUE * 20);
+        nicknamesColumn.setMaxWidth(1f * Integer.MAX_VALUE * 45);
+        playersColumn.setMaxWidth(1f * Integer.MAX_VALUE * 10);
         difficultyColumn.setMaxWidth(1f * Integer.MAX_VALUE * 20);
+        dimensionColumn.setMaxWidth(1f * Integer.MAX_VALUE * 25);
 
         this.tv_rooms.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             this.btn_joinGame.setDisable(newSelection == null);
@@ -100,10 +134,11 @@ public class GameCenterController extends ScreenController {
 	}
 
     public void handleNewGame(){
-	    int playerLimitIndex = this.cb_players.getSelectionModel().getSelectedIndex(),
-            diffIndex = this.cb_difficulty.getSelectionModel().getSelectedIndex();
+	    GameType type = this.cb_players.getSelectionModel().getSelectedItem();
+	    GameDifficulty diff = this.cb_difficulty.getSelectionModel().getSelectedItem();
+	    BoardDimension dim = this.cb_dimension.getSelectionModel().getSelectedItem();
 
-        this.handleSelection(new Room(playerLimitIndex, GameDifficulty.getNth(diffIndex)));
+        this.handleSelection(new Room(type, diff, dim));
     }
 
     public void handleJoinGame(){

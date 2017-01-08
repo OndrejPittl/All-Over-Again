@@ -210,9 +210,11 @@ public class CommunicationManager {
     public Room newGame(Room selection){
         this.sb.append(CommunicationConfig.REQ_GAME_NEW);
         this.sb.append(CommunicationConfig.MSG_DELIMITER);
-        this.sb.append(selection.getPlayerLimit());
+        this.sb.append(selection.getType().getPlayerCount());
         this.sb.append(CommunicationConfig.MSG_DELIMITER);
-        this.sb.append(selection.getDifficulty());
+        this.sb.append(selection.getDifficulty().getDifficulty());
+        this.sb.append(CommunicationConfig.MSG_DELIMITER);
+        this.sb.append(selection.getBoardDimension().getDimension());
         this.prepareMessage();
 
         return this.waitForRoomInfo();

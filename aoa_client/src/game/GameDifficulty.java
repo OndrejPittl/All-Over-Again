@@ -2,11 +2,11 @@ package game;
 
 public enum GameDifficulty {
 	
-	EASY (1, "easy"),
+	EASY (0, "easy"),
 
-	NORMAL(2, "normal"),
+	NORMAL(1, "normal"),
 
-	EXPERT(3, "expert");
+	EXPERT(2, "expert");
 
 	
 	
@@ -57,4 +57,7 @@ public enum GameDifficulty {
 		return this.getDifficulty() >= diff.getDifficulty();
 	}
 
+	public String toString(){
+		return this.title;
+	}
 }

@@ -42,15 +42,23 @@
                      <children>
                         <ComboBox fx:id="cb_players" prefWidth="150.0" promptText="Players">
                            <VBox.margin>
-                              <Insets bottom="7.0" top="7.0" />
+                              <Insets />
                            </VBox.margin>
                         </ComboBox>
-                        <ComboBox fx:id="cb_difficulty" prefWidth="150.0" promptText="Difficulty" />
+                        <ComboBox fx:id="cb_difficulty" prefWidth="150.0" promptText="Difficulty">
+                           <VBox.margin>
+                              <Insets top="7.0" />
+                           </VBox.margin></ComboBox>
+                        <ComboBox fx:id="cb_dimension" prefWidth="150.0" promptText="Board size">
+                           <VBox.margin>
+                              <Insets top="7.0" />
+                           </VBox.margin>
+                        </ComboBox>
                      </children>
                   </VBox>
                </center>
                <bottom>
-                  <Button fx:id="btn_createGame" mnemonicParsing="false" onAction="#handleNewGame" prefWidth="150.0" text="Create a game" BorderPane.alignment="CENTER">
+                  <Button fx:id="btn_createGame" disable="true" mnemonicParsing="false" onAction="#handleNewGame" prefWidth="150.0" text="Create a game" BorderPane.alignment="CENTER">
                      <BorderPane.margin>
                         <Insets bottom="50.0" />
                      </BorderPane.margin>
@@ -82,7 +90,8 @@
                            <columns>
 					          <TableColumn fx:id="nicknamesColumn" styleClass="first" text="" />
 					          <TableColumn fx:id="playersColumn" text="Players" />
-					          <TableColumn fx:id="difficultyColumn" text="Diffficulty" />
+					          <TableColumn fx:id="difficultyColumn" text="Difficulty" />
+					          <TableColumn fx:id="dimensionColumn" text="Board size" />
 					     </columns>
                         </TableView>
                      </children>

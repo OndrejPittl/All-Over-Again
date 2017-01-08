@@ -52,6 +52,12 @@ public class MessageReceiver implements Runnable {
 
             System.out.println("MSGReceiver: waiting for a message.");
             String msgTxt = this.recvMsg();
+
+//            if(msgTxt == null || msgTxt.length() > 0) {
+//                System.out.println("MSGReceiver: received an EMPTY message. SERVER DOWN!");
+//                continue;
+//            }
+
             System.out.println("MSGReceiver: received a message.");
 
             messages = this.separateMessages(msgTxt);

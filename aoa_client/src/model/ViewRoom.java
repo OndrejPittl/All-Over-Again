@@ -1,6 +1,8 @@
 package model;
 
+import game.BoardDimension;
 import game.GameDifficulty;
+import game.GameType;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
@@ -11,16 +13,18 @@ public class ViewRoom {
 	private final StringProperty viewNicknames;
     
 	private final StringProperty viewPlayers;
-    
+
 	private final StringProperty viewDifficulty;
+
+	private final StringProperty viewDimension;
 
 	
 	public ViewRoom(Room room){
-		this(room.getPlayers(), room.getPlayerCount(), room.getPlayerLimit(), room.getDifficulty());
+		this(room.getPlayers(), room.getPlayerCount(), room.getType(), room.getDifficulty(), room.getBoardDimension());
 		this.room = room;
 	}
 	
-	public ViewRoom(Player[] players, int playerCount, int playerLimit, GameDifficulty difficulty) {
+	public ViewRoom(Player[] players, int playerCount, GameType type, GameDifficulty difficulty, BoardDimension dimension) {
 		StringBuilder sb = new StringBuilder();
 		
 		for (int i = 0; i < players.length; i++) {
@@ -29,8 +33,9 @@ public class ViewRoom {
 		}
 		
 		this.viewNicknames = new SimpleStringProperty(sb.toString());
-		this.viewPlayers = new SimpleStringProperty(playerCount + "/" + playerLimit);
+		this.viewPlayers = new SimpleStringProperty(playerCount + "/" + type.getPlayerCount());
 		this.viewDifficulty = new SimpleStringProperty(difficulty.getTitle());
+		this.viewDimension = new SimpleStringProperty(dimension.getTitle());
 	}
 
 	public int getID() {
@@ -59,12 +64,20 @@ public class ViewRoom {
 
 
 
-	/**
-	 * @return the viewDifficulty
-	 */
-	public StringProperty getViewDifficulty() {
-		return viewDifficulty;
-	}
-	
-	
+    /**
+     * @return the viewDifficulty
+     */
+    public StringProperty getViewDifficulty() {
+        return viewDifficulty;
+    }
+
+
+    /**
+     * @return the viewDimension
+     */
+    public StringProperty getViewDimension() {
+        return viewDimension;
+    }
+
+
 }
