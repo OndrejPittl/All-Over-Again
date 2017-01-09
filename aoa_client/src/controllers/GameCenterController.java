@@ -138,6 +138,9 @@ public class GameCenterController extends ScreenController {
 	    GameDifficulty diff = this.cb_difficulty.getSelectionModel().getSelectedItem();
 	    BoardDimension dim = this.cb_dimension.getSelectionModel().getSelectedItem();
 
+	    System.out.println("DIMENSIOOOOOOOOOOOON: " + dim.getTitle());
+	    System.out.println("DIMENSIOOOOOOOOOOOON: " + dim.getDimension());
+
         this.handleSelection(new Room(type, diff, dim));
     }
 

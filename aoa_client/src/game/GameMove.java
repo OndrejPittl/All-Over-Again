@@ -1,6 +1,7 @@
 package game;
 
 import config.CommunicationConfig;
+import config.GameConfig;
 
 
 public class GameMove {
@@ -30,6 +31,7 @@ public class GameMove {
     }
 
     public GameMove(int[] attrs) {
+        this.init();
         for (int a = 0; a <attrs.length; a++) {
             int val = attrs[a];
             if(val >= 0) {
@@ -42,6 +44,11 @@ public class GameMove {
                 }
             }
         }
+    }
+
+    private void init(){
+        this.color = GameColor.GOLD;
+        this.symbol = GameSymbol.Symbol1;
     }
 
     public int getIndex() {

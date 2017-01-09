@@ -267,20 +267,33 @@ public class CommunicationManager {
 
     public GameTurn waitForTurn(){
         GameTurn turn = null;
+        boolean typeOK = false, ack = false;
 
         do {
             try {
                 Message m = this.incomingMessages.take();
+                String msg = m.getMessage();
+                typeOK = this.parser.checkIfTurnData(msg);
+                ack = this.parser.checkACK(msg);
                 turn = this.parser.parseTurnInfo(m.getMessage());
 
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
-            if(turn != null) break;
+            // correct
+            if(turn != null){
+                this.app.setTurnDataOK(true);
+                break;
+            }
+
+            // NOT correct
+            if(typeOK && !ack) {
+                this.app.setTurnDataOK(false);
+                break;
+            }
 
         } while (!this.incomingMessages.isEmpty());
-
 
         return turn;
     }
@@ -413,6 +426,27 @@ public class CommunicationManager {
     }
 
 
+    public int waitForResults() {
+	    int winnerID = -1;
+
+        do {
+            try {
+                Message m = this.incomingMessages.take();
+                winnerID = this.parser.parseResults(m.getMessage());
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            // correct
+            if(winnerID != -1){
+                break;
+            }
+
+        } while (!this.incomingMessages.isEmpty());
+
+	    return winnerID;
+    }
 }
 
 

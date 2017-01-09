@@ -27,8 +27,12 @@ public class CommunicationParser {
         return parts[index].equals(CommunicationConfig.REQ_ACK);
     }
 
-    private boolean checkACK(String[] parts) {
+    public boolean checkACK(String[] parts) {
         return this.checkACK(parts, 1);
+    }
+
+    public boolean checkACK(String response) {
+        return this.checkACK(response.split(CommunicationConfig.MSG_DELIMITER));
     }
 
 //    private boolean checkMessageType(String response, MessageType[] types, int index) {
@@ -180,24 +184,40 @@ public class CommunicationParser {
             return null;
         }
 
+        if(!this.checkACK(parts))
+            return null;
+
         GameTurn turn;
+        GameMove[] moves;
 
-        int offset = 4,
-            turnNum = Integer.parseInt(parts[1]),
-            time = Integer.parseInt(parts[2]),
-            activePlayerID = Integer.parseInt(parts[3]),
-            diff = (parts.length - offset)/turnNum;
+        int offset = 5,
+            activePlayerID = Integer.parseInt(parts[2]),
+            turnNum = Integer.parseInt(parts[3]),
+            prevTurnNum = turnNum - 1,
+            time = Integer.parseInt(parts[4]),
+            diff = prevTurnNum == 0 ? 0 : (parts.length - offset)/prevTurnNum;
 
-		GameMove[] moves = new GameMove[turnNum];
 
-        for (int t = 0; t < turnNum; t++) {
+        if(parts.length > offset) {
 
-        	int[] attrs = {-1, -1, -1};
-			for (int a = 0; a < diff; a++) {
-				int index = t * diff + a + offset;
-				attrs[a] = Integer.parseInt(parts[index]);
-			}
-        	moves[t] = new GameMove(attrs);
+            // NOT first turn
+            moves = new GameMove[prevTurnNum];
+
+            for (int t = 0; t < prevTurnNum; t++) {
+
+                int[] attrs = {-1, -1, -1};
+                for (int a = 0; a < diff; a++) {
+                    int index = t * diff + a + offset;
+                    attrs[a] = Integer.parseInt(parts[index]);
+                }
+                moves[t] = new GameMove(attrs);
+            }
+
+        } else {
+
+            // first turn
+            moves = null;
+
         }
 
         turn = new GameTurn(activePlayerID, time, moves);
@@ -206,6 +226,26 @@ public class CommunicationParser {
         System.out.println(Arrays.toString(moves));
 
         return turn;
+    }
+
+
+    public boolean checkIfTurnData(String response){
+	    return this.checkMessageType(
+	            response.split(CommunicationConfig.MSG_DELIMITER),
+                new MessageType[]{MessageType.TURN_DATA}
+        );
+    }
+
+    public int parseResults(String response) {
+
+        // message split to blocks
+        String[] parts = response.split(CommunicationConfig.MSG_DELIMITER);
+
+        if(!this.checkMessageType(parts, new MessageType[]{MessageType.GAME_END})) {
+            return -1;
+        }
+
+        return Integer.parseInt(parts[1]);
     }
 
 

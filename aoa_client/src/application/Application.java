@@ -45,10 +45,13 @@ public class Application {
 	//private GameMove[] progress;
     private GameTurn turn;
 
+    private int winnerID;
+
 
     private boolean isJoinedRoom = false;
     private boolean isGameStarted = false;
     private boolean isSignedIn = false;
+    private boolean turnDataOK = true;
 
 
 //	private static Screen gui;
@@ -281,4 +284,16 @@ public class Application {
 
         return errs;
     }
+
+	public synchronized boolean isTurnDataOK(){
+		return this.turnDataOK;
+	}
+
+	public synchronized void setTurnDataOK(boolean ok){
+		this.turnDataOK = ok;
+	}
+
+	public void waitForGameResults() {
+		this.winnerID = this.comm.waitForResults();
+	}
 }

@@ -176,6 +176,16 @@ public class PlaygroundController extends ScreenController {
 
     public void startTurn() {
         Platform.runLater(() -> {
+
+//            if(!this.app.isTurnDataOK()) {
+//                // konec hry!
+//
+//
+//
+//                return;
+//            }
+
+
             this.initTimer();
             this.playTurnTask();
         });
@@ -193,6 +203,7 @@ public class PlaygroundController extends ScreenController {
         //this.vb_timerWrapper.setVisible(false);
         this.timer.stop();
         this.app.storeProgress(this.moves);
+        this.moves.clear();
 
         Application.awaitAtGuiBarrier("GUI releases. Turn ends.");
 
@@ -210,6 +221,11 @@ public class PlaygroundController extends ScreenController {
 
     private void playTurnTask(){
         GameMove[] progress = this.app.getProgress();
+
+        if(progress == null) {
+            this.proceedTurnStart();
+            return;
+        }
 
         Timeline timeline = new Timeline(
             new KeyFrame(Duration.millis(ViewConfig.TIMER_TURN_INTRO_MOVE_DURATION), new EventHandler<ActionEvent>() {

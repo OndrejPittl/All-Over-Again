@@ -91,6 +91,12 @@ public class GUIController extends Observable implements Runnable {
 
                     Application.awaitAtClientBarrier("GUIControl waits for turn start. (17GCWC)");
 
+                    // NOT correct solution
+                    if(!this.app.isTurnDataOK()) {
+                        break;
+                    }
+
+
                     // new turn has begun
                     this.gui.beginTurn();
                     // player plays a turn
@@ -103,6 +109,12 @@ public class GUIController extends Observable implements Runnable {
 
 
                 // game results
+                Application.awaitAtClientBarrier("GUIControl waits for game results.");
+
+                // run results
+                //this.gui.runGamePlayground();
+
+                Application.awaitAtGuiBarrier("GUIControl TEMPORARILY WAITS.");
 
 
             } while(this.app.isSignedIn());

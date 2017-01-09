@@ -275,21 +275,25 @@ public class BoardFieldController extends ScreenController {
 
     private void increaseColorPosition(){
         this.color = (GameColor) this.color.next();
+        System.out.println("selected color: " + this.color.getIndex());
 //        this.initColorBar();
     }
 
     private void decreaseColorPosition(){
         this.color = (GameColor) this.color.previous();
+        System.out.println("selected color: " + this.color.getIndex());
 //        this.initColorBar();
     }
 
     private void increaseSymbolPosition(){
         this.symbol = (GameSymbol) this.symbol.next();
+        System.out.println("selected symbol: " + this.symbol.getIndex());
 //        this.initSymbolBar();
     }
 
     private void decreaseSymbolPosition(){
         this.symbol = (GameSymbol) this.symbol.previous();
+        System.out.println("selected symbol: " + this.symbol.getIndex());
 //        this.initSymbolBar();
     }
 

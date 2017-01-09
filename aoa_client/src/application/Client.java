@@ -133,6 +133,12 @@ public class Client implements Runnable {
 
                     Application.awaitAtClientBarrier("Client releases after turn start. (18CRC)");
 
+                    // NOT correct solution
+                    if(!this.app.isTurnDataOK()) {
+                        break;
+                    }
+
+
                     Application.awaitAtClientBarrier("Client waits for user interaction. (19CWC)");
 
                     this.app.proceedEndTurn();
@@ -140,8 +146,11 @@ public class Client implements Runnable {
                 } while (!this.app.isGameFinished());
 
 
-                // vyhodnocení hry
+                // game results
+                this.app.waitForGameResults();
 
+                Application.awaitAtClientBarrier("Client releases with game results.");
+                Application.awaitAtClientBarrier("Client TEMPORARILY WAITS.");
 
             } while (this.app.isSignedIn());
 
