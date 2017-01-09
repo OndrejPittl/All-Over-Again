@@ -2,22 +2,24 @@
 
 
 #include "Player.h"
-
+#include "../core/Logger.h"
 
 
 Player::Player() {}
 
 Player::Player(int id) {
     this->id = id;
+    this->init();
 }
 
 Player::Player(int id, std::string username) {
     this->id = id;
     this->username = username;
+    this->init();
 }
 
 void Player::init() {
-    this->roomID = -1;
+    this->setRoomID(-1);
 }
 
 void Player::setID(int id) {
@@ -30,12 +32,14 @@ int Player::getID() const {
 
 void Player::setRoomID(int id) {
     this->roomID = id;
+    Logger::info("PLAYER ROOM WAS SET:");
+    Logger::info(std::to_string(this->roomID));
 }
 
 
 
 int Player::getRoomID() const {
-    return this->id;
+    return this->roomID;
 }
 
 void Player::setUsername(std::string username) {
@@ -46,15 +50,25 @@ std::string Player::getUsername() const {
     return this->username;
 }
 
-void Player::setIsConnected(bool connected) {
-    this->isConnected = connected;
-}
-
-bool Player::getIsConnected() const {
-    return this->isConnected;
-}
 
 bool Player::hasRoom() {
-    return this->roomID > -1;
+    return this->roomID != -1;
 }
+
+void Player::setStatus(bool online) {
+    this->online = online;
+}
+
+void Player::setOnline() {
+    this->setStatus(true);
+}
+
+void Player::setOffline() {
+    this->setStatus(false);
+}
+
+bool Player::isOnline() const {
+    return this->online;
+}
+
 

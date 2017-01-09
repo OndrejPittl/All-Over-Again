@@ -40,9 +40,13 @@ class MessageProcessor {
         void proceedNewGame(Message *msg);
         void proceedJoinGame(Message *msg);
         void proceedStartGame();
-        void proceedTurnData();
+        void proceedFirstTurnData();
+        void proceedTurnDataBase(bool ack);
+        void proceedTurnData(Message *msg);
+        void proceedEndGame(Room &room);
         void proceedLeaveGame(Message *msg);
         void proceedSignOut(Message *msg);
+        void prepare(Player &player, Room *room);
 
 
 
@@ -51,7 +55,7 @@ class MessageProcessor {
 //                proceedGameList,
 //                proceedNewGame,
 //                proceedJoinGame,
-//                proceedTurnData,
+//                proceedFirstTurnData,
 //                proceedLeaveGame,
 //                proceedSignOut
 //        };
@@ -62,8 +66,13 @@ class MessageProcessor {
         void setApp(Application *app);
         void init();
         void proceedStartGame(Room& r);
+        void answerRoomAndClean(const Room &r, void (MessageProcessor::*callback)());
 
-    void proceedTurnData(Message *msg);
+    void clearMsg();
+
+    void answerMessageAndClean();
+
+
 };
 
 typedef void (MessageProcessor::*processFunction) ();

@@ -65,7 +65,7 @@ std::string CommunicationManager::recvMsg(int sock, int byteCount) {
     // buffer
     char buffer[msgLen];
 
-    // clear memory
+    // clearMsg memory
     memset(buffer, 0, msgLen + 1);
 
     // receive data
@@ -74,6 +74,8 @@ std::string CommunicationManager::recvMsg(int sock, int byteCount) {
 
 
     this->log->clear();
+    this->log->append("\n");
+    this->log->append("<<<<<<< ");
     this->log->append(msgLen);
     this->log->append(" bytes received from: ");
     this->log->append(sock);

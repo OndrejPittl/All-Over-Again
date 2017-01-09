@@ -12,7 +12,7 @@ all:	clean build run
 
 clean:
 	@ clear
-	@ clear
+	@ clearMsg
 	@ if [ -a $(SRV) ]; then rm $(SRV); echo 'Cleaning.....DONE!'; fi;
 
 build: srv.cpp

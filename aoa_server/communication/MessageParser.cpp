@@ -18,7 +18,7 @@ MessageParser::MessageParser() {
 
 void MessageParser::init() {
     this->sb = new StringBuilder();
-    std::cout << "MSGParser initialized." << std::endl;
+    Logger::info("MSGParser initialized.");
 }
 
 
@@ -29,7 +29,7 @@ void MessageParser::init() {
  * @param msg
  * @return
  */
-Room MessageParser::parseNewRoomRequest(Message *msg) {
+Room *MessageParser::parseNewRoomRequest(Message *msg) {
     std::string part, typeStr, diffStr, dimStr;
     std::queue<std::string> parts;
 
@@ -46,7 +46,7 @@ Room MessageParser::parseNewRoomRequest(Message *msg) {
     diff = convertInternalGameDifficulty(std::stoi(diffStr));
     dim = convertInternalBoardDimension(std::stoi(dimStr));
 
-    return *(new Room(type, diff, dim));
+    return new Room(type, diff, dim);
 }
 
 std::queue<std::string> MessageParser::split(std::string message) {
@@ -70,19 +70,15 @@ int MessageParser::parseJoinRoomRequest(string msg) {
  * @param progess
  * @return
  */
-std::queue<int>& MessageParser::parseTurn(string progress) {
-    std::queue<int> out;
+void MessageParser::parseTurn(string progress, std::queue<int>& queue) {
     std::queue<std::string> parts;
-
     parts = this->split(progress);
 
     while(!parts.empty()) {
         int i = std::stoi(parts.front());
-        out.push(i);
+        queue.push(i);
         parts.pop();
     }
-
-    return out;
 }
 
 

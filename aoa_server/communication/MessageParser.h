@@ -19,13 +19,13 @@ class MessageParser {
     public:
         MessageParser();
         void init();
-        Room parseNewRoomRequest(Message *msg);
+        Room *parseNewRoomRequest(Message *msg);
 
         std::queue<std::string> split(std::string message);
 
         int parseJoinRoomRequest(string msg);
 
-        std::queue<int>& parseTurn(string progress);
+        void parseTurn(string progress, std::queue<int>& queue);
 };
 
 #endif

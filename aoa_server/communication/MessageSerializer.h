@@ -13,6 +13,7 @@ class MessageSerializer {
 
     private:
         StringBuilder *sb;
+        StringBuilder *log;
         void serializeRoomAndJoin(Room& r);
 
     public:

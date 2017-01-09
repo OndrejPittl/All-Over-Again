@@ -17,10 +17,14 @@ class Room {
     private:
         int id;
         int activePlayerID;
+        int turn;
+        int winnerID;
         GameType type;
         BoardDimension boardDimension;
         GameDifficulty difficulty;
         std::map<int, Player> players;
+        std::queue<int> progress;
+        std::vector<int> playerOrder;
 
     public:
         Room();
@@ -45,15 +49,17 @@ class Room {
 
         int getActivePlayerID();
 
-        void setActivePlayerID(int activePlayerID);
+        void updateActivePlayerID();
 
         GameDifficulty getDifficulty();
 
         void setDifficulty(GameDifficulty difficulty);
 
-        std::map<int, Player> getPlayers();
+        std::map<int, Player> &getPlayers();
 
         void registerPlayer(Player *p);
+
+        void deregisterPlayer(Player &p);
 
         bool isRoomReady();
 
@@ -61,10 +67,26 @@ class Room {
 
         bool isJoinable();
 
-        std::queue<int> getPlayerSockets();
+        std::queue<int> getPlayerSockets() const;
 
+        const std::queue<int> &getProgress() const;
 
+        void setProgress(std::queue<int> progress);
 
+        bool hasProgress();
+
+        // turn++
+        void startTurn();
+
+        int getTurn() const;
+
+        bool isAnyoneOnline() const;
+
+        int getWinnerID();
+
+        void finishGame();
+
+        bool hasGameFinished();
 };
 
 

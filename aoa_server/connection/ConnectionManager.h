@@ -106,6 +106,7 @@ class ConnectionManager {
 
         void deregisterClient(int sock);
 
+	void registerClient(int sock);
 };
 
 

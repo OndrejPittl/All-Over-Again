@@ -6,6 +6,7 @@
 #include "MessageValidator.h"
 #include "../partial/tools.h"
 #include "../partial/StringBuilder.h"
+#include "../core/Logger.h"
 
 //const std::string MessageValidator::STX = "\u0002";
 
@@ -57,7 +58,12 @@ void MessageValidator::runValidation() {
             std::string logTxt = msgValidText;
             removeChar(&logTxt, '\n');
 
-            std::cout << "A message (" << logTxt << ") accepted." << std::endl;
+            this->log->clear();
+            this->log->append("MSGValidator, a message (");
+            this->log->append(logTxt);
+            this->log->append(") accepted.");
+            Logger::info(this->log->getString());
+
             this->messageQueue->push(m);
         }
     }
@@ -89,7 +95,7 @@ std::vector<std::string> MessageValidator::separateMessages(RawMessage msg){
         }
     }
 
-    printVector(messages);
+    //printVector(messages);
     return messages;
 }
 

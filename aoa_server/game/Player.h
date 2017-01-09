@@ -10,10 +10,11 @@ class Player {
 
     int id;
         int roomID;
-        bool isConnected;
+        bool online;
         std::string username;
 
         void init();
+        void setStatus(bool online);
 
     public:
         Player();
@@ -30,8 +31,9 @@ class Player {
         void setUsername(std::string username);
         std::string getUsername() const;
 
-        void setIsConnected(bool connected);
-        bool getIsConnected() const;
+        void setOnline();
+        void setOffline();
+        bool isOnline() const;
 
 };
 

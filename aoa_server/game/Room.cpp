@@ -8,7 +8,8 @@ Room::Room() {
 }
 
 void Room::init() {
-
+    this->turn = 0;
+    this->winnerID = -1;
 }
 
 int Room::getID() {
@@ -16,9 +17,7 @@ int Room::getID() {
 }
 
 void Room::setID(int id) {
-    std::cout << "setting id: " << id << std::endl;
     this->id = id;
-    std::cout << "setted id: " << this->id << std::endl;
 }
 
 //int Room::getPlayerLimit() {
@@ -50,8 +49,8 @@ int Room::getActivePlayerID() {
     return this->activePlayerID;
 }
 
-void Room::setActivePlayerID(int activePlayerID) {
-    this->activePlayerID = activePlayerID;
+void Room::updateActivePlayerID() {
+    this->activePlayerID = this->turn % this->getPlayerCount();
 }
 
 GameDifficulty Room::getDifficulty() {
@@ -62,12 +61,13 @@ void Room::setDifficulty(GameDifficulty difficulty) {
     this->difficulty = difficulty;
 }
 
-std::map<int, Player> Room::getPlayers() {
+std::map<int, Player> &Room::getPlayers() {
     return this->players;
 }
 
 void Room::registerPlayer(Player *p) {
     this->players[p->getID()] = *p;
+    this->playerOrder.push_back(p->getID());
 }
 
 GameType Room::getGameType() {
@@ -93,7 +93,7 @@ bool Room::isJoinable() {
     return !this->isRoomReady();
 }
 
-std::queue<int> Room::getPlayerSockets() {
+std::queue<int> Room::getPlayerSockets() const {
     std::queue<int> q;
 
     for(auto it = this->players.cbegin(); it != this->players.cend(); ++it) {
@@ -105,4 +105,55 @@ std::queue<int> Room::getPlayerSockets() {
 
 bool Room::isEmpty() {
     return this->players.empty();
+}
+
+const std::queue<int> &Room::getProgress() const {
+    return this->progress;
+}
+
+void Room::setProgress(std::queue<int> progress) {
+    this->progress = progress;
+}
+
+bool Room::hasProgress() {
+    return this->progress.size() > 0;
+}
+
+void Room::startTurn() {
+    this->updateActivePlayerID();
+    this->turn++;
+}
+
+int Room::getTurn() const {
+    return this->turn;
+}
+
+void Room::deregisterPlayer(Player &p) {
+    this->players.erase(p.getID());
+}
+
+bool Room::isAnyoneOnline() const {
+    int onlinePlayers = 0;
+
+//    if(this->isEmpty())
+//        return false;
+
+    for(auto it = this->players.cbegin(); it != this->players.cend(); ++it) {
+        if(it->second.isOnline())
+            onlinePlayers++;
+    }
+
+    return onlinePlayers > 0;
+}
+
+int Room::getWinnerID() {
+    return this->winnerID;
+}
+
+void Room::finishGame() {
+    this->winnerID = (this->turn + 1) % this->getPlayerCount();
+}
+
+bool Room::hasGameFinished() {
+    return this->winnerID != -1;
 }

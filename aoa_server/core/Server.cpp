@@ -106,8 +106,9 @@ void Server::run() {
 
 					} else {
 						// Disconnect a client.
-                        this->conn->deregisterClient(fdIndex);
-                        this->app->deregisterOnlineUser(fdIndex);
+                        this->app->deregisterUser(fdIndex);
+                        //this->conn->deregisterClient(fdIndex);
+                        //this->app->deregisterOnlineUser(fdIndex);
 						//close(fdIndex);
 					}
 

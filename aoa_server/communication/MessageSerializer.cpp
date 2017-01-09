@@ -4,6 +4,7 @@
 #include "MessageSerializer.h"
 #include "CommunicationManager.h"
 #include "../partial/tools.h"
+#include "../core/Logger.h"
 
 
 MessageSerializer::MessageSerializer() {
@@ -12,13 +13,15 @@ MessageSerializer::MessageSerializer() {
 
 void MessageSerializer::init() {
     this->sb = new StringBuilder();
-    std::cout << "MSGSerializer initialized." << std::endl;
+    this->log = new StringBuilder();
+
+    Logger::info("MSGSerializer initialized.", false);
 }
 
 std::string MessageSerializer::serializeRooms(std::map<int, Room>& rooms) {
     unsigned long roomCount;
 
-    std::cout << "serializing rooms...."<< std::endl;
+    Logger::info("serializing rooms...");
 
     printRooms(rooms);
 
@@ -58,9 +61,7 @@ void MessageSerializer::serializeRoomAndJoin(Room& r) {
 
 std::string MessageSerializer::serializeRoom(Room& r) {
     this->sb->clear();
-    std::cout << "++++++ 3" << std::endl;
     this->serializeRoomAndJoin(r);
-    std::cout << "++++++ 4" << std::endl;
     return this->sb->getString();
 }
 

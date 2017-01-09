@@ -95,19 +95,35 @@ class Application {
 
         void setRoom(Room& r);
 
-        void startGameIfReady(int rid);
+        //void startGameIfReady(int rid);
 
         bool joinRoom(int uid, int rid);
 
         Player getPlayer(int uid);
 
-    bool isGameReady(int rid);
+    bool startGameIfReady(int rid);
 
-    void cancelRoomIfEmpty(int rid);
+    void checkRoomCancel(int rid);
 
-    void deregisterOfflineUser(int uid);
+    void deregisterUserCompletely(Player &player);
 
-    bool proceedTurn(int rid, std::queue<int> &progress);
+    bool proceedTurn(int rid, const std::queue<int> &progress);
+
+    void cancelRoom(int rid);
+
+    void removePlayer(int uid);
+
+    Player& getOnlinePlayer(int uid);
+
+    Player& getOfflinePlayer(int uid);
+
+    void setOnlinePlayer(Player &p);
+
+    void setOfflinePlayer(Player &p);
+
+    void deregisterUserFromRoom(Player &player);
+
+    void deregisterUser(int uid);
 };
 
 

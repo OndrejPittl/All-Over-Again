@@ -34,7 +34,7 @@ void ConnectionManager::init(){
 	// all IPs of any network card
 	this->srvAddr.sin_addr.s_addr = INADDR_ANY;
 
-	Logger::info("ConnectionManager is initialized.");
+	Logger::info("ConnectionManager is initialized.", false);
 }
 
 void ConnectionManager::prepare(){
@@ -48,7 +48,7 @@ void ConnectionManager::prepare(){
     this->log->clear();
     this->log->append("bind result: ");
     this->log->append(this->result);
-    Logger::info(this->log->getString());
+    Logger::info(this->log->getString(), false);
 
 	if (this->result != 0) {
 		exit(Logger::printErr(ERR_BIND));
@@ -68,7 +68,7 @@ void ConnectionManager::prepare(){
     this->log->append("------------------------------");
     Logger::info(this->log->getString());
 
-    // clear a set of sockets
+    // clearMsg a set of sockets
     FD_ZERO(&this->cliSockSet);
 
     // place a server socket into a set being checked with select()
@@ -148,7 +148,7 @@ void ConnectionManager::registerNewClient(){
 	 */
 	int cliSock = accept(this->srvSocket, (struct sockaddr *) &cliAddr, (socklen_t *) &cliAddrLen);
 
-    FD_SET(cliSock, &this->cliSockSet);
+    this->registerClient(cliSock);
 
     this->log->clear();
     this->log->append("New client connected to socket: ");
@@ -161,6 +161,10 @@ void ConnectionManager::deregisterClient(int sock){
     close(sock);
     FD_CLR(sock, &this->cliSockSet);
     Logger::info("A client was disconnected and removed from the set.");
+}
+
+void ConnectionManager::registerClient(int sock) {
+    FD_SET(sock, &this->cliSockSet);
 }
 
 
