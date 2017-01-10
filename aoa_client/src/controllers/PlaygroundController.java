@@ -1,10 +1,10 @@
 package controllers;
 
 import application.Application;
-import application.Screen;
 import config.Routes;
 import config.ViewConfig;
 import game.GameMove;
+import game.GameTurn;
 import io.DataLoader;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -12,34 +12,44 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 import model.FXMLSource;
 import model.Player;
 import model.Room;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.ResourceBundle;
+import java.util.StringJoiner;
 
 
 public class PlaygroundController extends ScreenController {
 
     private Room room;
 
+    private GameTurn turn;
+
+    private boolean amIActive;
+
     private int dimension;
 
     private Timeline timer;
+
     private int timerValue;
+
+    private int moveCounter = 0;
 
 
     @FXML
     private Label lbl_timer;
+
+    @FXML
+    private Label lbl_movesDone;
+
+    @FXML
+    private Label lbl_movesRequired;
 
     @FXML
     private Button btn_giveUp;
@@ -170,22 +180,36 @@ public class PlaygroundController extends ScreenController {
     }
 
     public void registerMove(GameMove m){
+        this.moveCounter++;
         this.moves.add(m);
+        this.updateMoveStats();
+
+        System.out.println("c: " + this.moveCounter);
+        System.out.println("t: " + this.turn.getTurn());
+        if(this.moveCounter == this.turn.getTurn()) {
+            this.endTurn();
+        }
+
         System.out.println(Arrays.toString(this.moves.toArray()));
     }
 
+    private void updateMoveStats(){
+        if(this.amIActive) {
+            this.lbl_movesDone.setText(String.valueOf(this.moveCounter));
+            this.lbl_movesRequired.setText(String.valueOf(this.turn.getTurn()));
+        } else {
+            this.lbl_movesDone.setText("-");
+            this.lbl_movesRequired.setText("-");
+        }
+    }
+
     public void startTurn() {
+        this.moveCounter = 0;
+        this.turn = this.app.getGameTurn();
+        this.amIActive = this.app.amIActive();
+
         Platform.runLater(() -> {
-
-//            if(!this.app.isTurnDataOK()) {
-//                // konec hry!
-//
-//
-//
-//                return;
-//            }
-
-
+            this.updateMoveStats();
             this.initTimer();
             this.playTurnTask();
         });
@@ -200,14 +224,14 @@ public class PlaygroundController extends ScreenController {
 
     public void endTurn(){
         this.disableBoard();
-        //this.vb_timerWrapper.setVisible(false);
         this.timer.stop();
         this.app.storeProgress(this.moves);
         this.moves.clear();
-
         Application.awaitAtGuiBarrier("GUI releases. Turn ends.");
+    }
 
-//        this.app.proceedEndTurn(this.moves);
+    public void stopGame() {
+        Platform.runLater(() -> this.endTurn());
     }
 
     private void enableBoard(){
@@ -220,7 +244,7 @@ public class PlaygroundController extends ScreenController {
     }
 
     private void playTurnTask(){
-        GameMove[] progress = this.app.getProgress();
+        GameMove[] progress = this.turn.getMoves();
 
         if(progress == null) {
             this.proceedTurnStart();
@@ -241,13 +265,16 @@ public class PlaygroundController extends ScreenController {
                 }
             })
         );
-        timeline.setCycleCount(progress.length);
-        timeline.setOnFinished((e) ->
-            new Timeline(new KeyFrame(
-                Duration.millis(ViewConfig.TIMER_TURN_INTRO_MOVE_DURATION),
-                (ActionEvent) -> this.proceedTurnStart()
-            )).play()
-        );
+
+        if(this.amIActive) {
+            timeline.setCycleCount(progress.length);
+            timeline.setOnFinished((e) ->
+                    new Timeline(new KeyFrame(
+                            Duration.millis(ViewConfig.TIMER_TURN_INTRO_MOVE_DURATION),
+                            (ActionEvent) -> this.proceedTurnStart()
+                    )).play()
+            );
+        }
 
         timeline.play();
     }

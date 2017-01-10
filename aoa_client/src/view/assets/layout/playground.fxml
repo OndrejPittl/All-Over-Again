@@ -19,7 +19,7 @@
                      <children>
                         <HBox alignment="CENTER">
                            <children>
-                              <Label fx:id="lbl_timer" alignment="CENTER" contentDisplay="CENTER" nodeOrientation="LEFT_TO_RIGHT" text="24" textAlignment="CENTER">
+                              <Label fx:id="lbl_timer" alignment="CENTER" contentDisplay="CENTER" nodeOrientation="LEFT_TO_RIGHT" text="0" textAlignment="CENTER">
                                  <font>
                                     <Font size="25.0" />
                                  </font>
@@ -34,7 +34,41 @@
                               </Label>
                            </children>
                         </HBox>
-                        <Label text="l e f t" textAlignment="CENTER" />
+                        <Label text="l e f t" textAlignment="CENTER">
+                           <font>
+                              <Font size="12.0" />
+                           </font></Label>
+                        <VBox alignment="CENTER">
+                           <children>
+                              <HBox alignment="CENTER">
+                                 <children>
+                                    <Label fx:id="lbl_movesDone">
+                                       <font>
+                                          <Font size="17.0" />
+                                       </font></Label>
+                                    <Label text="/" textFill="#979797">
+                                       <HBox.margin>
+                                          <Insets left="5.0" right="2.0" />
+                                       </HBox.margin>
+                                       <font>
+                                          <Font size="14.0" />
+                                       </font>
+                                    </Label>
+                                    <Label fx:id="lbl_movesRequired" textFill="#979797">
+                                       <font>
+                                          <Font size="14.0" />
+                                       </font></Label>
+                                 </children>
+                              </HBox>
+                              <Label text="m o v e s">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font></Label>
+                           </children>
+                           <VBox.margin>
+                              <Insets top="10.0" />
+                           </VBox.margin>
+                        </VBox>
                      </children>
                   </VBox>
                </center>

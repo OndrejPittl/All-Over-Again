@@ -190,7 +190,12 @@ public class Application {
     }
 
     public synchronized void proceedEndTurn() {
-        this.comm.registerEndTurn(this.turn.getMoves());
+	    if(this.amIActive())
+            this.comm.registerEndTurn(this.turn.getMoves());
+    }
+
+    public synchronized boolean amIActive(){
+	    return this.turn.getActivePlayerID() == this.player.getID();
     }
 
     public synchronized GameMove[] getProgress() {
@@ -322,4 +327,9 @@ public class Application {
     public void leaveGame() {
         this.comm.leaveGame();
     }
+
+    public synchronized GameTurn getGameTurn(){
+        return this.turn;
+    }
+
 }
