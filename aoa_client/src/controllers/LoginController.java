@@ -30,7 +30,7 @@ public class LoginController extends ScreenController {
 		String nick = tf_username.getText();
 		
 		if(UserInputValidator.validateUsername(nick)) {
-			this.app.registerPlayer(new Player(nick));
+			this.app.signIn(new Player(nick));
 			Application.awaitAtGuiBarrier("GUI relseases. Username entered. (5GRG)");
 		}
 	}

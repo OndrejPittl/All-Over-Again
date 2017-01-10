@@ -162,7 +162,7 @@ public class CommunicationManager {
             }
 
             if(pResult != null) {
-                this.app.registerPlayer(pResult);
+                this.app.signIn(pResult);
                 break;
             }
 
@@ -220,6 +220,16 @@ public class CommunicationManager {
         return this.waitForRoomInfo();
     }
 
+    public void restartGame(){
+        this.sb.append(CommunicationConfig.REQ_GAME_START);
+        this.prepareMessage();
+    }
+
+    public void leaveGame(){
+        this.sb.append(CommunicationConfig.REQ_GAME_LEAVE);
+        this.prepareMessage();
+    }
+
     private Room waitForRoomInfo(){
         Room r;
         Message m;
@@ -275,7 +285,9 @@ public class CommunicationManager {
                 String msg = m.getMessage();
                 typeOK = this.parser.checkIfTurnData(msg);
                 ack = this.parser.checkACK(msg);
-                turn = this.parser.parseTurnInfo(m.getMessage());
+
+                int diff = this.app.getSelectedRoom().getDifficulty().getDifficulty();
+                turn = this.parser.parseTurnInfo(m.getMessage(), diff);
 
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -283,13 +295,13 @@ public class CommunicationManager {
 
             // correct
             if(turn != null){
-                this.app.setTurnDataOK(true);
+                //this.app.setGameFinished(true);
                 break;
             }
 
             // NOT correct
             if(typeOK && !ack) {
-                this.app.setTurnDataOK(false);
+                this.app.setGameFinished(true);
                 break;
             }
 

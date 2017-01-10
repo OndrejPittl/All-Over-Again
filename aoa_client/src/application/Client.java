@@ -67,12 +67,20 @@ public class Client implements Runnable {
 		//release
 		Application.awaitAtClientBarrier("CLI releases after connection & hello packet. (2CRC)");
 
+
+
+
+        loopMain:
         do {
+            System.out.println("....... CLIENT ENTERING: MAIN LOOP!!!");
 
 
             // sign-in loop until a username is accepted and a player signed in
 
+            loopLogin:
             do {
+
+                System.out.println("....... CLIENT ENTERING: LOGIN LOOP!!!");
 
                 Application.awaitAtClientBarrier("CLI waits for username. (3CWC)");
 
@@ -80,11 +88,10 @@ public class Client implements Runnable {
 
                 Application.awaitAtClientBarrier("CLI releases. Username checked. (8CRC)");
 
-                if(!(result = this.app.isPlayerRegistered())){
-                    System.out.println("--- REGISTERING ERROR: USERNAME TAKEN");
+                if(!(result = this.app.isSignedIn())){
+                    System.out.println("?????? CLIENT REGISTERED: USERNAME EXISTS!!!");
                     this.app.registerError(Error.USERNAME_TAKEN);
                 }
-
 
             } while(!result);
 
@@ -92,12 +99,16 @@ public class Client implements Runnable {
 
             do {
 
+                System.out.println("....... CLIENT ENTERING: noname LOOP!!!");
+
                 // room selection loop until a room is joined
 
                 // the only acceptable message is NACK/ACK + room info,
                 // all other messages are being ignored
 
+                loopRoomJoin:
                 do {
+                    System.out.println("....... CLIENT ENTERING: ROOM LOOP!!!");
 
                     this.app.updateRoomList();
 
@@ -109,51 +120,100 @@ public class Client implements Runnable {
 
                     Application.awaitAtClientBarrier("Client releases with room selection. (14CRC)");
 
-                } while (!this.app.isRoomJoined());
+                    if(!(result = this.app.isRoomJoined())){
+                        System.out.println("?????? CLIENT REGISTERED: JOINING ERROR - ROOM UNAVAILABLE!!!");
+                        this.app.registerError(Error.ROOM_JOIN);
+                    }
+
+                } while (!result);
 
 
 
-                //game init
-                this.app.waitForGameInit();
-
-                Application.awaitAtClientBarrier("Client releases after game initialization. (16CRC)");
-
-
-                // TODO: zkontrolovat!!!
-                if (!this.app.isGameStarted()) {
-                    continue;
-                }
-
-
-                //---- cycle:
+                loopGame:
                 do {
 
-                    // turn info
-                    this.app.waitForTurnStart();
+                    System.out.println("....... CLIENT ENTERING: GAME LOOP!!!");
 
-                    Application.awaitAtClientBarrier("Client releases after turn start. (18CRC)");
+                    this.app.resetGame();
 
-                    // NOT correct solution
-                    if(!this.app.isTurnDataOK()) {
-                        break;
+
+                    Application.awaitAtClientBarrier("Client waits for waiting screen init.");
+
+                    //game init
+                    this.app.waitForGameInit();
+
+
+                    Application.awaitAtClientBarrier("Client releases after game initialization. (16CRC)");
+
+
+                    // TODO: zkontrolovat!!!
+                    if (!this.app.isGameStarted()) {
+                        System.out.println("?????? CLIENT REGISTERED: GAME HASN'T STARTED!!!");
+                        continue;
                     }
 
 
-                    Application.awaitAtClientBarrier("Client waits for user interaction. (19CWC)");
+                    loopGameProgress:
+                    do {
 
-                    this.app.proceedEndTurn();
+                        System.out.println("....... CLIENT ENTERING: GAME-PROGRESS LOOP!!!");
 
-                } while (!this.app.isGameFinished());
+                        Application.awaitAtClientBarrier("Client waits for board init.");
+
+                        // turn info
+                        this.app.waitForTurnStart();
+
+                        Application.awaitAtClientBarrier("Client releases after turn start. (18CRC)");
+
+                        // game over
+                        System.out.println("__________ CLIENT check GAME FINISHED");
+                        if ((result = this.app.isGameFinished())) {
+                            System.out.println("?????? CLIENT REGISTERED: GAME FINISHED!!! LEAVING GAME-PROGRESS");
+                            break loopGameProgress;
+                        }
+
+                        Application.awaitAtClientBarrier("Client waits for user interaction. (19CWC)");
+
+                        this.app.proceedEndTurn();
 
 
-                // game results
-                this.app.waitForGameResults();
+                    } while (!result);
 
-                Application.awaitAtClientBarrier("Client releases with game results.");
-                Application.awaitAtClientBarrier("Client TEMPORARILY WAITS.");
+
+                    // game results
+                    this.app.waitForGameResults();
+
+                    Application.awaitAtClientBarrier("Client releases with game results.");
+
+                    Application.awaitAtClientBarrier("Client waits for user interaction.");
+
+
+
+                    // game exit
+                    if (this.app.isExitingGame()) {
+                        System.out.println("?????? CLIENT REGISTERED: GAME EXIT!!! LEAVING MAIN LOOP");
+                        break loopMain;
+                    }
+
+
+                    //Application.awaitAtClientBarrier("Client TEMPORARILY WAITS.");
+                    if((result = this.app.isRoomJoined())) {
+
+                        // request: restart game
+                        this.app.restartGame();
+
+                    } else {
+
+                        //req: leave a game and stay logged in
+                        this.app.leaveGame();
+
+                    }
+
+
+                } while (result);
+
 
             } while (this.app.isSignedIn());
-
 
 
         } while(!this.app.isSignedIn());

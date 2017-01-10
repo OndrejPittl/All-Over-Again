@@ -7,6 +7,8 @@ import java.util.ArrayList;
 
 public class GameTurn {
 
+    private int turn;
+
     private int activePlayerID;
 
     private int time;
@@ -14,10 +16,11 @@ public class GameTurn {
     private GameMove[] moves;
 
 
-    public GameTurn(int activePlayerID, int time, GameMove[] moves) {
+    public GameTurn(int activePlayerID, int time, GameMove[] moves, int turn) {
         this.activePlayerID = activePlayerID;
         this.time = time;
         this.moves = moves;
+        this.turn = turn;
     }
 
     public int getActivePlayerID() {
@@ -41,5 +44,9 @@ public class GameTurn {
         }
 
         this.moves = mvs;
+    }
+
+    public int getTurn() {
+        return turn;
     }
 }

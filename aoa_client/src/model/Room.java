@@ -10,6 +10,8 @@ public class Room {
 
 	private int playerCount;
 
+	private int turn;
+
 	private GameType type;
 
 	private GameDifficulty difficulty;
@@ -135,4 +137,13 @@ public class Room {
 	public void setType(GameType type) {
 		this.type = type;
 	}
+
+    public int getTurn() {
+        return turn;
+    }
+
+    public void setTurn(int turn) {
+        this.turn = turn;
+    }
+
 }

@@ -36,6 +36,10 @@ public class CommunicationConfig {
 	public static final String REQ_NACK = "0";
 
 
+	public static final int ASCII_LOWER =  32;
+
+	public static final int ASCII_UPPER =  126;
+
 
 
     public static final int REQ_HELLO = 0;

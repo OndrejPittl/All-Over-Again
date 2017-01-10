@@ -1,15 +1,14 @@
 package application;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
 import communication.CommunicationManager;
+import config.ViewConfig;
 import game.GameMove;
 import game.GameTurn;
+import game.GameType;
 import model.Error;
 import model.Player;
 import model.Room;
@@ -34,28 +33,22 @@ public class Application {
 
     private ArrayList<Error> errors;
 
-	private boolean gameFinished;
-
 	private  Player player;
 
 	private  Room[] rooms;
 
-	private  Room selectedRoom;
+	private  Room selectedRoom = null;
 
 	//private GameMove[] progress;
     private GameTurn turn;
 
     private int winnerID;
 
-
-    private boolean isJoinedRoom = false;
-    private boolean isGameStarted = false;
-    private boolean isSignedIn = false;
-    private boolean turnDataOK = true;
-
-
-//	private static Screen gui;
-//	private static Client cli;
+    //private boolean signedIn = false;
+    private boolean gameStarted = false;
+    private boolean gameFinished = false;
+    private boolean exitingGame = false;
+    //private boolean turnDataOK = true;
 
 	
 	
@@ -63,15 +56,24 @@ public class Application {
 	 * 
 	 */
 	private Application(){
-		this.clientBarrier = new CyclicBarrier(2);
-		this.guiBarrier = new CyclicBarrier(2);
+		Application.clientBarrier = new CyclicBarrier(2);
+        Application.guiBarrier = new CyclicBarrier(2);
 		this.init();
 	}
 
 	private void init(){
-		this.gameFinished = false;
+	    this.setGameFinished(false);
         this.errors = new ArrayList<>();
+        //this.signedIn = false;
 	}
+
+    public void resetGame(){
+	    this.setExitingGame(false);
+        this.setGameStarted(false);
+        this.setGameFinished(false);
+        this.winnerID = -1;
+    }
+
 	
 	/**
 	 * 
@@ -91,6 +93,7 @@ public class Application {
 	    this.selectedRoom = r;
     }
 
+
     public void handleSignIn(){
 		//check nickname availability
 		this.comm.checkUsernameAvailability();
@@ -99,33 +102,29 @@ public class Application {
     public void requestCreateJoinRoom(){
         Room selected;
 
-        if(this.selectedRoom.hasID()) {
+        if(this.getSelectedRoom().hasID()) {
 
             //join game
             // this.selectRoom(this.rooms[index]);
-            selected = this.comm.joinGame(this.selectedRoom);
+            selected = this.comm.joinGame(this.getSelectedRoom());
             this.selectRoom(selected);
 
         } else {
 
             //new game
-            // this.selectRoom(this.comm.newGame(this.selectedRoom));
-            selected = this.comm.newGame(this.selectedRoom);
+            selected = this.comm.newGame(this.getSelectedRoom());
             this.selectRoom(selected);
         }
-
-        this.isJoinedRoom = selected != null;
     }
 
 
-
-
     public void waitForGameInit(){
-		this.isGameStarted = this.comm.waitGameInitComplete();
+        this.setGameStarted(this.comm.waitGameInitComplete());
     }
 
     public void waitForTurnStart(){
         this.turn = this.comm.waitForTurn();
+        if(this.turn != null) this.getSelectedRoom().setTurn(this.turn.getTurn());
     }
 
 
@@ -142,24 +141,6 @@ public class Application {
 		return comm;
 	}
 
-	//	public void setGUI(Screen gui){
-//		this.gui = gui;
-//	}
-//	
-//	public void setClient(Client cli){
-//		this.cli = cli;
-//	}
-	
-
-	
-//	public Screen getScreen(){
-//		return this.gui;
-//	}
-	
-//	public static CyclicBarrier getBarrier(){
-//		return Application.clientBarrier;
-//	}
-	
 
 
 	/**
@@ -204,8 +185,6 @@ public class Application {
 		}
 	}
 
-
-
 	public synchronized Room getSelectedRoom(){
 	    return this.selectedRoom;
     }
@@ -230,14 +209,17 @@ public class Application {
         return this.turn.getActivePlayerID();
     }
 
-    public synchronized void setGameFinished(){
-		this.gameFinished = true;
+    public synchronized int getTurn(){
+	    return this.getSelectedRoom().getTurn() - 1;
+    }
+
+    public synchronized void setGameFinished(boolean finished){
+		this.gameFinished = finished;
 	}
 
 
 
-
-	public synchronized void registerPlayer(Player player){
+	public synchronized void signIn(Player player){
 		this.player = player;
 	}
 
@@ -245,25 +227,30 @@ public class Application {
 		return this.player;
 	}
 
-	public synchronized boolean isPlayerRegistered(){
-		return this.player.hasID();
-	}
+
+    public synchronized boolean isSignedIn() {
+        return this.player != null && this.player.hasID();
+    }
+
+	public synchronized void signOut(){
+	    this.player = null;
+    }
 
 	public synchronized boolean isGameFinished() {
 		return gameFinished;
 	}
 
-	public synchronized boolean isRoomJoined(){
-    	return this.isJoinedRoom;
-	}
+    public synchronized boolean isRoomJoined(){
+        return this.getSelectedRoom() != null;
+    }
 
 	public synchronized boolean isGameStarted() {
-		return isGameStarted;
+		return gameStarted;
 	}
 
-	public synchronized boolean isSignedIn() {
-		return isSignedIn;
-	}
+	public synchronized void setGameStarted(boolean started){
+        this.gameStarted = started;
+    }
 
 	public synchronized void registerError(Error err){
 	    this.errors.add(err);
@@ -285,15 +272,54 @@ public class Application {
         return errs;
     }
 
-	public synchronized boolean isTurnDataOK(){
-		return this.turnDataOK;
-	}
+//	public synchronized boolean isTurnDataOK(){
+//		return this.turnDataOK;
+//	}
+//
+//	public synchronized void setTurnDataOK(boolean ok){
+//		this.turnDataOK = ok;
+//	}
 
-	public synchronized void setTurnDataOK(boolean ok){
-		this.turnDataOK = ok;
-	}
-
-	public void waitForGameResults() {
+	public synchronized void waitForGameResults() {
 		this.winnerID = this.comm.waitForResults();
 	}
+
+	private synchronized boolean amIWinner() {
+		 return this.player.getID() == this.winnerID;
+	}
+
+	public synchronized String getWinnerText() {
+
+        if(this.selectedRoom.getType() == GameType.SINGLEPLAYER) {
+            return ViewConfig.MSG_GAME_END;
+        }
+
+        if(this.amIWinner()) {
+            return ViewConfig.MSG_GAME_WIN;
+        }
+
+        return ViewConfig.MSG_GAME_LOSE;
+	}
+
+    public synchronized boolean isExitingGame() {
+        return exitingGame;
+    }
+
+    public synchronized void setExitingGame(boolean exitingGame) {
+        this.exitingGame = exitingGame;
+    }
+
+    public synchronized void disconnectRoom() {
+        this.selectRoom(null);
+    }
+
+
+    public void restartGame(){
+        this.comm.restartGame();
+    }
+
+
+    public void leaveGame() {
+        this.comm.leaveGame();
+    }
 }

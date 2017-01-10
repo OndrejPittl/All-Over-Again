@@ -175,7 +175,7 @@ public class CommunicationParser {
 
 	}
 
-    public GameTurn parseTurnInfo(String response) {
+    public GameTurn parseTurnInfo(String response, int diff) {
 
 	    // message split to blocks
         String[] parts = response.split(CommunicationConfig.MSG_DELIMITER);
@@ -195,7 +195,8 @@ public class CommunicationParser {
             turnNum = Integer.parseInt(parts[3]),
             prevTurnNum = turnNum - 1,
             time = Integer.parseInt(parts[4]),
-            diff = prevTurnNum == 0 ? 0 : (parts.length - offset)/prevTurnNum;
+            ddif = diff + 1;
+            //diff = prevTurnNum == 0 ? 0 : (parts.length - offset)/prevTurnNum;
 
 
         if(parts.length > offset) {
@@ -206,8 +207,8 @@ public class CommunicationParser {
             for (int t = 0; t < prevTurnNum; t++) {
 
                 int[] attrs = {-1, -1, -1};
-                for (int a = 0; a < diff; a++) {
-                    int index = t * diff + a + offset;
+                for (int a = 0; a < ddif; a++) {
+                    int index = t * ddif + a + offset;
                     attrs[a] = Integer.parseInt(parts[index]);
                 }
                 moves[t] = new GameMove(attrs);
@@ -220,7 +221,7 @@ public class CommunicationParser {
 
         }
 
-        turn = new GameTurn(activePlayerID, time, moves);
+        turn = new GameTurn(activePlayerID, time, moves, turnNum);
 
         System.out.println("Moves:");
         System.out.println(Arrays.toString(moves));

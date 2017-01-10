@@ -2,6 +2,7 @@ package communication;
 
 import application.Connection;
 import config.CommunicationConfig;
+import javafx.application.Platform;
 import partial.Tools;
 
 import java.io.BufferedInputStream;
@@ -10,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import static config.CommunicationConfig.ASCII_LOWER;
+
 public class MessageReceiver implements Runnable {
 
     private Connection conn;
@@ -17,6 +20,8 @@ public class MessageReceiver implements Runnable {
     private CommunicationParser parser;
 
     private LinkedBlockingQueue<Message> receivedMessages;
+
+    private StringBuilder sb;
 
     /**
      * Input byte stream.
@@ -39,12 +44,15 @@ public class MessageReceiver implements Runnable {
 
     private void init(){
         this.parser = new CommunicationParser();
+        this.sb = new StringBuilder();
         this.msgBuffer = new byte[1024];
     }
 
     public void run() {
 
         boolean helloFound;
+
+
 
         ArrayList<String> messages;
 
@@ -53,10 +61,13 @@ public class MessageReceiver implements Runnable {
             System.out.println("MSGReceiver: waiting for a message.");
             String msgTxt = this.recvMsg();
 
-//            if(msgTxt == null || msgTxt.length() > 0) {
-//                System.out.println("MSGReceiver: received an EMPTY message. SERVER DOWN!");
-//                continue;
-//            }
+            if(msgTxt == null || msgTxt.length() == 0) {
+
+                System.out.println("MSGReceiver: received an EMPTY message. SERVER DOWN!");
+                Platform.exit();
+                System.exit(1);
+
+            }
 
             System.out.println("MSGReceiver: received a message.");
 
@@ -149,21 +160,22 @@ public class MessageReceiver implements Runnable {
 
     private String recvMsg(){
         int msgLen;
-        String msg = "";
+        this.sb.setLength(0);
 
         try {
             initBufferedInputStream();
 
             while((msgLen = this.bis.read(this.msgBuffer)) > 0) {
                 for (int i = 0; i < msgLen; i++) {
-                    if(this.msgBuffer[i] == 0) {
+                    byte c = this.msgBuffer[i];
+                    if(c == 0) {
                         break;
-                    } else if (this.msgBuffer[i] > 31) {
-                        msg = msg + (char) this.msgBuffer[i];
+                    } else if (this.isValidCharacter(c)) {
+                        sb.append((char) this.msgBuffer[i]);
                     }
                 }
-                System.out.print(">>> received: \"" + msg + "\" (" + msgLen + " bytes)\n");
-                return msg;
+                System.out.print(">>> received: \"" + sb.toString() + "\" (" + msgLen + " bytes)\n");
+                return sb.toString();
             }
 
         } catch (IOException e) {
@@ -172,6 +184,10 @@ public class MessageReceiver implements Runnable {
         }
 
         return null;
+    }
+
+    private boolean isValidCharacter(int c){
+        return c >= CommunicationConfig.ASCII_LOWER && c <= CommunicationConfig.ASCII_UPPER;
     }
 
     private void initBufferedInputStream() throws IOException{

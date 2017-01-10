@@ -19,6 +19,7 @@ public class GameConfig {
 
 
 
+
     public static final Image[][] SYMBOLS = {
         {
             // GOLD (0, Color.web("EDAC03")),

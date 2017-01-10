@@ -69,7 +69,7 @@ public class MessageSender implements Runnable {
      */
     public void writeMsg(String msg) {
         try {
-//            System.out.print("sending...\n");
+            System.out.println("<<<<<<<<< sending: " + msg);
             this.initBufferedOutputStream();
             this.bos.write(msg.getBytes(), 0, msg.length());
             this.bos.flush();

@@ -14,6 +14,11 @@ public class ViewConfig {
 
 	public static final String MSG_STATUS_ONLINE = "online";
 
+	public static final String MSG_GAME_WIN = "You won!";
+
+	public static final String MSG_GAME_LOSE = "You lost.";
+
+	public static final String MSG_GAME_END = "Game ends.";
 
 	public static final int TIMER_TURN_INTRO_MOVE_DURATION = 1500;
 

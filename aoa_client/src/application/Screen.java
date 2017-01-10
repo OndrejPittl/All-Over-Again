@@ -5,10 +5,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import config.ViewConfig;
-import controllers.GameCenterController;
-import controllers.LoginController;
-import controllers.MessageController;
-import controllers.PlaygroundController;
+import controllers.*;
 import io.DataLoader;
 import model.FXMLSource;
 import javafx.application.Platform;
@@ -153,6 +150,18 @@ public class Screen extends Stage implements Observer {
                 this.playgroundController.prepare();
                 Application.awaitAtGuiBarrier("GUI releases after board initialization.");
                 //controller.updateRoomList();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public void runGameResults(){
+        Platform.runLater(() -> {
+            try {
+                ResultsController controller = (ResultsController) me.runScreen(ScreenType.GameResult);
+                controller.setApp(app);
+                controller.update();
             } catch (IOException e) {
                 e.printStackTrace();
             }

@@ -16,7 +16,9 @@ public class DataLoader {
 	
 	
 	public static FXMLSource loadLayout(String path) {
-        InputStream in = Main.class.getResourceAsStream(Routes.getLayoutFile(path));
+	    String p = Routes.getLayoutFile(path);
+	    //System.out.println("PAAAATH: " + p);
+        InputStream in = Main.class.getResourceAsStream(p);
         return DataLoader.loadFXML(in);
 	}
 
