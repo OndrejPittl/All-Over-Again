@@ -3,6 +3,10 @@
 
 #include <string>
 #include <ctype.h>
+#include <mutex>
+
+#include "../partial/StringBuilder.h"
+
 
 
 /**
@@ -18,10 +22,19 @@ enum ErrCode {
     ERR_MSG_RECEIVE,
 };
 
+enum class LoggerSeverity {
+    TRACE,
+	DEBUG,
+	FATAL,
+	ERROR,
+	WARNING,
+	INFO
+};
+
 
 class Logger {
 	private:
-		static const std::string CFG_PATH;
+		static const std::string LOG_FILE_PATH;
 
 		/**
 		*	Table of errors.
@@ -30,9 +43,24 @@ class Logger {
 
 		static bool logging;
 
+        static std::mutex mtx;
+
+        static StringBuilder *sb;
+
+		static LoggerSeverity lvl;
+
+        static void log(LoggerSeverity lvl, std::string msg, bool consoleLog = true);
+
+        static void logFile();
+
+        static void logConsole();
+
+        static void logConsoleErr();
+
+
 	public:
 
-		static void init(int argc, char **argv);
+		static void init();
 
 		/**
 		*	helps with backtracing events
@@ -68,6 +96,8 @@ class Logger {
 		*	Mainly informs about a progress.
 		*/
 		static int printErr(ErrCode ec);
+
+
 };
 
 #endif

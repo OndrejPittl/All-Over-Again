@@ -6,7 +6,7 @@
 //#include <string>
 //#include <queue>
 //#include <thread>
-//#include <mutex>
+//#include <mtx>
 //#include <condition_variable>
 //
 //
@@ -23,7 +23,7 @@
 //		/**
 //		*	Mutex for memory access management/locking shared memory.
 //		*/
-//		std::mutex mutex;
+//		std::mtx mtx;
 //
 //		/**
 //		*
@@ -32,7 +32,7 @@
 //
 //	public:
 //		T pop() {
-//			std::unique_lock<std::mutex> mlock(this->mutex);
+//			std::unique_lock<std::mtx> mlock(this->mtx);
 //
 //			while (this->queue.empty()) {
 //				this->cond.wait(mlock);
@@ -45,7 +45,7 @@
 //		}
 //
 //		void pop(T& item) {
-//			std::unique_lock<std::mutex> mlock(this->mutex);
+//			std::unique_lock<std::mtx> mlock(this->mtx);
 //
 //			while (this->queue.empty()) {
 //				this->cond.wait(mlock);
@@ -57,7 +57,7 @@
 //		}
 //
 //		void push(const T& item) {
-//			std::unique_lock<std::mutex> mlock(this->mutex);
+//			std::unique_lock<std::mtx> mlock(this->mtx);
 //
 //			this->queue.push(item);
 //            this->counter++;
@@ -73,7 +73,7 @@
 //        }
 //
 //		// void push(T&& item) {
-//		// 	std::unique_lock<std::mutex> mlock(this->mutex);
+//		// 	std::unique_lock<std::mtx> mlock(this->mtx);
 //
 //		// 	this->queue.push(std::move(item));
 //		// 	mlock.unlock();

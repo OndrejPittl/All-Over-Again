@@ -144,6 +144,7 @@ void Application::deregisterUser(int uid) {
  */
 void Application::deregisterOnlineUser(int uid) {
     Player &p = this->getOnlinePlayer(uid);
+    Room &r = this->getRoom(p.getRoomID());
 
     Developer::printOnlineOfflineUser(this->onlineUsers, this->offlineUsers);
 
@@ -155,6 +156,9 @@ void Application::deregisterOnlineUser(int uid) {
 
     // remove from online
     this->deregisterUserFrom(p, this->onlineUsers);
+
+    // room waiting for the player comes back
+    r.changeStatus(GameStatus::WAITING);
 
     // p still in a room, marked as offline
 
@@ -205,6 +209,7 @@ void Application::deregisterUserFromRoom(Player &player) {
 
     Room &r = this->getRoom(rid);
     r.deregisterPlayer(player);
+    this->checkRoomCancel(rid);
 }
 
 
@@ -223,29 +228,29 @@ int Application::createNewRoom(Room *room) {
 
 
     room->setID(index);
+    room->changeStatus(GameStatus::CONNECTING);
+
     this->setRoom(*room);
     return index;
 }
 
 bool Application::joinRoom(int uid, int rid) {
-    Room r;
-    Player p;
-
-    p = this->getPlayer(uid);
-    r = this->getRoom(rid);
-
-    this->log->clear();
-    this->log->append("* User ");
-    this->log->append(p.getUsername());
-    this->log->append(" (");
-    this->log->append(uid);
-    this->log->append(") ");
-    this->log->append("joining room: ");
-    this->log->append(rid);
-    Logger::info(this->log->getString());
+    Player &p = this->getOnlinePlayer(uid);
+    Room &r = this->getRoom(rid);
 
     if(r.isJoinable()) {
+        this->log->clear();
+        this->log->append("* User ");
+        this->log->append(p.getUsername());
+        this->log->append(" (");
+        this->log->append(uid);
+        this->log->append(") ");
+        this->log->append("joining room: ");
+        this->log->append(rid);
+        Logger::info(this->log->getString());
+
         this->assignPlayer(uid, rid);
+
         return true;
     }
 
@@ -317,7 +322,7 @@ void Application::setOfflinePlayer(Player &p) {
 //
 //    r = this->getRoom(rid);
 //
-//    if(!r.isRoomReady())
+//    if(!r.isRoomFull())
 //        return;
 //
 //    r.startTurn();
@@ -325,18 +330,16 @@ void Application::setOfflinePlayer(Player &p) {
 //}
 
 bool Application::startGameIfReady(int rid) {
-    Room r;
-    bool ready;
+    Room &r = this->getRoom(rid);
 
-    r = this->getRoom(rid);
-    ready =  r.isRoomReady();
-
-    if(ready) {
+    if(r.isReady()) {
+        Logger::info("ROOM IS READY");
         r.startTurn();
-        this->setRoom(r);
+        return true;
+    } else {
+        Logger::info("ROOM IS NOT READY");
+        return false;
     }
-
-    return ready;
 }
 
 Player Application::getPlayer(int uid) {
@@ -377,11 +380,7 @@ bool Application::proceedTurn(int rid, const std::queue<int> &progress) {
     bool result;
     Room &r = this->getRoom(rid);
 
-    std::cout << "OLD PROGRESSSSS: " << r.getProgress().size() << std::endl;
-
     result = this->game->validateTurn(progress, r);
-
-    std::cout << "NEW validated PROGRESSSSS: " << progress.size() << std::endl;
 
     if(result) {
         r.setProgress(progress);

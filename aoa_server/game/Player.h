@@ -7,8 +7,7 @@
 class Player {
 
     private:
-
-    int id;
+        int id;
         int roomID;
         bool online;
         std::string username;

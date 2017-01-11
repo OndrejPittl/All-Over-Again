@@ -2,14 +2,31 @@
 #include "../communication/MessageSerializer.h"
 #include "../core/Logger.h"
 #include "GameDifficulty.h"
+#include "GameStatus.h"
+#include "Game.h"
 
 Room::Room() {
     this->init();
 }
 
+Room::Room(GameType type, GameDifficulty difficulty, BoardDimension dimension) {
+    this->init();
+    this->type = type;
+    this->difficulty = difficulty;
+    this->boardDimension = dimension;
+}
+
 void Room::init() {
     this->turn = 0;
     this->winnerID = -1;
+    this->activePlayerIndex = 0;
+    this->status = GameStatus::CONNECTING;
+}
+
+void Room::restart() {
+    this->turn = 0;
+    this->winnerID = -1;
+    this->progress = std::queue<int>();
 }
 
 int Room::getID() {
@@ -20,22 +37,10 @@ void Room::setID(int id) {
     this->id = id;
 }
 
-//int Room::getPlayerLimit() {
-//    return this->playerLimit;
-//}
-//
-//void Room::setPlayerLimit(int playerLimit) {
-//    Room::playerLimit = playerLimit;
-//}
-
 int Room::getPlayerCount() {
     //return this->playerCount;
     return (int) this->players.size();
 }
-
-//void Room::setPlayerCount(int playerCount) {
-//    this->playerCount = playerCount;
-//}
 
 BoardDimension Room::getBoardDimension() {
     return this->boardDimension;
@@ -46,11 +51,24 @@ void Room::setBoardDimension(BoardDimension boardDimension) {
 }
 
 int Room::getActivePlayerID() {
-    return this->activePlayerID;
+    return this->players[this->playerOrder[this->activePlayerIndex]].getID();
 }
 
-void Room::updateActivePlayerID() {
-    this->activePlayerID = this->turn % this->getPlayerCount();
+void Room::updateActivePlayer() {
+//    std::string str = "";
+//    str.append("==================================== apID: ");
+//    str.append(std::to_string(this->activePlayerIndex));
+//    str.append(" real ID: ");
+//    str.append(std::to_string(this->getActivePlayerID()));
+//    str.append("\n ");
+
+    this->activePlayerIndex = this->getPlayerCount() > 0 ? this->turn % this->getPlayerCount() : 0;
+
+//    str.append("==== apID: ");
+//    str.append(std::to_string(this->activePlayerIndex));
+//    str.append(" real ID: ");
+//    str.append(std::to_string(this->getActivePlayerID()));
+//    Logger::info(str);
 }
 
 GameDifficulty Room::getDifficulty() {
@@ -68,6 +86,19 @@ std::map<int, Player> &Room::getPlayers() {
 void Room::registerPlayer(Player *p) {
     this->players[p->getID()] = *p;
     this->playerOrder.push_back(p->getID());
+
+    if(this->isRoomFull()) {
+        //Logger::info("++++++++++++++ room FULL");
+        if(this->isEverybodyOnline()) {
+            //Logger::info("++++++++++++++ ONLINE");
+            this->changeStatus(GameStatus::READY);
+        } else {
+            //Logger::info("++++++++++++++ NOT ONLINE");
+            this->changeStatus(GameStatus::CONNECTING);
+        }
+    } else {
+        //Logger::info("++++++++++++++ NOT FULL");
+    }
 }
 
 GameType Room::getGameType() {
@@ -78,20 +109,30 @@ void Room::setGameType(GameType type) {
     this->type = type;
 }
 
-Room::Room(GameType type, GameDifficulty difficulty, BoardDimension dimension) {
-    this->init();
-    this->type = type;
-    this->difficulty = difficulty;
-    this->boardDimension = dimension;
-}
-
-bool Room::isRoomReady() {
+/**
+ * Are all players assigned?
+ * @return
+ */
+bool Room::isRoomFull() {
     return this->getPlayerCount() == (int) this->getGameType();
 }
 
-bool Room::isJoinable() {
-    return !this->isRoomReady();
+/**
+ * Is everybody in a room online?
+ * @return
+ */
+bool Room::isEverybodyOnline() {
+    return this->countOnlinePlayers() == this->getPlayerCount();
 }
+
+/**
+ *
+ * @return
+ */
+bool Room::isJoinable() {
+    return !this->isRoomFull();
+}
+
 
 std::queue<int> Room::getPlayerSockets() const {
     std::queue<int> q;
@@ -120,30 +161,35 @@ bool Room::hasProgress() {
 }
 
 void Room::startTurn() {
-    this->updateActivePlayerID();
+    this->updateActivePlayer();
     this->turn++;
 }
 
 int Room::getTurn() const {
+
+    int t = this->getTime();
+
     return this->turn;
 }
 
 void Room::deregisterPlayer(Player &p) {
     this->players.erase(p.getID());
+    this->changeStatus(GameStatus::CONNECTING);
 }
 
-bool Room::isAnyoneOnline() const {
+int Room::countOnlinePlayers() const {
     int onlinePlayers = 0;
-
-//    if(this->isEmpty())
-//        return false;
 
     for(auto it = this->players.cbegin(); it != this->players.cend(); ++it) {
         if(it->second.isOnline())
             onlinePlayers++;
     }
 
-    return onlinePlayers > 0;
+    return onlinePlayers;
+}
+
+bool Room::isAnyoneOnline() const {
+    return this->countOnlinePlayers() > 0;
 }
 
 int Room::getWinnerID() {
@@ -152,8 +198,106 @@ int Room::getWinnerID() {
 
 void Room::finishGame() {
     this->winnerID = (this->turn + 1) % this->getPlayerCount();
+    this->changeStatus(GameStatus::FINISHED);
 }
 
 bool Room::hasGameFinished() {
     return this->winnerID != -1;
 }
+
+void Room::endGame() {
+    //this->changeStatus(GameStatus::FINISHED);
+}
+
+void Room::changeStatus(GameStatus s) {
+    this->status = s;
+
+    std::string str = "";
+
+    str.append("CHANGING STATUS OF ROOM ");
+    str.append(std::to_string(this->getID()));
+    str.append(" TO ");
+
+    switch (s) {
+        case GameStatus::CONNECTING: str.append("CONNECTING"); break;
+        case GameStatus::READY: str.append("READY"); break;
+        case GameStatus::STARTED: str.append("STARTED"); break;
+        case GameStatus::PLAYING: str.append("PLAYING"); break;
+        case GameStatus::WAITING: str.append("WAITING"); break;
+        case GameStatus::FINISHED: str.append("FINISHED"); break;
+        case GameStatus::FINISHED_REPLAY: str.append("FINISHED_REPLAY"); break;
+        case GameStatus::FINISHED_END: str.append("FINISHED_END"); break;
+    }
+
+    Logger::info(str);
+}
+
+bool Room::isReady() {
+    return this->status == GameStatus::READY;
+}
+
+bool Room::checkReadyToContinue(bool replay) {
+
+    if(this->type == GameType::SINGLEPLAYER) {
+
+        if(replay) {
+            this->changeStatus(GameStatus::FINISHED_REPLAY);
+        } else {
+            this->changeStatus(GameStatus::FINISHED_END);
+        }
+
+        return replay;
+    }
+
+    if(this->status == GameStatus::FINISHED) {
+
+        if(replay) {
+            this->changeStatus(GameStatus::FINISHED_REPLAY);
+        } else {
+            this->changeStatus(GameStatus::FINISHED_END);
+        }
+
+        // only one checked
+        return false;
+    }
+
+    // both checked
+    return true;
+}
+
+bool Room::isReplayReady() {
+    return this->status == GameStatus::FINISHED_REPLAY;
+}
+
+int Room::getTime() const {
+    int t = this->turn * Game::MOVE_TIME;
+    return this->turn == 1 ? t + Game::FIRST_TURN_RESERVE : t;
+}
+
+
+//
+// *
+// * @return true: everybody wants replay
+// */
+//bool Room::isReplayReady() {
+//           // everybody online            everybody sent a reply request
+//    return this->isRoomFull() && this->replayReady == this->getPlayerCount();
+//}
+//
+//
+// *
+// * @return true: everybody sent a response, false: still waiting for someone
+// */
+//bool Room::checkPlayerReplayReady() {
+//    this->replayReady++;
+//    this->replayResponse++;
+//
+//    std::cout << this->replayReady << " / " << this->countOnlinePlayers() << " ... total: " << this->replayResponse;
+//
+//         // everybody online            everybody sent a response
+//    return this->isRoomFull() && this->replayResponse == this->countOnlinePlayers();
+//}
+//
+//void Room::checkPlayerReplayRefuse() {
+//    this->replayResponse++;
+//}

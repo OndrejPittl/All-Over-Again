@@ -39,7 +39,8 @@ class MessageProcessor {
         void proceedGameList();
         void proceedNewGame(Message *msg);
         void proceedJoinGame(Message *msg);
-        void proceedStartGame();
+        void proceedRestartGame();
+        void proceedStartGameBase();
         void proceedFirstTurnData();
         void proceedTurnDataBase(bool ack);
         void proceedTurnData(Message *msg);
@@ -47,7 +48,6 @@ class MessageProcessor {
         void proceedLeaveGame(Message *msg);
         void proceedSignOut(Message *msg);
         void prepare(Player &player, Room *room);
-
 
 
 //        void (*processFunctions[7])() = {

@@ -50,7 +50,7 @@ void MessageSerializer::serializeRoomAndJoin(Room& r) {
     this->sb->append((int) r.getBoardDimension());
     this->sb->append(Message::DELIMITER);
 
-    std::map<int, Player> players = r.getPlayers();
+    std::map<int, Player> &players = r.getPlayers();
     playerCount = players.size();
 
     for(auto it = players.cbegin(); it != players.cend(); ++it) {

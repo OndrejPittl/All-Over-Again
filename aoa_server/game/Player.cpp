@@ -20,6 +20,7 @@ Player::Player(int id, std::string username) {
 
 void Player::init() {
     this->setRoomID(-1);
+    this->setOnline();
 }
 
 void Player::setID(int id) {
@@ -32,8 +33,6 @@ int Player::getID() const {
 
 void Player::setRoomID(int id) {
     this->roomID = id;
-    Logger::info("PLAYER ROOM WAS SET:");
-    Logger::info(std::to_string(this->roomID));
 }
 
 
@@ -70,5 +69,6 @@ void Player::setOffline() {
 bool Player::isOnline() const {
     return this->online;
 }
+
 
 

@@ -8,6 +8,7 @@
 
 #include "GameType.h"
 #include "GameDifficulty.h"
+#include "GameStatus.h"
 #include "BoardDimension.h"
 #include "Player.h"
 #include "../partial/StringBuilder.h"
@@ -16,9 +17,11 @@ class Room {
 
     private:
         int id;
-        int activePlayerID;
+        int activePlayerIndex;
         int turn;
         int winnerID;
+        bool ended;
+        GameStatus status;
         GameType type;
         BoardDimension boardDimension;
         GameDifficulty difficulty;
@@ -32,6 +35,8 @@ class Room {
         Room(GameType type, GameDifficulty difficulty, BoardDimension dimension);
 
         void init();
+
+        void restart();
 
         int getID();
 
@@ -49,7 +54,7 @@ class Room {
 
         int getActivePlayerID();
 
-        void updateActivePlayerID();
+        void updateActivePlayer();
 
         GameDifficulty getDifficulty();
 
@@ -61,7 +66,7 @@ class Room {
 
         void deregisterPlayer(Player &p);
 
-        bool isRoomReady();
+        bool isRoomFull();
 
         bool isEmpty();
 
@@ -80,6 +85,8 @@ class Room {
 
         int getTurn() const;
 
+        int countOnlinePlayers() const;
+
         bool isAnyoneOnline() const;
 
         int getWinnerID();
@@ -87,6 +94,27 @@ class Room {
         void finishGame();
 
         bool hasGameFinished();
+
+//        bool checkPlayerReplayReady();
+//
+//        void checkPlayerReplayRefuse();
+//
+        bool isReplayReady();
+
+        void endGame();
+
+        bool checkReadyToContinue(bool replay);
+
+        void changeStatus(GameStatus s);
+
+        bool isReady();
+
+
+
+
+    bool isEverybodyOnline();
+
+    int getTime() const;
 };
 
 

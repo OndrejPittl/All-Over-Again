@@ -15,7 +15,7 @@ INITIALIZE_EASYLOGGINGPP;
 */
 int main(int argc, char **argv) {
 
-	Logger::init(argc, argv);
+	Logger::init();
 
 	Server *server = new Server(argc, argv);
 	server->run();

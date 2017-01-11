@@ -366,7 +366,7 @@ ELPP_INTERNAL_DEBUGGING_OUT_INFO << ELPP_INTERNAL_DEBUGGING_MSG(internalInfoStre
 #include <type_traits>
 #if ELPP_THREADING_ENABLED
 #   if ELPP_USE_STD_THREADING
-#      include <mutex>
+#      include <mtx>
 #      include <thread>
 #   else
 #      if ELPP_OS_UNIX
@@ -790,7 +790,7 @@ namespace el {
                         static const char* kMonths[12]                      =      { "January", "February", "March", "Apri", "May", "June", "July", "August",
                             "September", "October", "November", "December" };
                         static const char* kMonthsAbbrev[12]                =      { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
-                        static const char* kDefaultDateTimeFormat           =      "%Y-%M-%d %H:%m:%s,%g";
+                        static const char* kDefaultDateTimeFormat           =      "%Y-%M-%d %H:%m:%lvl,%g";
                         static const char* kDefaultDateTimeFormatInFilename =      "%Y-%M-%d_%H-%m";
                         static const int kYearBase                          =      1900;
                         static const char* kAm                              =      "AM";
@@ -972,7 +972,7 @@ namespace el {
 #if ELPP_THREADING_ENABLED
 #   if !ELPP_USE_STD_THREADING
                                 namespace internal {
-                                    /// @brief A mutex wrapper for compiler that dont yet support std::mutex
+                                    /// @brief A mtx wrapper for compiler that dont yet support std::mtx
                                     class Mutex : base::NoCopy {
                                     public:
                                         Mutex(void) {
@@ -1026,8 +1026,8 @@ namespace el {
                                     template <typename M>
                                     class ScopedLock : base::NoCopy {
                                     public:
-                                        explicit ScopedLock(M& mutex) {
-                                            m_mutex = &mutex;
+                                        explicit ScopedLock(M& mtx) {
+                                            m_mutex = &mtx;
                                             m_mutex->lock();
                                         }
                                         
@@ -1071,8 +1071,8 @@ namespace el {
                                     ELPP_UNUSED(ms);
 #      endif  // ELPP_ASYNC_LOGGING
                                 }
-                                typedef std::mutex Mutex;
-                                typedef std::lock_guard<std::mutex> ScopedLock;
+                                typedef std::mtx Mutex;
+                                typedef std::lock_guard<std::mtx> ScopedLock;
 #   endif  // !ELPP_USE_STD_THREADING
 #else
                                 namespace internal {
@@ -2232,7 +2232,7 @@ namespace base {
             conditionalAddFlag(base::consts::kCurrentHostFormatSpecifier, base::FormatFlags::Host);
             conditionalAddFlag(base::consts::kMessageFormatSpecifier, base::FormatFlags::LogMessage);
             conditionalAddFlag(base::consts::kVerboseLevelFormatSpecifier, base::FormatFlags::VerboseLevel);
-            // For date/time we need to extract user's date format first
+            // For date/time we need to extract user'lvl date format first
             std::size_t dateIndex = std::string::npos;
             if ((dateIndex = formatCopy.find(base::consts::kDateTimeFormatSpecifier)) != std::string::npos) {
                 while (dateIndex > 0 && formatCopy[dateIndex - 1] == base::consts::kFormatSpecifierChar) {
@@ -2595,7 +2595,7 @@ public:
     /// @see el::ConfigurationType
     inline void set(Level level, ConfigurationType configurationType, const std::string& value) {
         base::threading::ScopedLock scopedLock(lock());
-        unsafeSet(level, configurationType, value);  // This is not unsafe anymore as we have locked mutex
+        unsafeSet(level, configurationType, value);  // This is not unsafe anymore as we have locked mtx
         if (level == Level::Global) {
             unsafeSetGlobally(configurationType, value, false);  // Again this is not unsafe either
         }
@@ -2987,13 +2987,13 @@ namespace base {
         template <typename Conf_T>
         inline Conf_T getConfigByVal(Level level, const std::map<Level, Conf_T>* confMap, const char* confName) {
             base::threading::ScopedLock scopedLock(lock());
-            return unsafeGetConfigByVal(level, confMap, confName);  // This is not unsafe anymore - mutex locked in scope
+            return unsafeGetConfigByVal(level, confMap, confName);  // This is not unsafe anymore - mtx locked in scope
         }
         
         template <typename Conf_T>
         inline Conf_T& getConfigByRef(Level level, std::map<Level, Conf_T>* confMap, const char* confName) {
             base::threading::ScopedLock scopedLock(lock());
-            return unsafeGetConfigByRef(level, confMap, confName);  // This is not unsafe anymore - mutex locked in scope
+            return unsafeGetConfigByRef(level, confMap, confName);  // This is not unsafe anymore - mtx locked in scope
         }
         
         template <typename Conf_T>
@@ -3100,7 +3100,7 @@ namespace base {
             }
             for (std::vector<Configuration*>::iterator conf = withFileSizeLimit.begin();
                  conf != withFileSizeLimit.end(); ++conf) {
-                // This is not unsafe as mutex is locked in currect scope
+                // This is not unsafe as mtx is locked in currect scope
                 unsafeValidateFileRolling((*conf)->level(), base::defaultPreRollOutCallback);
             }
         }
@@ -4271,10 +4271,10 @@ inline void FUNCTION_NAME(const T&);
                         sysLogPriority = LOG_NOTICE;
 #   if defined(ELPP_UNICODE)
                     char* line = base::utils::Str::wcharPtrToCharPtr(logLine.c_str());
-                    syslog(sysLogPriority, "%s", line);
+                    syslog(sysLogPriority, "%lvl", line);
                     free(line);
 #   else
-                    syslog(sysLogPriority, "%s", logLine.c_str());
+                    syslog(sysLogPriority, "%lvl", logLine.c_str());
 #   endif
                 }
 #endif  // defined(ELPP_SYSLOG)
@@ -4310,8 +4310,8 @@ inline void FUNCTION_NAME(const T&);
             }
             
             inline bool clean(void) {
-                std::mutex m;
-                std::unique_lock<std::mutex> lk(m);
+                std::mtx m;
+                std::unique_lock<std::mtx> lk(m);
                 cv.wait(lk, []{ return !ELPP->asyncLogQueue()->empty(); });
                 emptyQueue();
                 lk.unlock();
@@ -4379,10 +4379,10 @@ inline void FUNCTION_NAME(const T&);
                         sysLogPriority = LOG_NOTICE;
 #      if defined(ELPP_UNICODE)
                     char* line = base::utils::Str::wcharPtrToCharPtr(logLine.c_str());
-                    syslog(sysLogPriority, "%s", line);
+                    syslog(sysLogPriority, "%lvl", line);
                     free(line);
 #      else
-                    syslog(sysLogPriority, "%s", logLine.c_str());
+                    syslog(sysLogPriority, "%lvl", logLine.c_str());
 #      endif
                 }
 #   endif  // defined(ELPP_SYSLOG)
@@ -4504,7 +4504,7 @@ inline void FUNCTION_NAME(const T&);
                 if (!m_proceed) {
                     return;
                 }
-                // We minimize the time of ELPP's lock - this lock is released after log is written
+                // We minimize the time of ELPP'lvl lock - this lock is released after log is written
                 base::threading::ScopedLock scopedLock(ELPP->lock());
                 base::TypedConfigurations* tc = m_logMessage.logger()->m_typedConfigurations;
                 if (ELPP->hasFlag(LoggingFlag::StrictLogFileSizeCheck)) {
@@ -5787,7 +5787,7 @@ el::base::type::ostream_t& operator<<(el::base::type::ostream_t& OutputStreamIns
             logger->acquireLock();
             b << templ;
 #if defined(ELPP_UNICODE)
-            std::string s = std::string(logger->stream().str().begin(), logger->stream().str().end());
+            std::string lvl = std::string(logger->stream().str().begin(), logger->stream().str().end());
 #else
             std::string s = logger->stream().str();
 #endif  // defined(ELPP_UNICODE)
@@ -6320,7 +6320,7 @@ CVERBOSE_IF(writer, ELPP->validateNTimesCounter(__FILE__, __LINE__, n), vlevel, 
 #   define CVERBOSE_N_TIMES(writer, n, vlevel, dispatchAction, ...) el::base::NullWriter()
 #endif  // ELPP_VERBOSE_LOG
 //
-// Custom Loggers - Requires (level, dispatchAction, loggerId/s)
+// Custom Loggers - Requires (level, dispatchAction, loggerId/lvl)
 //
 // undef existing
 #undef CLOG
@@ -6484,7 +6484,7 @@ if (ELPP_DEBUG_LOG) C##LEVEL##_EVERY_N(el::base::Writer, n, el::base::DispatchAc
 #   define DSYSLOG_N_TIMES(n, LEVEL) el::base::NullWriter()
 #endif  // defined(ELPP_SYSLOG)
 //
-// Custom Debug Only Loggers - Requires (level, loggerId/s)
+// Custom Debug Only Loggers - Requires (level, loggerId/lvl)
 //
 // undef existing
 #undef DCLOG
