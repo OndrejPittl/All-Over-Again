@@ -78,6 +78,10 @@ std::vector<std::string> MessageValidator::separateMessages(RawMessage msg){
         etxPos = -1;
 
 
+    if(txt.find(Message::STX) == std::string::npos || txt.find(Message::ETX) == std::string::npos)
+        return messages;
+
+
     for(std::string::size_type i = 0; i < txt.size(); ++i) {
         int aChar = txt[i],
             aSTX = Message::STX,

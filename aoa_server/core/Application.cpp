@@ -51,9 +51,9 @@ void Application::init() {
     r2->setBoardDimension(BoardDimension::HUGE);
     this->createNewRoom(r2);
 
-    this->registerUser(uID1, "Marty");
-    this->registerUser(uID2, "dendasda");
-    this->registerUser(uID3, "gabin");
+    this->registerUser(uID1, "Franta");
+    this->registerUser(uID2, "Marie");
+    this->registerUser(uID3, "Jana");
 
     rID1 = r1->getID();
     rID2 = r2->getID();
@@ -317,27 +317,23 @@ void Application::setOfflinePlayer(Player &p) {
 }
 
 
-//void Application::startGameIfReady(int rid) {
-//    Room r;
-//
-//    r = this->getRoom(rid);
-//
-//    if(!r.isRoomFull())
-//        return;
-//
-//    r.startTurn();
-//    //send all msg
-//}
-
 bool Application::startGameIfReady(int rid) {
     Room &r = this->getRoom(rid);
 
+    this->log->clear();
+
     if(r.isReady()) {
-        Logger::info("ROOM IS READY");
+        this->log->append("A room (");
+        this->log->append(rid);
+        this->log->append(") is full. Starting.");
+        Logger::info(this->log->getString());
         r.startTurn();
         return true;
     } else {
-        Logger::info("ROOM IS NOT READY");
+        this->log->append("A room (");
+        this->log->append(rid);
+        this->log->append(") is NOT full. NOT starting.");
+        Logger::info(this->log->getString());
         return false;
     }
 }

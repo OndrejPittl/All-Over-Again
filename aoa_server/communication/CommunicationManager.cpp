@@ -49,12 +49,18 @@ void CommunicationManager::receiveMessage(int sock, int byteCount) {
 
     std::string strMsg = this->recvMsg(sock, byteCount);
 
+    if(strMsg.length() <= 0)
+        return;
+
     RawMessage *msg = new RawMessage(sock, byteCount, strMsg);
     this->rawMessageQueue->push(msg);
 }
 
 //void CommunicationManager::recvMsg(int sock, int byteCount, std::string *buff) {
 std::string CommunicationManager::recvMsg(int sock, int byteCount) {
+
+    if(byteCount > 2048)
+        return std::string();
 
     // result of an operation
     ssize_t result;
@@ -81,7 +87,6 @@ std::string CommunicationManager::recvMsg(int sock, int byteCount) {
     this->log->append(sock);
     this->log->append(" in a message: ");
     this->log->append(buffer);
-    this->log->append("\n");
 
     Logger::info(this->log->getString());
 

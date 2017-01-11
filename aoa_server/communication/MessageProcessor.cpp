@@ -94,15 +94,11 @@ void MessageProcessor::perform(Message *msg){
         case GAME_LEAVE: this->proceedLeaveGame(msg); break;
         default: case SIGN_OUT: this->proceedSignOut(msg); break;
     }
-
-    Logger::info("2222222222");
 }
 
 void MessageProcessor::answerMessage(){
     Message *m = new Message(this->clientSocket, this->sbMsg->getString());
     this->sendMessageQueue->push(m);
-
-    Logger::info("_____----__---__---___-______PUSHED");
 }
 
 void MessageProcessor::clearMsg() {
@@ -431,7 +427,7 @@ void MessageProcessor::proceedLeaveGame(Message *msg) {
     Room &r = this->app->getRoom(p.getRoomID());
 
     r.checkReadyToContinue(false);
-    this->app->deregisterUser(this->clientSocket);
+    this->app->deregisterUserFromRoom(p);
 }
 
 void MessageProcessor::proceedSignOut(Message *msg) {

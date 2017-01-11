@@ -39,7 +39,7 @@ bool isNumberInRange(std::string str, int lowerLimit, int upperLimit) {
 *	Prints a line of a text.
 */
 void println(std::string str){
-	printf("%lvl\n", str.c_str());
+	printf("%s\n", str.c_str());
 }
 
 void printTrueFalse(){

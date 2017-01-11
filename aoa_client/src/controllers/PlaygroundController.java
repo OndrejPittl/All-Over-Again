@@ -253,7 +253,9 @@ public class PlaygroundController extends ScreenController {
         GameMove[] progress = this.turn.getMoves();
 
         if(progress == null) {
-            this.proceedTurnStart();
+            if(this.amIActive)
+                this.proceedTurnStart();
+            else this.endTurn();
             return;
         }
 

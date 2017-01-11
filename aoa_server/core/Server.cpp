@@ -42,8 +42,6 @@ void Server::run() {
 
 
 
-
-
     Logger::info("------ Starting server -------");
 
     // check input arguments
@@ -76,6 +74,7 @@ void Server::run() {
 
 		Logger::info("Server is waiting for a request...");
 
+		// select()
         // Server waits until being requested.
         this->conn->waitForRequests();
 
