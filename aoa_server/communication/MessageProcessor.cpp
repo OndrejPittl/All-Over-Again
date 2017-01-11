@@ -431,8 +431,7 @@ void MessageProcessor::proceedLeaveGame(Message *msg) {
     Room &r = this->app->getRoom(p.getRoomID());
 
     r.checkReadyToContinue(false);
-    //this->app->deregisterUser(this->clientSocket);
-    this->app->deregisterUserFromRoom(p);
+    this->app->deregisterUser(this->clientSocket);
 }
 
 void MessageProcessor::proceedSignOut(Message *msg) {

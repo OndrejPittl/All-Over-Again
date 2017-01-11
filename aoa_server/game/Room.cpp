@@ -197,7 +197,8 @@ int Room::getWinnerID() {
 }
 
 void Room::finishGame() {
-    this->winnerID = (this->turn + 1) % this->getPlayerCount();
+    int index = (this->turn + 1) % this->getPlayerCount();
+    this->winnerID = this->players[this->playerOrder[index]].getID();
     this->changeStatus(GameStatus::FINISHED);
 }
 
@@ -273,6 +274,10 @@ int Room::getTime() const {
     int t = this->turn * Game::MOVE_TIME;
     return this->turn == 1 ? t + Game::FIRST_TURN_RESERVE : t;
 }
+
+//bool Room::checkReadyToNextTurnStart() {
+//    return ++this->endTurnCount >= this->getPlayerCount();
+//}
 
 
 //

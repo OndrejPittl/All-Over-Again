@@ -115,6 +115,7 @@ class Room {
     bool isEverybodyOnline();
 
     int getTime() const;
+
 };
 
 

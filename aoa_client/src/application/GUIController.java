@@ -141,6 +141,8 @@ public class GUIController extends Observable implements Runnable {
                     //Application.awaitAtClientBarrier("GUIControl releases after turn ends.");
                     Application.awaitAtBarrier("GUIC releases CLI after turn ends.");
 
+                    //this.gui.
+
                     //Application.awaitAtBarrier("GUIC waits for CLI for turn data send.");
 
                     break;

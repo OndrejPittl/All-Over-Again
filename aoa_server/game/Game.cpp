@@ -6,7 +6,7 @@
  * 4 seconds for every move.
  * ->  turn * 4 s = total time for a turn (without intro)
  */
-const int Game::MOVE_TIME = 300;
+const int Game::MOVE_TIME = 10;
 const int Game::FIRST_TURN_RESERVE = 3;
 
 Game::Game() {

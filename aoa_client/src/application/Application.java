@@ -14,7 +14,6 @@ import model.Error;
 import model.GameStatus;
 import model.Player;
 import model.Room;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 public class Application {
 

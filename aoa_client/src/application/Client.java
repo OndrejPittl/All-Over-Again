@@ -188,10 +188,20 @@ public class Client implements Runnable {
 
         // TURN_END: send progress
         //Application.awaitAtClientBarrier("CLI: waits for user interaction. (19CWC)");
+
         Application.awaitAtBarrier("CLI waits for GUIC for an end game.");
         Application.changeStatus(GameStatus.GAME_PLAYING_TURN_START);
         this.app.proceedEndTurn();
     }
+
+//    private void readWhileTurnWaiting(){
+//        do {
+//           Message m = this.comm.receiveMessage();
+//           if (m == null) continue;
+//           this.handleResponse();
+//        } while (true);
+//    }
+
 
     /**
      *  GAME WAIT

@@ -17,12 +17,12 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.util.Duration;
 import model.FXMLSource;
+import model.GameStatus;
 import model.Player;
 import model.Room;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.StringJoiner;
 
 
 public class PlaygroundController extends ScreenController {
@@ -54,11 +54,11 @@ public class PlaygroundController extends ScreenController {
     @FXML
     private Button btn_giveUp;
 
-    @FXML
-    private Button btn_btn;
-
-    @FXML
-    private Button btn_exitGame;
+//    @FXML
+//    private Button btn_btn;
+//
+//    @FXML
+//    private Button btn_exitGame;
 
     @FXML
     private GridPane gp_playground;
@@ -98,13 +98,18 @@ public class PlaygroundController extends ScreenController {
         this.timerValue = this.app.getTurnTime();
         this.lbl_timer.setText(String.valueOf(this.timerValue));
 
+        if(!this.amIActive)
+            this.lbl_timer.setOpacity(.5);
+        else
+            this.lbl_timer.setOpacity(1);
+
         this.timer = new Timeline (
             new KeyFrame(Duration.millis(1000), (e) -> {
 
                 this.timerValue--;
                 this.lbl_timer.setText(String.valueOf(this.timerValue));
 
-                if(this.timerValue == 0) {
+                if(this.timerValue == 0 || this.isNewTurn()) {
                     this.endTurn();
                 }
             })
@@ -204,12 +209,17 @@ public class PlaygroundController extends ScreenController {
         Platform.runLater(() -> {
             this.updateMoveStats();
             this.initTimer();
+            this.initButtons();
             this.playTurnTask();
         });
     }
 
+    private void initButtons() {
+        this.btn_giveUp.setDisable(!this.amIActive);
+    }
+
     private void proceedTurnStart(){
-        this.enableBoard();
+        if(this.amIActive) this.enableBoard();
         this.timer.play();
     }
 
@@ -220,6 +230,10 @@ public class PlaygroundController extends ScreenController {
         this.moves.clear();
 
         Platform.runLater(() -> Application.awaitAtGuiBarrier("GUI releases. Turn ends."));
+    }
+
+    private boolean isNewTurn(){
+        return this.app.getGameTurn().getTurn() != this.turn.getTurn();
     }
 
     public void stopGame() {
@@ -249,6 +263,10 @@ public class PlaygroundController extends ScreenController {
                 @Override
                 public void handle(ActionEvent event) {
                     Platform.runLater(() -> {
+
+//                        if(i + 1 >= progress.length)
+//                            return;
+
                         GameMove m = progress[i];
                         BoardFieldController c = fieldControllers[m.getIndex()];
                         c.displayMove(m);
@@ -258,15 +276,18 @@ public class PlaygroundController extends ScreenController {
             })
         );
 
-        if(this.amIActive) {
-            timeline.setCycleCount(progress.length);
-            timeline.setOnFinished((e) ->
-                new Timeline(new KeyFrame(
-                        Duration.millis(ViewConfig.TIMER_TURN_INTRO_MOVE_DURATION),
-                        (ActionEvent) -> this.proceedTurnStart()
-                )).play()
-            );
-        }
+        timeline.setCycleCount(progress.length);
+
+        timeline.setOnFinished((e) ->
+            new Timeline(new KeyFrame(
+                    Duration.millis(ViewConfig.TIMER_TURN_INTRO_MOVE_DURATION),
+                    (ActionEvent) -> {
+                        if(this.amIActive)
+                            this.proceedTurnStart();
+                        else this.endTurn();
+                    }
+            )).play()
+        );
 
         timeline.play();
     }
