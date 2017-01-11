@@ -4,6 +4,7 @@ import application.Application;
 import game.BoardDimension;
 import game.GameDifficulty;
 import game.GameType;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -11,6 +12,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import model.GameStatus;
 import model.Room;
 import model.ViewRoom;
 
@@ -129,11 +131,15 @@ public class GameCenterController extends ScreenController {
 	}
 
 	public void handleRoomListRefresh(){
-        this.app.updateRoomList();
-        this.updateRoomList();
+	    Platform.runLater(() -> {
+            this.app.requestRoomListAndWait();
+            this.updateRoomList();
+        });
 	}
 
     public void handleNewGame(){
+	    Application.changeStatus(GameStatus.ROOM_CREATING);
+
 	    GameType type = this.cb_players.getSelectionModel().getSelectedItem();
 	    GameDifficulty diff = this.cb_difficulty.getSelectionModel().getSelectedItem();
 	    BoardDimension dim = this.cb_dimension.getSelectionModel().getSelectedItem();
@@ -145,12 +151,13 @@ public class GameCenterController extends ScreenController {
     }
 
     public void handleJoinGame(){
+        Application.changeStatus(GameStatus.ROOM_JOINING);
         ViewRoom r = tv_rooms.getSelectionModel().getSelectedItem();
         this.handleSelection(r.getRoom());
     }
 
     private void handleSelection(Room r){
         this.app.selectRoom(r);
-        Application.awaitAtGuiBarrier("GUI releases. Room being selected. (11GRG)");
+        Platform.runLater(()->Application.awaitAtGuiBarrier("GUI releases. Room being selected. (11GRG)"));
     }
 }

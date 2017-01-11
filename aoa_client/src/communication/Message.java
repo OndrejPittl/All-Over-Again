@@ -6,9 +6,16 @@ public class Message {
 
     private String message;
 
+    private boolean async = false;
+
 
     public Message(String message) {
         this.message = message;
+    }
+
+    public Message(String message, boolean async) {
+        this.message = message;
+        this.async = async;
     }
 
     public Message(MessageType type, String message) {

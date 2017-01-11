@@ -6,11 +6,15 @@ import partial.Tools;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.logging.Logger;
 
 
 public class MessageSender implements Runnable {
 
+
+    private Logger logger;
 
     private Connection conn;
 
@@ -21,7 +25,9 @@ public class MessageSender implements Runnable {
     /**
      * Output byte stream.
      */
-    private BufferedOutputStream bos;
+    //private BufferedOutputStream bos;
+
+    private OutputStream outStream;
 
 
     public MessageSender(Connection conn, LinkedBlockingQueue<Message> messageQueue) {
@@ -31,12 +37,12 @@ public class MessageSender implements Runnable {
     }
 
     private void init(){
+        this.logger = Logger.getLogger(this.getClass().getName());
         this.sb = new StringBuilder();
     }
 
     public void run() {
         for (;;) {
-
             Message m;
 
             try {
@@ -69,18 +75,13 @@ public class MessageSender implements Runnable {
      */
     public void writeMsg(String msg) {
         try {
+//            this.logger.info("<<<<<<<<< sending: " + msg);
             System.out.println("<<<<<<<<< sending: " + msg);
-            this.initBufferedOutputStream();
-            this.bos.write(msg.getBytes(), 0, msg.length());
-            this.bos.flush();
+            this.outStream.write(msg.getBytes());
+            this.outStream.flush();
         } catch (IOException e) {
-            System.err.print("ErrorConfig: BufferedOutputStream initialization.\n");
             e.printStackTrace();
         }
-    }
-
-    private void initBufferedOutputStream() throws IOException {
-        this.bos = new BufferedOutputStream(this.conn.getClientSocket().getOutputStream());
     }
 
     private void clearStringBuilder() {
@@ -89,5 +90,6 @@ public class MessageSender implements Runnable {
 
     public void setConnection(Connection conn){
         this.conn = conn;
+        this.outStream = conn.getOutStream();
     }
 }

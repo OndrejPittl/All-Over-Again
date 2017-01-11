@@ -1,6 +1,8 @@
 package application;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -28,13 +30,18 @@ public class Connection {
 	/**
 	 * Client socket.
 	 */
-	private Socket clientSocket;
-	
+	private static Socket clientSocket;
+
+
+
+	private OutputStream outStream;
+
+	private InputStream inStream;
+
+
 
 
 	public Connection(String ip, int port) {
-//		this.serverIP = ConnectionConfig.SERVER_IP;
-//		this.serverPort = ConnectionConfig.SERVER_PORT;
 		this.serverIP = ip;
 		this.serverPort = port;
 	}
@@ -46,6 +53,7 @@ public class Connection {
 		int count = 0;
 		
 		while(!this.createSocket()) {
+
 			count++;
 			Logger.logConnectionFailed(count);
 			
@@ -65,14 +73,14 @@ public class Connection {
 	/**
 	 * Method handling disconnection from server.
 	 */
-	public void disconnect(){
-		this.closeSocket();
+	public static void disconnect(){
+		Connection.closeSocket();
 	}
 	
-	private void closeSocket() {
-		if(this.clientSocket != null) {
+	private static void closeSocket() {
+		if(Connection.clientSocket != null) {
 			try {
-				this.clientSocket.close();
+				Connection.clientSocket.close();
 			} catch (IOException e) {
 				System.err.print("ErrorConfig: closing socket.\n");
 				e.printStackTrace();
@@ -81,29 +89,15 @@ public class Connection {
 	}
 	
 	public boolean isConnected(){
-		return this.clientSocket != null;
-	}
-	
-	public int getServerPort() {
-		return serverPort;
-	}
-
-	public String getServerIP() {
-		return serverIP;
-	}
-
-	public InetAddress getAddress() {
-		return address;
-	}
-
-	public Socket getClientSocket() {
-		return clientSocket;
+		return Connection.clientSocket != null;
 	}
 	
 	public boolean createSocket() {
 		try {
-			this.clientSocket = new Socket(this.serverIP, this.serverPort);
-			this.address = this.clientSocket.getInetAddress();
+			Connection.clientSocket = new Socket(this.serverIP, this.serverPort);
+			this.address = Connection.clientSocket.getInetAddress();
+			this.outStream = Connection.clientSocket.getOutputStream();
+			this.inStream = Connection.clientSocket.getInputStream();
 		} catch (UnknownHostException e) {
 			System.err.print("ErrorConfig: creating connection.\n");
 			//e.printStackTrace();
@@ -122,7 +116,14 @@ public class Connection {
 	public String getHostName(){
 		return this.address.getHostName();
 	}
-	
-	
-	
+
+	public OutputStream getOutStream() {
+		return outStream;
+	}
+
+	public InputStream getInStream() {
+		return inStream;
+	}
+
+
 }

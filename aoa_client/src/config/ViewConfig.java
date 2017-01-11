@@ -20,7 +20,7 @@ public class ViewConfig {
 
 	public static final String MSG_GAME_END = "Game ends.";
 
-	public static final int TIMER_TURN_INTRO_MOVE_DURATION = 1500;
+	public static final int TIMER_TURN_INTRO_MOVE_DURATION = 1000;
 
 
 

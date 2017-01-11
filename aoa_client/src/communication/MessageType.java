@@ -55,7 +55,7 @@ public enum MessageType {
     GAME_JOIN (CommunicationConfig.REQ_GAME_JOIN),
     GAME_START (CommunicationConfig.REQ_GAME_START),
     TURN_DATA (CommunicationConfig.REQ_TURN_DATA),
-    GAME_END (CommunicationConfig.REQ_GAME_END),
+    GAME_RESULT(CommunicationConfig.REQ_GAME_END),
     GAME_LEAVE (CommunicationConfig.REQ_GAME_END),
     SIGN_OUT (CommunicationConfig.REQ_SIGN_OUT),
     PING (CommunicationConfig.REQ_PING);
@@ -68,5 +68,14 @@ public enum MessageType {
 
     public int getCode() {
         return code;
+    }
+
+    public static MessageType nth(int index){
+        for (MessageType t : MessageType.values()) {
+            if(index == t.getCode()) {
+                return t;
+            }
+        }
+        return null;
     }
 }

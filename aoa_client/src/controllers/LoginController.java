@@ -1,6 +1,7 @@
 package controllers;
 
 import application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -31,7 +32,9 @@ public class LoginController extends ScreenController {
 		
 		if(UserInputValidator.validateUsername(nick)) {
 			this.app.signIn(new Player(nick));
-			Application.awaitAtGuiBarrier("GUI relseases. Username entered. (5GRG)");
+
+
+			Platform.runLater(()->Application.awaitAtGuiBarrier("GUI relseases. Username entered. (5GRG)"));
 		}
 	}
 

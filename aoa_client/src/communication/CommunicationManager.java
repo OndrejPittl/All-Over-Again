@@ -5,9 +5,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import application.Application;
 import application.Connection;
-import application.Logger;
 import config.CommunicationConfig;
-import config.ConnectionConfig;
 import game.GameMove;
 import game.GameTurn;
 import model.Player;
@@ -28,9 +26,11 @@ public class CommunicationManager {
 	
 	private StringBuilder sb;
 
-    LinkedBlockingQueue<Message> incomingMessages;
+    private LinkedBlockingQueue<Message> incomingMessages;
 
-    LinkedBlockingQueue<Message> outcomingMessages;
+    private LinkedBlockingQueue<Message> incomingMessagesAsync;
+
+    private LinkedBlockingQueue<Message> outcomingMessages;
 
 
     private MessageReceiver receiver;
@@ -51,6 +51,7 @@ public class CommunicationManager {
 
         // this.incomingMessages = new ConcurrentLinkedQueue<>();
         this.incomingMessages = new LinkedBlockingQueue<>();
+        this.incomingMessagesAsync = new LinkedBlockingQueue<>();
         this.outcomingMessages = new LinkedBlockingQueue<>();
 
         this.barrier = new CyclicBarrier(2);
@@ -73,242 +74,56 @@ public class CommunicationManager {
         this.clearStringBuilder();
     }
 
-    /**
-     *
-     * @return
-     */
-	public boolean helloPacketHandShake(){
-		int count = 0;
-		
-		while(!this.helloServer()) {
-			count++;
-			
-			Logger.logHelloFailed(count);
-			
-			if(count >= ConnectionConfig.MAX_HELLO_TRY_COUNT) {
-				return false;
-			}
-			
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {}
-		}
-		
-		Logger.logHelloSucceeded();
-		return true;
-		
-	}
-	
-	private boolean helloServer(){
-        boolean result = false;
-        Message m;
 
-        this.sb.append(CommunicationConfig.MSG_HELLO_SERVER);
-        this.prepareMessage();
-
-        do {
-
-            try {
-
-                // Expected message: answer to handshake, all other messages are being ignored.
-                m = this.incomingMessages.take();
-                result = this.receiver.checkHelloPacket(m.getMessage());
-
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            if(result) break;
-
-        } while (!this.incomingMessages.isEmpty());
-
-        return result;
-	}
-	
-	/**
-	 * Checks whether or not is the chosen username 
-	 * available (== not taken by other user).  
-	 * 
-	 * Sends a message to a server in a form:
-	 * 1;[username]
-	 * example: "1;ondra"
-	 * 
-	 * Waits for a message in a form:
-	 * 1;[1 == ACK / 0 == NACK];[user ID]
-	 * example: "1;1;7"
-	 * (username is available and a user got an ID 7) 
-	 * 
-	 * @return
-	 */
-	public boolean checkUsernameAvailability() {
-	    Player pResult = null;
-        Message m;
-
-		Player p = this.app.getPlayerInfo();
-		String username = p.getName();
-
-		this.sb.append(CommunicationConfig.REQ_SIGN_IN);
-		this.sb.append(CommunicationConfig.MSG_DELIMITER);
-		this.sb.append(username);
-		this.prepareMessage();
-
-		do {
-
-            try {
-                m = this.incomingMessages.take();
-                pResult = this.parser.parseUsernameAvailabilityResponse(m.getMessage(), p);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            if(pResult != null) {
-                this.app.signIn(pResult);
-                break;
-            }
-
-        } while (!this.incomingMessages.isEmpty());
-
-		return pResult != null;
-	}
-
-	public Room[] requestRoomList(){
-	    Room[] r = null;
-	    Message m;
-
-		this.sb.append(CommunicationConfig.REQ_GAME_LIST);
-	    this.prepareMessage();
-
-        do {
-
-            try {
-                m = this.incomingMessages.take();
-                r = this.parser.parseRoomList(m.getMessage());
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            if(r != null) break;
-
-        } while (!this.incomingMessages.isEmpty());
-
-        return r;
-	}
-
-    public Room joinGame(Room selection){
-        this.sb.append(CommunicationConfig.REQ_GAME_JOIN);
-        this.sb.append(CommunicationConfig.MSG_DELIMITER);
-        this.sb.append(selection.getID());
-
-        System.out.println("********* SENDING: " + this.sb.toString());
-
-
-        this.prepareMessage();
-
-        return this.waitForRoomInfo();
+    public Message receiveMessage(){
+        try {
+            return this.incomingMessages.take();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    public Room newGame(Room selection){
-        this.sb.append(CommunicationConfig.REQ_GAME_NEW);
-        this.sb.append(CommunicationConfig.MSG_DELIMITER);
-        this.sb.append(selection.getType().getPlayerCount());
-        this.sb.append(CommunicationConfig.MSG_DELIMITER);
-        this.sb.append(selection.getDifficulty().getDifficulty());
-        this.sb.append(CommunicationConfig.MSG_DELIMITER);
-        this.sb.append(selection.getBoardDimension().getDimension());
-        this.prepareMessage();
 
-        return this.waitForRoomInfo();
-    }
 
-    public void restartGame(){
+
+    public void handleRestartGame(){
         this.sb.append(CommunicationConfig.REQ_GAME_START);
         this.prepareMessage();
     }
 
-    public void leaveGame(){
+    public void handleLeaveGame(){
         this.sb.append(CommunicationConfig.REQ_GAME_LEAVE);
         this.prepareMessage();
     }
 
-    private Room waitForRoomInfo(){
-        Room r;
-        Message m;
+//    private Room waitForRoomInfo(){
+//        Room r;
+//        Message m;
+//
+//        do {
+//
+//            try {
+//                m = this.incomingMessages.take();
+//
+//                System.out.println("********* RECEIVED: " + m.getMessage());
+//
+//                r = this.parser.parseSelectedRoom(m.getMessage());
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//                return null;
+//            }
+//
+//            if(r != null) break;
+//
+//        } while (!this.incomingMessages.isEmpty());
+//
+//        return r;
+//    }
 
-        do {
 
-            try {
-                m = this.incomingMessages.take();
 
-                System.out.println("********* RECEIVED: " + m.getMessage());
 
-                r = this.parser.parseSelectedRoom(m.getMessage());
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                return null;
-            }
-
-            if(r != null) break;
-
-        } while (!this.incomingMessages.isEmpty());
-
-        return r;
-    }
-
-	public boolean waitGameInitComplete(){
-        boolean result = false;
-
-        do {
-
-            try {
-
-                Message m = this.incomingMessages.take();
-                result = this.parser.parseGameInitResult(m.getMessage());
-
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            // || (msgFound && !result)
-            if(result) break;
-
-        } while (!this.incomingMessages.isEmpty());
-
-        return result;
-    }
-
-    public GameTurn waitForTurn(){
-        GameTurn turn = null;
-        boolean typeOK = false, ack = false;
-
-        do {
-            try {
-                Message m = this.incomingMessages.take();
-                String msg = m.getMessage();
-                typeOK = this.parser.checkIfTurnData(msg);
-                ack = this.parser.checkACK(msg);
-
-                int diff = this.app.getSelectedRoom().getDifficulty().getDifficulty();
-                turn = this.parser.parseTurnInfo(m.getMessage(), diff);
-
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            // correct
-            if(turn != null){
-                //this.app.setGameFinished(true);
-                break;
-            }
-
-            // NOT correct
-            if(typeOK && !ack) {
-                this.app.setGameFinished(true);
-                break;
-            }
-
-        } while (!this.incomingMessages.isEmpty());
-
-        return turn;
-    }
 
 
     public void registerEndTurn(GameMove[] gameProgress) {
@@ -438,26 +253,114 @@ public class CommunicationManager {
     }
 
 
-    public int waitForResults() {
-	    int winnerID = -1;
 
-        do {
-            try {
-                Message m = this.incomingMessages.take();
-                winnerID = this.parser.parseResults(m.getMessage());
 
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
 
-            // correct
-            if(winnerID != -1){
-                break;
-            }
 
-        } while (!this.incomingMessages.isEmpty());
 
-	    return winnerID;
+
+
+
+
+
+    public void sendHelloServer(){
+        this.sb.append(CommunicationConfig.MSG_HELLO_SERVER);
+        this.prepareMessage();
+    }
+
+    public boolean checkHelloPacket(String msg) {
+        return msg.contains(CommunicationConfig.MSG_HELLO_SERVER_RESPONSE) && msg.length() == CommunicationConfig.MSG_HELLO_SERVER_RESPONSE.length();
+    }
+
+    /**
+     * Checks whether or not is the chosen username
+     * available (== not taken by other user).
+     *
+     * Sends a message to a server in a form:
+     * 1;[username]
+     * example: "1;ondra"
+     *
+     * Waits for a message in a form:
+     * 1;[1 == ACK / 0 == NACK];[user ID]
+     * example: "1;1;7"
+     * (username is available and a user got an ID 7)
+     *
+     * @return
+     */
+    public void sendUsernameRequest() {
+        Player p = this.app.getPlayerInfo();
+        String username = p.getName();
+
+        this.sb.append(CommunicationConfig.REQ_SIGN_IN);
+        this.sb.append(CommunicationConfig.MSG_DELIMITER);
+        this.sb.append(username);
+        this.prepareMessage();
+    }
+
+    public Player checkUsernameAvailability(String msg, Player player){
+        return this.parser.parseUsernameAvailabilityResponse(msg, player);
+    }
+
+    public void requestRoomList(){
+        this.sb.append(CommunicationConfig.REQ_GAME_LIST);
+        this.prepareMessage();
+    }
+
+    public Room[] handleRoomList(String msg){
+        return this.parser.parseRoomList(msg);
+    }
+
+    public void requestJoinGame(Room selection){
+        this.sb.append(CommunicationConfig.REQ_GAME_JOIN);
+        this.sb.append(CommunicationConfig.MSG_DELIMITER);
+        this.sb.append(selection.getID());
+        this.prepareMessage();
+    }
+
+    public void requestNewGame(Room selection){
+        this.sb.append(CommunicationConfig.REQ_GAME_NEW);
+        this.sb.append(CommunicationConfig.MSG_DELIMITER);
+        this.sb.append(selection.getType().getPlayerCount());
+        this.sb.append(CommunicationConfig.MSG_DELIMITER);
+        this.sb.append(selection.getDifficulty().getDifficulty());
+        this.sb.append(CommunicationConfig.MSG_DELIMITER);
+        this.sb.append(selection.getBoardDimension().getDimension());
+        this.prepareMessage();
+    }
+
+    public Room handleRoomSelection(String msg){
+        return this.parser.parseSelectedRoom(msg);
+    }
+
+    public boolean handleGameInit(String msg){
+        return this.parser.parseGameInitResult(msg);
+    }
+
+    public GameTurn handleTurnData(String msg, int diff){
+        return this.parser.parseTurnInfo(msg, diff);
+    }
+
+    public int waitForResults(String msg) {
+        return this.parser.parseResults(msg);
+    }
+
+    public void handleSignOut(){
+        this.sb.append(CommunicationConfig.REQ_SIGN_OUT);
+        this.prepareMessage();
+    }
+
+
+    public Room[] requestRoomListAndWait(){
+        this.sb.append(CommunicationConfig.REQ_GAME_LIST);
+        this.prepareMessage();
+
+        try {
+            Message m = this.incomingMessages.take();
+            return this.parser.parseRoomList(m.getMessage());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
 

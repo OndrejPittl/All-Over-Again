@@ -51,15 +51,18 @@ public class Main extends javafx.application.Application {
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
+
 		//init gui
 		Main.guiRunnable = new Screen(primaryStage, Main.app);
-	
-		Main.guiControlRunnable.setScreen(Main.guiRunnable);
 
-        Application.awaitAtGuiBarrier("GUI Thrd releases GUIControl after init.");
+		Main.guiControlRunnable.setScreen(Main.guiRunnable);
 
 		//run gui
 		//Main.guiRunnable.run();
+
+		Application.awaitAtGuiBarrier("GUI releases GUIControl after init.");
+//		Application.awaitAtBarrier("GUI Thrd releases GUIControl after init.");
+
 	}
 
 	private static boolean checkArgs(String[] args){

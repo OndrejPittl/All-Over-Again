@@ -1,5 +1,7 @@
 package application;
 
+import model.GameStatus;
+
 import java.util.Observable;
 
 public class GUIController extends Observable implements Runnable {
@@ -17,157 +19,162 @@ public class GUIController extends Observable implements Runnable {
 	@Override
 	public void run() {
 
-        //Application.awaitAtClientBarrier("GUIControl releases after init.");
         Application.awaitAtGuiBarrier("GUIControl waits for GUI init.");
+
+        Application.awaitAtBarrier("GUI: releases CLI after gui init.");
 
         this.gui.run();
 
         this.gui.runConnecting();
 
-        this.waitAtScreen(2500);
+        //this.waitAtScreen(2500);
 
 		//GUIController, WAIT: at "Connecting..." scene for a connection to a server.
-		Application.awaitAtClientBarrier("GUIControl – waits for connection established (1GCWC)");
+		//Application.awaitAtClientBarrier("GUIControl – waits for connection established (1GCWC)");
+        Application.awaitAtBarrier("GUI: wait for hello authorization.");
 
 
-		loopMain:
-        do {
 
-            System.out.println("....... GUIC ENTERING: MAIN LOOP!!!");
-
-            loopLogin:
-            do {
-
-                System.out.println("....... GUIC ENTERING: LOGIN LOOP!!!");
-
-                //Display "Enter username scene"
-                this.gui.runLogin();
-
-                Application.awaitAtGuiBarrier("GUIControl – waits for entering username. (4GCWG)");
-
-                this.gui.runChecking();
-                this.waitAtScreen(1000);
-
-                Application.awaitAtClientBarrier("GUIControl releases. Username entered. (6GCRC)");
-
-                Application.awaitAtClientBarrier("GUIControl waits for checking username. (7GCWC)");
-
-            } while (!this.app.isSignedIn());
+		do {
 
 
-            do {
+		    switch (Application.getStatus()) {
 
-                System.out.println("....... GUIC ENTERING: noname LOOP!!!");
+                case HELLO_AUTHORIZATION: break;
+                case SIGNING_IN:
 
-                loopRoomJoin:
-                do {
+                    //Display "Enter username scene"
+                    this.gui.runLogin();
 
-                    System.out.println("....... GUIC ENTERING: ROOM LOOP!!!");
+                    Application.awaitAtGuiBarrier("GUIC: waits for username.");
 
-                    Application.awaitAtClientBarrier("GUIControl waits for room list. (8_2GCWC)");
+                    this.gui.runChecking();
+                    this.waitAtScreen(1000);
+
+                    //Application.awaitAtClientBarrier("GUIControl releases. Username entered. (6GCRC)");
+                    Application.awaitAtBarrier("GUIC: releases CLI, username entered.");
+
+
+
+                    //Application.awaitAtClientBarrier("GUIControl waits for checking username. (7GCWC)");
+                    Application.awaitAtBarrier("GUIC: waits for CLI for username check.");
+
+                    break;
+                case ROOM_SELECTING:
+
+                    //Application.awaitAtClientBarrier("GUIControl waits for room list. (8_2GCWC)");
+                    Application.awaitAtBarrier("GUIC waits for CLI for room list.");
 
                     this.gui.runGameCenter();
 
-                    Application.awaitAtGuiBarrier("GUIControl waits for user room selection/creation. (10GCWG)");
+                    Application.awaitAtGuiBarrier("GUIC: waits for GUI for room select.");
 
                     this.gui.runConnecting();
 
-                    Application.awaitAtClientBarrier("GUIControl releases after room selection/creation. (12GCRC)");
+                    //Application.awaitAtClientBarrier("GUIControl releases after room selection/creation. (12GCRC)");
+                    Application.awaitAtBarrier("GUIC releases CLI with room seleciton.");
 
-                    Application.awaitAtClientBarrier("GUIControl waits for room selection/creation response. (13GCWC)");
+                    //Application.awaitAtClientBarrier("GUIControl waits for room selection/creation response. (13GCWC)");
+                    Application.awaitAtBarrier("GUIC waits for CLI for room selection approved.");
+                    break;
 
-                } while (!this.app.isRoomJoined());
-
-
-
-                loopGame:
-                do {
-
-                    System.out.println("....... GUIC ENTERING: GAME LOOP!!!");
+                case ROOM_CREATING:
+                case ROOM_JOINING:
+                case GAME_INITIALIZING:
 
                     this.gui.runWaiting();
 
+//                    Application.awaitAtClientBarrier("GUIControls releases after waiting screen init.");
+//                    Application.awaitAtClientBarrier("GUIControl waits for game initialization. (15GCWC)");
+
+                    Application.awaitAtBarrier("GUIC: waits for CLI for game initialization.");
+
                     this.waitAtScreen(1000);
 
-                    Application.awaitAtClientBarrier("GUIControls releases after waiting screen init.");
 
-                    Application.awaitAtClientBarrier("GUIControl waits for game initialization. (15GCWC)");
-
-                    // TODO: zkontrolovat!!!
-                    if (!this.app.isGameStarted()) {
-
-                        continue;
-                    }
-
+//                    if (Application.getStatus() == GameStatus.GAME_INITIALIZING) {
+//                        continue;
+//                    }
 
                     this.gui.runGamePlayground();
 
-                    Application.awaitAtGuiBarrier("GUIControl waits for board initialization.");
+
+                    Application.awaitAtGuiBarrier("GUIC: waits for GUI for board initialization.");
 
 
-                    loopGameProgress:
-                    do {
+                    Application.awaitAtBarrier("GUIC releases CLI with board initialized.");
 
-                        System.out.println("....... GUIC ENTERING: GAME-PROGRESS LOOP!!!");
 
-                        Application.awaitAtClientBarrier("GUIControl releases after board init.");
+                    //Application.awaitAtClientBarrier("GUIControl releases after board init.");
 
-                        Application.awaitAtClientBarrier("GUIControl waits for turn start. (17GCWC)");
+                    break;
+                case GAME_RESTART:
+                    break;
+                case GAME_PLAYING_TURN_START:
+                case GAME_PLAYING_TURN_END:
 
-                        // game over
-                        //if (!this.app.isGameFinished()) {
+                    //Application.awaitAtClientBarrier("GUIControl waits for turn start. (17GCWC)");
+                    Application.awaitAtBarrier("GUIC waits for CLI for turn data.");
 
-                        System.out.println("__________ GUIC check GAME FINISHED");
-                        if (this.app.isGameFinished()) {
-                            System.out.println("?????? GUIC REGISTERED: GAME FINISHED!!! LEAVING GAME-PROGRESS");
-                            break;
-                        }
 
-                        // new turn has begun
-                        this.gui.beginTurn();
-                        // player plays a turn
+                    // game over
+                    //if (!this.app.isGameFinished()) {
 
-                        Application.awaitAtGuiBarrier("GUIControl waits for a player interaction / turn ends.");
+                    //System.out.println("__________ GUIC check GAME FINISHED");
+//                        if (this.app.isGameFinished()) {
 
-                        Application.awaitAtClientBarrier("GUIControl releases after turn ends.");
+                    if (Application.getStatus() == GameStatus.GAME_END) {
+                        //System.out.println("?????? GUIC REGISTERED: GAME FINISHED!!! LEAVING GAME-PROGRESS");
+                        System.out.println("====== Game is over.");
+                        break;
+                    }
 
-                    } while (!this.app.isGameFinished());
+                    //Application.awaitAtClientBarrier("WAITING BEFORE BEGENNING TURN");
+                    // new turn has begun
+                    System.out.println("===== GUIC: begins a turn.");
+                    this.gui.beginTurn();
+
+                    // player plays a turn
+
+                    Application.awaitAtGuiBarrier("GUIC waits for GUI for a player interaction / turn ends.");
+
+                    //Application.awaitAtClientBarrier("GUIControl releases after turn ends.");
+                    Application.awaitAtBarrier("GUIC releases CLI after turn ends.");
+
+                    //Application.awaitAtBarrier("GUIC waits for CLI for turn data send.");
+
+                    break;
+                case GAME_WAITING:
+                    break;
+                case GAME_END:
+                case GAME_RESULTS:
 
 
                     // game results
-                    Application.awaitAtClientBarrier("GUIControl waits for game results.");
+                    //Application.awaitAtClientBarrier("GUIControl waits for game results.");
+                    Application.awaitAtBarrier("GUIC waits for CLI for game results.");
 
                     // run results
                     this.gui.runGameResults();
 
 
-                    Application.awaitAtGuiBarrier("GUIControl waits for user interaction.");
+                    Application.awaitAtGuiBarrier("GUIC waits for GUI for user interaction.");
 
-                    Application.awaitAtClientBarrier("GUIControl releases after user interaction.");
-
-
-                    // game exit
-                    if (this.app.isExitingGame()) {
-                        System.out.println("?????? GUIC REGISTERED: GAME EXIT!!! LEAVING MAIN LOOP");
-                        break loopMain;
-                    }
-
-                    // room leave
-                    //if (this.app.isRoomJoined()) {}
-
-                    //Application.awaitAtGuiBarrier("GUIControl TEMPORARILY WAITS.");
-
-                } while (this.app.isRoomJoined());
+//                    Application.awaitAtClientBarrier("GUIControl releases after user interaction.");
+                    Application.awaitAtBarrier("GUIC releases CLI with user interaction.");
 
 
-            } while(this.app.isSignedIn());
+                    Application.awaitAtBarrier("GUIC waits for CLI for determine progress.");
 
 
-        } while(!this.app.isSignedIn());
+                    break;
+                case EXIT_GAME:
+                    break;
+            }
 
 
-		_Developer.threadExecEnds("GUIController");
-		
+        } while(true);
+
 	}
 
 	private void waitAtScreen(int milis){

@@ -242,7 +242,7 @@ public class CommunicationParser {
         // message split to blocks
         String[] parts = response.split(CommunicationConfig.MSG_DELIMITER);
 
-        if(!this.checkMessageType(parts, new MessageType[]{MessageType.GAME_END})) {
+        if(!this.checkMessageType(parts, new MessageType[]{MessageType.GAME_RESULT})) {
             return -1;
         }
 

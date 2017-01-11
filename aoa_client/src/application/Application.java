@@ -9,9 +9,12 @@ import config.ViewConfig;
 import game.GameMove;
 import game.GameTurn;
 import game.GameType;
+import javafx.application.Platform;
 import model.Error;
+import model.GameStatus;
 import model.Player;
 import model.Room;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 public class Application {
 
@@ -25,30 +28,44 @@ public class Application {
 	private CommunicationManager comm;
 
 
+
+	private static GameStatus status;
+
+
 	private static CyclicBarrier clientBarrier;
 
 	private static CyclicBarrier guiBarrier;
+
+	private static CyclicBarrier barrier;
 
 
 
     private ArrayList<Error> errors;
 
-	private  Player player;
+	private  Player currentPlayer;
 
 	private  Room[] rooms;
 
 	private  Room selectedRoom = null;
 
-	//private GameMove[] progress;
     private GameTurn turn;
 
     private int winnerID;
 
+
+    private static java.util.logging.Logger logger;
+
+
+
+
     //private boolean signedIn = false;
-    private boolean gameStarted = false;
-    private boolean gameFinished = false;
-    private boolean exitingGame = false;
+//    private boolean gameStarted = false;
+//    private boolean gameFinished = false;
+//    private boolean exitingGame = false;
     //private boolean turnDataOK = true;
+
+
+
 
 	
 	
@@ -58,35 +75,51 @@ public class Application {
 	private Application(){
 		Application.clientBarrier = new CyclicBarrier(2);
         Application.guiBarrier = new CyclicBarrier(2);
+        Application.barrier = new CyclicBarrier(2);
 		this.init();
 	}
 
+    /**
+     *
+     * @return
+     */
+    public static Application getInstance(){
+        if(Application.instance == null)
+            Application.instance = new Application();
+        return Application.instance;
+    }
+
+    /**
+     *
+     */
 	private void init(){
-	    this.setGameFinished(false);
+	    Application.changeStatus(GameStatus.HELLO_AUTHORIZATION);
+//	    this.setGameFinished(false);
         this.errors = new ArrayList<>();
+        this.winnerID = -1;
+        this.logger = java.util.logging.Logger.getLogger(getClass().getName());
         //this.signedIn = false;
 	}
 
-    public void resetGame(){
-	    this.setExitingGame(false);
-        this.setGameStarted(false);
-        this.setGameFinished(false);
-        this.winnerID = -1;
-    }
+    /**
+     *
+     */
+//    public void resetGame(){
+//	    this.setExitingGame(false);
+//        this.setGameStarted(false);
+//        this.setGameFinished(false);
+//        this.winnerID = -1;
+//    }
 
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public static Application getInstance(){
-		if(Application.instance == null)
-			Application.instance = new Application();
-		return Application.instance;
-	}
 
-	public synchronized void updateRoomList(){
-        this.rooms = this.comm.requestRoomList();
+	public synchronized boolean updateRoomList(String msg){
+        Room[] rooms = this.comm.handleRoomList(msg);
+
+        if(rooms == null)
+            return false;
+
+        this.setRooms(rooms);
+        return true;
     }
 
     public synchronized void selectRoom(Room r){
@@ -94,38 +127,33 @@ public class Application {
     }
 
 
-    public void handleSignIn(){
-		//check nickname availability
-		this.comm.checkUsernameAvailability();
-    }
+//    public void handleSignIn(){
+//		//check nickname availability
+//		this.comm.checkUsernameAvailability();
+//    }
 
-    public void requestCreateJoinRoom(){
-        Room selected;
+//    public void requestCreateJoinRoom(){
+//        Room selected;
+//
+//        if(this.getSelectedRoom().hasID()) {
+//
+//            //join game
+//            // this.selectRoom(this.rooms[index]);
+//            selected = this.comm.joinGame(this.getSelectedRoom());
+//            this.selectRoom(selected);
+//
+//        } else {
+//
+//            //new game
+//            selected = this.comm.requestNewGame(this.getSelectedRoom());
+//            this.selectRoom(selected);
+//        }
+//    }
 
-        if(this.getSelectedRoom().hasID()) {
-
-            //join game
-            // this.selectRoom(this.rooms[index]);
-            selected = this.comm.joinGame(this.getSelectedRoom());
-            this.selectRoom(selected);
-
-        } else {
-
-            //new game
-            selected = this.comm.newGame(this.getSelectedRoom());
-            this.selectRoom(selected);
-        }
-    }
 
 
-    public void waitForGameInit(){
-        this.setGameStarted(this.comm.waitGameInitComplete());
-    }
 
-    public void waitForTurnStart(){
-        this.turn = this.comm.waitForTurn();
-        if(this.turn != null) this.getSelectedRoom().setTurn(this.turn.getTurn());
-    }
+
 
 
 	public void setDependencies(Connection conn, CommunicationManager comm){
@@ -159,8 +187,10 @@ public class Application {
 
 	public static void awaitAtClientBarrier(String str){
 		String status = Application.clientBarrier.getNumberWaiting() == 0 ? "waiting" : "released";
-		
-		System.out.println("### BARRIER_CLI (" + status + "): " + str);
+
+//        Application.logger.info("### BARRIER_CLI (" + status + "): " + str);
+        System.out.println("### BARRIER_CLI (" + status + "): " + str);
+
 		
 		try {
 			Application.clientBarrier.await();
@@ -170,22 +200,39 @@ public class Application {
 			e.printStackTrace();
 		}
 	}
-	
-	public static void awaitAtGuiBarrier(String str){
-		String status = Application.guiBarrier.getNumberWaiting() == 0 ? "waiting" : "released";
-		
-		System.out.println("### BARRIER_GUI (" + status + "): " + str);
-		
-		try {
-			Application.guiBarrier.await();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (BrokenBarrierException e) {
-			e.printStackTrace();
-		}
-	}
 
-	public synchronized Room getSelectedRoom(){
+    public static void awaitAtGuiBarrier(String str){
+	    String status = Application.guiBarrier.getNumberWaiting() == 0 ? "waiting" : "released";
+
+//        Application.logger.info("### BARRIER_GUI (" + status + "): " + str);
+        System.out.println("################# BARRIER_GUI (" + status + "): " + str);
+
+        try {
+
+            Application.guiBarrier.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (BrokenBarrierException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void awaitAtBarrier(String str){
+        String status = Application.barrier.getNumberWaiting() == 0 ? "waiting" : "released";
+
+        System.out.println("################## BARRIER (" + status + "): " + str);
+//        Application.logger.info("### BARRIER_GUI (" + status + "): " + str);
+
+        try {
+            Application.barrier.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (BrokenBarrierException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public synchronized Room getSelectedRoom(){
 	    return this.selectedRoom;
     }
 
@@ -195,7 +242,7 @@ public class Application {
     }
 
     public synchronized boolean amIActive(){
-	    return this.turn.getActivePlayerID() == this.player.getID();
+	    return this.turn.getActivePlayerID() == this.currentPlayer.getID();
     }
 
     public synchronized GameMove[] getProgress() {
@@ -218,44 +265,44 @@ public class Application {
 	    return this.getSelectedRoom().getTurn() - 1;
     }
 
-    public synchronized void setGameFinished(boolean finished){
-		this.gameFinished = finished;
-	}
+//    public synchronized void setGameFinished(boolean finished){
+//		this.gameFinished = finished;
+//	}
 
 
 
 	public synchronized void signIn(Player player){
-		this.player = player;
+		this.currentPlayer = player;
 	}
 
 	public synchronized Player getPlayerInfo(){
-		return this.player;
+		return this.currentPlayer;
 	}
 
 
     public synchronized boolean isSignedIn() {
-        return this.player != null && this.player.hasID();
+        return this.currentPlayer != null && this.currentPlayer.hasID();
     }
 
 	public synchronized void signOut(){
-	    this.player = null;
+	    this.currentPlayer = null;
     }
 
-	public synchronized boolean isGameFinished() {
-		return gameFinished;
-	}
+//	public synchronized boolean isGameFinished() {
+//		return gameFinished;
+//	}
 
     public synchronized boolean isRoomJoined(){
         return this.getSelectedRoom() != null;
     }
 
-	public synchronized boolean isGameStarted() {
-		return gameStarted;
-	}
-
-	public synchronized void setGameStarted(boolean started){
-        this.gameStarted = started;
-    }
+//	public synchronized boolean isGameStarted() {
+//		return gameStarted;
+//	}
+//
+//	public synchronized void setGameStarted(boolean started){
+//        this.gameStarted = started;
+//    }
 
 	public synchronized void registerError(Error err){
 	    this.errors.add(err);
@@ -285,12 +332,10 @@ public class Application {
 //		this.turnDataOK = ok;
 //	}
 
-	public synchronized void waitForGameResults() {
-		this.winnerID = this.comm.waitForResults();
-	}
+
 
 	private synchronized boolean amIWinner() {
-		 return this.player.getID() == this.winnerID;
+		 return this.currentPlayer.getID() == this.winnerID;
 	}
 
 	public synchronized String getWinnerText() {
@@ -306,13 +351,13 @@ public class Application {
         return ViewConfig.MSG_GAME_LOSE;
 	}
 
-    public synchronized boolean isExitingGame() {
-        return exitingGame;
-    }
-
-    public synchronized void setExitingGame(boolean exitingGame) {
-        this.exitingGame = exitingGame;
-    }
+//    public synchronized boolean isExitingGame() {
+//        return exitingGame;
+//    }
+//
+//    public synchronized void setExitingGame(boolean exitingGame) {
+//        this.exitingGame = exitingGame;
+//    }
 
     public synchronized void disconnectRoom() {
         this.selectRoom(null);
@@ -320,16 +365,113 @@ public class Application {
 
 
     public void restartGame(){
-        this.comm.restartGame();
+        this.comm.handleRestartGame();
     }
 
 
     public void leaveGame() {
-        this.comm.leaveGame();
+        this.comm.handleLeaveGame();
     }
 
     public synchronized GameTurn getGameTurn(){
         return this.turn;
     }
 
+    public synchronized void setGameTurn(GameTurn turn){
+        this.turn = turn;
+    }
+
+    public static void disconnect(boolean hard){
+        Connection.disconnect();
+
+        if(hard) {
+            Platform.exit();
+            System.exit(1);
+        }
+
+    }
+
+    public static GameStatus getStatus(){
+        return Application.status;
+    }
+
+    public static void changeStatus(GameStatus status){
+        System.out.println("+++ APP STATUS: " + status);
+        Application.status = status;
+    }
+
+
+
+
+
+
+    public void requestCreateRoom(){
+        this.comm.requestNewGame(this.getSelectedRoom());
+    }
+
+    public void requestJoinRoom(){
+        this.comm.requestJoinGame(this.getSelectedRoom());
+    }
+
+    public boolean handleRoomSelection(String msg){
+        Room selected = this.comm.handleRoomSelection(msg);
+
+        if(selected == null)
+            return false;
+
+        this.selectRoom(selected);
+        return true;
+    }
+
+    public void requestNewGame(){
+        this.comm.requestNewGame(this.getSelectedRoom());
+    }
+
+    public boolean handleUsernameSelection(String msg){
+        Player player = this.getPlayerInfo();
+
+        player = this.comm.checkUsernameAvailability(msg, player);
+
+        if(player == null) {
+            return false;
+        }
+
+        this.signIn(player);
+        return true;
+    }
+
+    public synchronized boolean handleTurnStart(String msg){
+        int diff, turn;
+        GameTurn t;
+
+        diff = this.getSelectedRoom().getDifficulty().getDifficulty();
+        t = this.comm.handleTurnData(msg, diff);
+
+        if(t == null)
+            return false;
+
+        this.setGameTurn(t);
+        turn = this.turn.getTurn();
+        this.getSelectedRoom().setTurn(turn);
+
+
+        System.out.println("HANDLIIIIIIIIING TURN START: " + turn);
+
+        return true;
+    }
+
+    public synchronized void handleGameResults(String msg) {
+        this.winnerID = this.comm.waitForResults(msg);
+    }
+
+    public void requestRoomList() {
+        this.comm.requestRoomList();
+    }
+
+    public void requestRoomListAndWait(){
+        Room[] rooms  = this.comm.requestRoomListAndWait();
+
+        if(rooms != null)
+            this.setRooms(rooms);
+    }
 }

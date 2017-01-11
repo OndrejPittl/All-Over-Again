@@ -1,51 +1,56 @@
 package communication;
 
+import application.Application;
 import application.Connection;
-import config.CommunicationConfig;
-import javafx.application.Platform;
-import partial.Tools;
 
 import java.io.BufferedInputStream;
+import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.logging.Logger;
+import config.CommunicationConfig;
+import partial.Tools;
+
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import static config.CommunicationConfig.ASCII_LOWER;
 
 public class MessageReceiver implements Runnable {
 
-    private Connection conn;
-
-    private CommunicationParser parser;
-
     private LinkedBlockingQueue<Message> receivedMessages;
 
+    private LinkedBlockingQueue<Message> incomingMessagesAsync;
+
     private StringBuilder sb;
+
+    private Logger logger;
 
     /**
      * Input byte stream.
      */
-    private BufferedInputStream bis;
+    //private BufferedInputStream bis;
+
+    private InputStream inStream;
 
     /**
      *	Buffer for incoming message.
      */
-    private byte[] msgBuffer;
+    private byte[] buffer;
 
 
 
 
     public MessageReceiver(Connection conn, LinkedBlockingQueue<Message> receivedMessages) {
-        this.conn = conn;
         this.receivedMessages = receivedMessages;
         this.init();
     }
 
     private void init(){
-        this.parser = new CommunicationParser();
+        this.logger = Logger.getLogger(this.getClass().getName());
         this.sb = new StringBuilder();
-        this.msgBuffer = new byte[1024];
+        this.buffer = new byte[1024];
     }
 
     public void run() {
@@ -58,42 +63,51 @@ public class MessageReceiver implements Runnable {
 
         for (;;) {
 
-            System.out.println("MSGReceiver: waiting for a message.");
-            String msgTxt = this.recvMsg();
+            this.logger.info("MSGReceiver: waiting for a message.");
 
-            if(msgTxt == null || msgTxt.length() == 0) {
+            String msgTxt = this.receiveMessage();
 
-                System.out.println("MSGReceiver: received an EMPTY message. SERVER DOWN!");
-                Platform.exit();
-                System.exit(1);
-
+            if(msgTxt == null || msgTxt.length() < 0) {
+                this.logger.info("MSGReceiver: received an EMPTY message. SERVER DOWN!");
+                Application.disconnect(true);
+                break;
             }
 
-            System.out.println("MSGReceiver: received a message.");
+            this.logger.info("MSGReceiver: received a message.");
 
             messages = this.separateMessages(msgTxt);
 
             for (String msg : messages) {
                 String msgValidText = "";
-
-                helloFound = this.checkHelloPacket(msg);
+                MessageType type = null;
 
                 // checksum
                 msgValidText = this.checkMessageChecksum(msg);
 
-                if(helloFound) {
-                    msgValidText = msg;
+                if(this.checkHelloPacket(msgValidText)) {
+                    type = MessageType.HELLO;
+                } else {
+                    type = this.checkMessageType(msgValidText);
                 }
 
                 if(msgValidText == null) {
                     continue;
                 }
 
-                Message m = new Message(msgValidText);
-                System.out.println("MSGReceiver: a message accepted: " + m.getMessage());
+                Message m = new Message(type, msgValidText);
+                this.logger.info("MSGReceiver: a message accepted: " + m.getMessage());
                 this.receivedMessages.add(m);
             }
         }
+    }
+
+    private MessageType checkMessageType(String msgValidText) {
+        String[] parts = msgValidText.split(CommunicationConfig.MSG_DELIMITER);
+
+        if(!Tools.isNumber(parts[0]))
+            return null;
+
+        return MessageType.nth(Integer.parseInt(parts[0]));
     }
 
     private String checkMessageChecksum(String msg) {
@@ -111,7 +125,7 @@ public class MessageReceiver implements Runnable {
         String checkSumStr = msg.substring(0, delimPos),
                message = msg.substring(delimPos + 1, msgLen);
 
-//        System.out.println("len: " + msgLen + " delimPos: " + delimPos + " of a message: " + msg + " with result: " + message);
+//        this.logger.info("len: " + msgLen + " delimPos: " + delimPos + " of a message: " + msg + " with result: " + message);
 
         if(!Tools.isNumber(checkSumStr))
             return null;
@@ -158,43 +172,37 @@ public class MessageReceiver implements Runnable {
     }
 
 
-    private String recvMsg(){
+    private String receiveMessage(){
         int msgLen;
         this.sb.setLength(0);
 
         try {
-            initBufferedInputStream();
 
-            while((msgLen = this.bis.read(this.msgBuffer)) > 0) {
-                for (int i = 0; i < msgLen; i++) {
-                    byte c = this.msgBuffer[i];
-                    if(c == 0) {
-                        break;
-                    } else if (this.isValidCharacter(c)) {
-                        sb.append((char) this.msgBuffer[i]);
-                    }
-                }
-                System.out.print(">>> received: \"" + sb.toString() + "\" (" + msgLen + " bytes)\n");
-                return sb.toString();
+            msgLen = this.inStream.read(this.buffer);
+
+            if(msgLen < 0) {
+                return null;
             }
 
+            String out = new String(Arrays.copyOf(this.buffer, msgLen));
+
+            System.out.print(">>> received: \"" + out + "\" (" + msgLen + " bytes)\n");
+            return out;
+
+
         } catch (IOException e) {
-            System.err.print("ErrorConfig: BufferedInputStream initialization.\n");
             e.printStackTrace();
+            return null;
         }
 
-        return null;
     }
 
     private boolean isValidCharacter(int c){
         return c >= CommunicationConfig.ASCII_LOWER && c <= CommunicationConfig.ASCII_UPPER;
     }
 
-    private void initBufferedInputStream() throws IOException{
-        this.bis = new BufferedInputStream(this.conn.getClientSocket().getInputStream());
-    }
-
     public void setConnection(Connection conn){
-        this.conn = conn;
+
+        this.inStream = new BufferedInputStream(conn.getInStream());
     }
 }

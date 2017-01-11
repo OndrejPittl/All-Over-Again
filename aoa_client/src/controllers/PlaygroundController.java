@@ -90,7 +90,6 @@ public class PlaygroundController extends ScreenController {
         this.moves = new ArrayList<>();
         this.room = this.app.getSelectedRoom();
         this.dimension = this.room.getBoardDimension().getDimension();
-        //this.dimension = GameConfig.DEFAULT_BOARD_DIMENSION;
         this.fieldCount = this.dimension * this.dimension;
         this.fieldControllers = new BoardFieldController[this.fieldCount];
     }
@@ -113,13 +112,10 @@ public class PlaygroundController extends ScreenController {
 
         System.out.println("Timer setting to: " + this.timerValue);
         this.timer.setCycleCount(this.timerValue);
-//        this.timer.setDelay(Duration.millis(1000));
     }
 
     private void initPlayerList(){
-
         // TODO: updatePlayerList(), zmena existujicich komponent
-
         FXMLSource src;
         BorderPane item;
         PlayerController controller;
@@ -143,9 +139,6 @@ public class PlaygroundController extends ScreenController {
         int w = (int) (this.gp_playground.getPrefWidth() / this.dimension);
 
         double pSize = 100.0 / this.dimension;
-
-        // this.gp_playground.setHgap(0);
-        // this.gp_playground.setVgap(0);
 
         for (int i = 0; i < this.dimension; i++) {
             ColumnConstraints colConst = new ColumnConstraints();
@@ -184,8 +177,6 @@ public class PlaygroundController extends ScreenController {
         this.moves.add(m);
         this.updateMoveStats();
 
-        System.out.println("c: " + this.moveCounter);
-        System.out.println("t: " + this.turn.getTurn());
         if(this.moveCounter == this.turn.getTurn()) {
             this.endTurn();
         }
@@ -208,6 +199,8 @@ public class PlaygroundController extends ScreenController {
         this.turn = this.app.getGameTurn();
         this.amIActive = this.app.amIActive();
 
+        System.out.println("------------   starting turn: " + this.turn.getTurn());
+
         Platform.runLater(() -> {
             this.updateMoveStats();
             this.initTimer();
@@ -217,17 +210,16 @@ public class PlaygroundController extends ScreenController {
 
     private void proceedTurnStart(){
         this.enableBoard();
-        //this.vb_timerWrapper.setVisible(true);
         this.timer.play();
     }
-
 
     public void endTurn(){
         this.disableBoard();
         this.timer.stop();
         this.app.storeProgress(this.moves);
         this.moves.clear();
-        Application.awaitAtGuiBarrier("GUI releases. Turn ends.");
+
+        Platform.runLater(() -> Application.awaitAtGuiBarrier("GUI releases. Turn ends."));
     }
 
     public void stopGame() {
@@ -269,10 +261,10 @@ public class PlaygroundController extends ScreenController {
         if(this.amIActive) {
             timeline.setCycleCount(progress.length);
             timeline.setOnFinished((e) ->
-                    new Timeline(new KeyFrame(
-                            Duration.millis(ViewConfig.TIMER_TURN_INTRO_MOVE_DURATION),
-                            (ActionEvent) -> this.proceedTurnStart()
-                    )).play()
+                new Timeline(new KeyFrame(
+                        Duration.millis(ViewConfig.TIMER_TURN_INTRO_MOVE_DURATION),
+                        (ActionEvent) -> this.proceedTurnStart()
+                )).play()
             );
         }
 

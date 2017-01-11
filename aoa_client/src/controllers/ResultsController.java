@@ -2,9 +2,11 @@ package controllers;
 
 
 import application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import model.GameStatus;
 
 public class ResultsController extends ScreenController {
 
@@ -38,24 +40,26 @@ public class ResultsController extends ScreenController {
     }
 
     public void playAgain(){
-        // automatically new turn in the same room
+        // new turn in the same room
+        Application.changeStatus(GameStatus.GAME_RESTART);
         this.makeChoice();
     }
 
     public void leaveGame(){
         // leave a room, stay signed in
-        this.app.disconnectRoom();
+        //this.app.disconnectRoom();
         this.makeChoice();
     }
 
     public void exitGame(){
         // exit a game to OS
-        this.app.setExitingGame(true);
+        //this.app.setExitingGame(true);
+        Application.changeStatus(GameStatus.EXIT_GAME);
         this.makeChoice();
     }
 
     private void makeChoice(){
-        Application.awaitAtGuiBarrier("GUI releases after user interaction.");
+        Platform.runLater(()->Application.awaitAtGuiBarrier("GUI releases GUIC with user interaction."));
     }
 
 }
