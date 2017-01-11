@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.6)
+#scmake_minimum_required(VERSION 3.6)
 project(aoa_server)
 
 set(CMAKE_CXX_STANDARD 11)
