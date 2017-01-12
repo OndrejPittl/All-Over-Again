@@ -1,7 +1,4 @@
 CC=g++
-FILES = *.cpp
-FILES_b = core/*.cpp gameplay/*.cpp network/*.cpp partial/*.cpp
-FILES_a = */*.cpp
 FILES_a = $(wildcard *.cpp) $(wildcard */*.cpp)
 FLAGS = -lpthread -std=c++11
 # FLAGS = -lpthread -v
@@ -12,7 +9,6 @@ all:	clean build run
 
 clean:
 	@ clear
-	@ clearMsg
 	@ if [ -a $(SRV) ]; then rm $(SRV); echo 'Cleaning.....DONE!'; fi;
 
 build: srv.cpp

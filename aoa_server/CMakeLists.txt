@@ -18,8 +18,6 @@ file(GLOB_RECURSE SRC_FILES_NESTED
         ${PROJECT_SOURCE_DIR}/connection/*.cpp
         ${PROJECT_SOURCE_DIR}/core/*.h
         ${PROJECT_SOURCE_DIR}/core/*.cpp
-        ${PROJECT_SOURCE_DIR}/libs/*.h
-        ${PROJECT_SOURCE_DIR}/libs/*.cpp
         ${PROJECT_SOURCE_DIR}/partial/*.h
         ${PROJECT_SOURCE_DIR}/partial/*.cpp
         ${PROJECT_SOURCE_DIR}/game/*.h

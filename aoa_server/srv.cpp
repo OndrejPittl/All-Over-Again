@@ -1,14 +1,13 @@
 // headers
-#include "libs/easylogging++.h"
+
 #include "core/Server.h"
 #include "core/Logger.h"
+#include "libs/easylogging++.h"
 
 
-/**
-*	Logger initialization.
-*/
+
+
 INITIALIZE_EASYLOGGINGPP;
-
 
 /**
 *	Main function of this app.

@@ -59,9 +59,6 @@ void CommunicationManager::receiveMessage(int sock, int byteCount) {
 //void CommunicationManager::recvMsg(int sock, int byteCount, std::string *buff) {
 std::string CommunicationManager::recvMsg(int sock, int byteCount) {
 
-    if(byteCount > 2048)
-        return std::string();
-
     // result of an operation
     ssize_t result;
 
@@ -78,6 +75,8 @@ std::string CommunicationManager::recvMsg(int sock, int byteCount) {
     result = recv(sock, buffer, msgLen, 0);
     //result = read(sock, msgBuffer, BUFF_LEN);
 
+    if(byteCount > 2048)
+        return std::string();
 
     this->log->clear();
     this->log->append("\n");

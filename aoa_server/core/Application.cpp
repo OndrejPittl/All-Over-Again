@@ -136,6 +136,8 @@ void Application::deregisterUser(int uid) {
         this->deregisterUserCompletely(p);
 
     }
+
+    this->conn->deregisterClient(uid);
 }
 
 /**
