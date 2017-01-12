@@ -1,5 +1,8 @@
 #include <iostream>
 #include <sys/socket.h>
+#include <stdio.h>
+#include <cstring>
+
 
 #include "../core/Logger.h"
 #include "CommunicationManager.h"

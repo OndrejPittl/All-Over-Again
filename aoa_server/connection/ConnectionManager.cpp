@@ -3,6 +3,8 @@
 #include <iostream>
 #include <sstream>
 #include <zconf.h>
+#include <stdio.h>
+#include <cstring>
 
 // headers
 #include "../core/Logger.h"
