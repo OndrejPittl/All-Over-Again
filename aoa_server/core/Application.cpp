@@ -33,35 +33,35 @@ void Application::init() {
     // type ; r-id ; p-count ; p-limit ; diff ; dim ; nicks
     //sbMsg->append("2;1;1;2;1;3;marty;2;2;3;2;5;dendasda:gabin");
 
-    int rID1,
-        rID2,
-        uID1 = 9,
-        uID2 = 10,
-        uID3 = 11;
-
-    Room *r1 = new Room();
-    r1->setGameType(GameType::MULTIPLAYER);
-    r1->setDifficulty(GameDifficulty::EXPERT);
-    r1->setBoardDimension(bd::BoardDimension::NORMAL);
-    this->createNewRoom(r1);
-
-    Room *r2 = new Room();
-    r2->setGameType(GameType::MULTIPLAYER);
-    r2->setDifficulty(GameDifficulty::EXPERT);
-    r2->setBoardDimension(bd::BoardDimension::HUGEUE);
-    this->createNewRoom(r2);
-
-    this->registerUser(uID1, "Franta");
-    this->registerUser(uID2, "Marie");
-    this->registerUser(uID3, "Jana");
-
-    rID1 = r1->getID();
-    rID2 = r2->getID();
-    this->assignPlayer(uID1, rID1);
-    this->assignPlayer(uID2, rID2);
-    this->assignPlayer(uID3, rID2);
-
-    printRooms(this->rooms);
+//    int rID1,
+//        rID2,
+//        uID1 = 9,
+//        uID2 = 10,
+//        uID3 = 11;
+//
+//    Room *r1 = new Room();
+//    r1->setGameType(GameType::MULTIPLAYER);
+//    r1->setDifficulty(GameDifficulty::EXPERT);
+//    r1->setBoardDimension(bd::BoardDimension::NORMAL);
+//    this->createNewRoom(r1);
+//
+//    Room *r2 = new Room();
+//    r2->setGameType(GameType::MULTIPLAYER);
+//    r2->setDifficulty(GameDifficulty::EXPERT);
+//    r2->setBoardDimension(bd::BoardDimension::HUGEUE);
+//    this->createNewRoom(r2);
+//
+//    this->registerUser(uID1, "Franta");
+//    this->registerUser(uID2, "Marie");
+//    this->registerUser(uID3, "Jana");
+//
+//    rID1 = r1->getID();
+//    rID2 = r2->getID();
+//    this->assignPlayer(uID1, rID1);
+//    this->assignPlayer(uID2, rID2);
+//    this->assignPlayer(uID3, rID2);
+//
+//    printRooms(this->rooms);
 
 }
 
