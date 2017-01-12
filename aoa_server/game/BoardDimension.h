@@ -8,7 +8,7 @@ namespace bd {
         SMALL,
         NORMAL,
         LARGE,
-        HUGE = 5
+        HUGEUE = 5
     };
 }
 

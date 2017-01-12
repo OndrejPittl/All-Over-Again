@@ -48,7 +48,7 @@ void Application::init() {
     Room *r2 = new Room();
     r2->setGameType(GameType::MULTIPLAYER);
     r2->setDifficulty(GameDifficulty::EXPERT);
-    r2->setBoardDimension(bd::BoardDimension::HUGE);
+    r2->setBoardDimension(bd::BoardDimension::HUGEUE);
     this->createNewRoom(r2);
 
     this->registerUser(uID1, "Franta");
