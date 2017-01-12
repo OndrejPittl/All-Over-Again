@@ -35,7 +35,7 @@ Room *MessageParser::parseNewRoomRequest(Message *msg) {
 
     GameType type;
     GameDifficulty diff;
-    BoardDimension  dim;
+    bd::BoardDimension  dim;
 
     parts = this->split(msg->getMessage());
     typeStr = parts.front(); parts.pop();

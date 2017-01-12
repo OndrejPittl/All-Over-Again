@@ -42,13 +42,13 @@ void Application::init() {
     Room *r1 = new Room();
     r1->setGameType(GameType::MULTIPLAYER);
     r1->setDifficulty(GameDifficulty::EXPERT);
-    r1->setBoardDimension(BoardDimension::NORMAL);
+    r1->setBoardDimension(bd::BoardDimension::NORMAL);
     this->createNewRoom(r1);
 
     Room *r2 = new Room();
     r2->setGameType(GameType::MULTIPLAYER);
     r2->setDifficulty(GameDifficulty::EXPERT);
-    r2->setBoardDimension(BoardDimension::HUGE);
+    r2->setBoardDimension(bd::BoardDimension::HUGE);
     this->createNewRoom(r2);
 
     this->registerUser(uID1, "Franta");

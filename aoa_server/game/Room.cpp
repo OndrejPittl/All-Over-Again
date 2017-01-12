@@ -9,7 +9,7 @@ Room::Room() {
     this->init();
 }
 
-Room::Room(GameType type, GameDifficulty difficulty, BoardDimension dimension) {
+Room::Room(GameType type, GameDifficulty difficulty, bd::BoardDimension dimension) {
     this->init();
     this->type = type;
     this->difficulty = difficulty;
@@ -42,11 +42,11 @@ int Room::getPlayerCount() {
     return (int) this->players.size();
 }
 
-BoardDimension Room::getBoardDimension() {
+bd::BoardDimension Room::getBoardDimension() {
     return this->boardDimension;
 }
 
-void Room::setBoardDimension(BoardDimension boardDimension) {
+void Room::setBoardDimension(bd::BoardDimension boardDimension) {
     this->boardDimension = boardDimension;
 }
 

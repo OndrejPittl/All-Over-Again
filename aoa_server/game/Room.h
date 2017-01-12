@@ -23,7 +23,7 @@ class Room {
         bool ended;
         GameStatus status;
         GameType type;
-        BoardDimension boardDimension;
+        bd::BoardDimension boardDimension;
         GameDifficulty difficulty;
         std::map<int, Player> players;
         std::queue<int> progress;
@@ -32,7 +32,7 @@ class Room {
     public:
         Room();
 
-        Room(GameType type, GameDifficulty difficulty, BoardDimension dimension);
+        Room(GameType type, GameDifficulty difficulty, bd::BoardDimension dimension);
 
         void init();
 
@@ -48,9 +48,9 @@ class Room {
 
         int getPlayerCount();
 
-        BoardDimension getBoardDimension();
+        bd::BoardDimension getBoardDimension();
 
-        void setBoardDimension(BoardDimension boardDimension);
+        void setBoardDimension(bd::BoardDimension boardDimension);
 
         int getActivePlayerID();
 
