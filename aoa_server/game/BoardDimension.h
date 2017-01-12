@@ -7,7 +7,7 @@ enum class BoardDimension {
     SMALL,
     NORMAL,
     LARGE,
-    HUGE
+    HUGE = 5
 };
 
 BoardDimension convertInternalBoardDimension(int index);
