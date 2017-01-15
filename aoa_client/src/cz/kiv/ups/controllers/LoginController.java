@@ -33,7 +33,6 @@ public class LoginController extends ScreenController {
 		if(UserInputValidator.validateUsername(nick)) {
 			this.app.signIn(new Player(nick));
 
-
 			Platform.runLater(()->Application.awaitAtGuiBarrier("GUI relseases. Username entered. (5GRG)"));
 		}
 	}

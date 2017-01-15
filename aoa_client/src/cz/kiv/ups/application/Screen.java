@@ -28,7 +28,7 @@ public class Screen extends Stage implements Observer {
 
 	private PlaygroundController playgroundController;
 	
-	
+
 	
 	public Screen(Stage window, Application app) {
 		this.stage = window;
@@ -37,20 +37,23 @@ public class Screen extends Stage implements Observer {
 	}
 
     public void run(){
-        Platform.runLater(() -> {
-            this.centerStage();
-            this.stage.show();
-        });
+        Platform.runLater(() -> this.init() );
     }
+
+    private void init(){
+		this.stage.setOnCloseRequest((e) -> {
+			Application.disconnect(true);
+		});
+
+		this.stage.show();
+        this.centerStage();
+	}
 	
 	private Initializable runScreen(ScreenType screen) throws IOException {
         System.out.println("--- running: " + screen.getName());
 
 		ScreenSettings cfg = ViewConfig.getScreen(screen);
-
-//		System.out.println("before loading.................");
         FXMLSource src = DataLoader.loadLayout(cfg.getName());
-//		System.out.println("after loading.................");
 		BorderPane root = (BorderPane) src.getRoot();
 
 		Scene scene = new Scene(
@@ -65,7 +68,8 @@ public class Screen extends Stage implements Observer {
 		this.stage.setMinHeight(cfg.getMinHeight());
 		this.stage.setTitle(cfg.getTitle());
         this.stage.setScene(scene);
-        this.centerStage();
+
+        //this.centerStage();
 
 		return src.getController();
 	}
@@ -81,7 +85,6 @@ public class Screen extends Stage implements Observer {
     }
 	
 	public Void runLogin(){
-		// new Runnable() -> run()
 		Platform.runLater(() -> {
 			try {
 				LoginController controller = (LoginController) me.runScreen(ScreenType.Login);

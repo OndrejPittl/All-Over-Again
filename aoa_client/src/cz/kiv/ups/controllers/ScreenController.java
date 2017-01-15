@@ -60,6 +60,8 @@ public class ScreenController implements Initializable {
             lbl.setVisible(true);
             System.out.println("Handling Error: " + err.getErr());
         }
+
+        this.app.clearErrors();
     }
 
     private boolean hasErrorLabels(){
