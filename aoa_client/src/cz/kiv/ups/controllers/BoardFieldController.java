@@ -359,7 +359,6 @@ public class BoardFieldController extends ScreenController {
         new Timer().schedule(new TimerTask() {
             public void run() {
                 Platform.runLater(() -> {
-                    resetField();
                     endMove();
                     setFieldActivity(isActive);
                 });

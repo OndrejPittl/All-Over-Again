@@ -259,7 +259,7 @@ public class PlaygroundController extends ScreenController {
         }
 
         Timeline timeline = new Timeline(
-            new KeyFrame(Duration.millis(ViewConfig.TIMER_TURN_INTRO_MOVE_DURATION), new EventHandler<ActionEvent>() {
+            new KeyFrame(Duration.millis(ViewConfig.TIMER_TURN_INTRO_MOVE_DURATION + 200), new EventHandler<ActionEvent>() {
                 int i = 0;
                 @Override
                 public void handle(ActionEvent event) {
