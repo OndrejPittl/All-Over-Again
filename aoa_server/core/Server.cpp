@@ -50,13 +50,30 @@ void Server::run() {
 
     for (;;){
 
+        this->app->handleSuspiciousClients();
+
 		// working copy of a set of sockets
 		this->conn->restoreSocketSets();
 
 		Logger::info("Server is waiting for a request...");
 
         // Server waits until being requested. (select())
-        this->conn->waitForRequests();
+        result = this->conn->waitForRequests();
+
+        if(result < 0) {
+            Logger::error(std::to_string(errno));
+            if(errno == EINTR || errno == EBADF) {
+                // EINTR: sys call
+                // a socket of online user removed from a set
+
+                // EBADF: Bad File Descriptor
+                // a FD removed from a set due to amount of incorrect messages
+                continue;
+            } else {
+                exit(Logger::printErr(ERR_SELECT));
+            }
+        }
+
 
 		Logger::info("Server recognized a new request.");
 

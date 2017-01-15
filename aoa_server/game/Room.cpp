@@ -284,6 +284,10 @@ bool Room::isReplayReady() {
     return this->status == GameStatus::FINISHED_REPLAY;
 }
 
+bool Room::hasGameEnded() {
+    return this->status == GameStatus::ENDED;
+}
+
 int Room::getTime() const {
     int t = this->turn * Game::MOVE_TIME;
     return this->turn == 1 ? t + Game::FIRST_TURN_RESERVE : t;

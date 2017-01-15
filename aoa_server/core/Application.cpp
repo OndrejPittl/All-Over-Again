@@ -144,6 +144,8 @@ bool Application::signInUser(int uid, std::string username) {
 void Application::deregisterUser(int uid) {
     Player *p = this->getPlayer(uid);
 
+    if(p == nullptr)
+        return;
 
     this->log->clear();
     this->log->append(" --- deregistering: ");
@@ -227,18 +229,18 @@ void Application::removeUser(Player *player) {
     //remove a user from FD_SET
     this->conn->deregisterClient(uid);
 
-    // free username
-    this->usernames.erase(username);
-
-    // free memory
-    //delete &player;
-
-
     this->log->clear();
     this->log->append("A user ");
     this->log->append(username);
     this->log->append(" was completely removed.");
     Logger::info(this->log->getString());
+
+
+    if(!player->hasUsername())
+        return;
+
+    // free username
+    this->usernames.erase(username);
 
     this->log->clear();
     this->log->append("A username ");
@@ -333,7 +335,8 @@ Room *Application::getRoom(int rid) {
 }
 
 Player *Application::getPlayer(int uid) {
-    return this->onlinePlayers[uid];
+    return this->onlinePlayers.count(uid) ? this->onlinePlayers[uid] : nullptr;
+//    return this->onlinePlayers[uid];
 }
 
 Player *Application::getOfflinePlayer(int uid) {
@@ -399,7 +402,7 @@ void Application::checkRoomCancel(int rid) {
  * @param room
  */
 void Application::cancelRoom(Room *room){
-    PlayerMap &players = room->getPlayers();
+    PlayerMap players = room->copyPlayers();
 
     for(auto it = players.cbegin(); it != players.cend(); ++it) {
         Player *p = it->second;
@@ -454,16 +457,43 @@ bool Application::proceedTurn(int rid, const std::queue<int> &progress) {
 }
 
 
+void Application::registerSuspiciousBehaviour(int uid){
+    Player *p;
 
+    p = this->getPlayer(uid);
 
+    if(p == nullptr)
+        return;
 
+    p->registerIncorrectMsgCount();
 
+    this->log->clear();
+    this->log->append("Suspicious/invalid messages detected from client ");
+    this->log->append(uid);
+    this->log->append(" (");
+    this->log->append(p->getIncorrectMsgCount());
+    this->log->append("/");
+    this->log->append(ConnectionManager::COMM_INVALID_MSG_LIMIT);
+    this->log->append(").");
+    Logger::warning(this->log->getString());
 
+    if(p->getIncorrectMsgCount() == ConnectionManager::COMM_INVALID_MSG_LIMIT) {
+        this->suspiciousClients.push_back(uid);
+    }
+}
 
+void Application::handleSuspiciousClients(){
+    while(this->suspiciousClients.size() > 0) {
+        int c = this->suspiciousClients.back();
 
+        //odstrihneme
+        this->log->clear();
+        this->log->append("Client ");
+        this->log->append(c);
+        this->log->append(" was marked as an attacker.");
+        Logger::warning(this->log->getString());
 
-
-
-
-
-
+        this->deregisterUser(c);
+        this->suspiciousClients.pop_back();
+    }
+}

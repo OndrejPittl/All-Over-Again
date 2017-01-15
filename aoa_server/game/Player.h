@@ -58,6 +58,10 @@ class Player {
         int getIncorrectMsgCount() const;
         void registerIncorrectMsgCount(int incorrectMsgCount);
         void clearIncorrectMsgCount();
+
+    void registerIncorrectMsgCount();
+
+    bool hasUsername() const;
 };
 
 typedef std::map<int, Player*> PlayerMap;

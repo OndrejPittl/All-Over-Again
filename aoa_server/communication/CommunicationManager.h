@@ -40,7 +40,6 @@ class CommunicationManager {
 		 */
 		SafeQueue<RawMessage *> *rawMessageQueue;
 
-
         /**
          * Validates and deserializates raw incoming messages.
          */
@@ -109,7 +108,7 @@ class CommunicationManager {
 		void setApp(Application *app);
 
 
-
+	void checkSuspiciousClients();
 };
 
 #endif

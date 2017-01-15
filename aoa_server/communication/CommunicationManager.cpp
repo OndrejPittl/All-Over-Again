@@ -8,6 +8,7 @@
 #include "CommunicationManager.h"
 #include "../partial/StringBuilder.h"
 #include "../core/Application.h"
+#include "../partial/tools.h"
 
 
 
@@ -33,7 +34,7 @@ void CommunicationManager::init() {
 }
 
 void CommunicationManager::startMessageValidator(){
-    this->msgValidator = new MessageValidator(this->messageQueue, this->rawMessageQueue);
+    this->msgValidator = new MessageValidator(this->messageQueue, this->rawMessageQueue, this->app);
     this->msgValidatorThrd = this->msgValidator->run();
 }
 
@@ -50,9 +51,6 @@ void CommunicationManager::startMessageSender(){
 
 void CommunicationManager::receiveMessage(int sock, int byteCount) {
     std::string strMsg = this->recvMsg(sock, byteCount);
-
-    if(strMsg.length() <= 0)
-        return;
 
     RawMessage *msg = new RawMessage(sock, byteCount, strMsg);
     this->rawMessageQueue->push(msg);
@@ -101,7 +99,3 @@ std::string CommunicationManager::recvMsg(int sock, int byteCount) {
 void CommunicationManager::setApp(Application *app) {
     this->app = app;
 }
-
-
-
-

@@ -22,6 +22,7 @@ void Player::init() {
     this->setRoomID(-1);
     this->setOnline();
     this->clearIncorrectMsgCount();
+    this->setUsername("");
 }
 
 void Player::setID(int id) {
@@ -47,12 +48,16 @@ std::string Player::getUsername() const {
     return this->username;
 }
 
+bool Player::hasUsername() const {
+    return this->username.length() > 0;
+}
+
 bool Player::hasRoom() {
     return this->roomID != -1;
 }
 
 void Player::leaveRoom() {
-    this->roomID = -1;
+    this->setRoomID(-1);
 }
 
 void Player::setStatus(bool online) {
@@ -68,15 +73,16 @@ void Player::setOffline() {
 }
 
 bool Player::isOnline() const {
-    return this->online;
+    bool on = this->online;
+     return on;
 }
 
 int Player::getIncorrectMsgCount() const {
     return incorrectMsgCount;
 }
 
-void Player::registerIncorrectMsgCount(int incorrectMsgCount) {
-    Player::incorrectMsgCount++;
+void Player::registerIncorrectMsgCount() {
+    this->incorrectMsgCount++;
 }
 
 void Player::clearIncorrectMsgCount() {

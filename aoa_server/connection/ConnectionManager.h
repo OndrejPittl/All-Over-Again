@@ -61,6 +61,8 @@ class ConnectionManager {
 		*/
 		static const int CLIENT_FD_OFFSET;
 
+        static const int COMM_INVALID_MSG_LIMIT;
+
 		/**
 		*	Constructor.
 		*/
@@ -87,7 +89,7 @@ class ConnectionManager {
 
         void restoreSocketSets();
 
-        void waitForRequests();
+        int waitForRequests();
 
         int isSockReadable(int sock);
 

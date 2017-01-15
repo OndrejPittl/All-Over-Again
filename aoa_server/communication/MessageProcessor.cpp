@@ -292,7 +292,7 @@ void MessageProcessor::proceedRestartGame() {
 //    }
 
     this->proceedStartGame(r, r->isReplayReady());
-    if(!r->isReplayReady()) this->proceedLeaveGame();
+    if(r->hasGameEnded()) this->proceedLeaveGame();
 }
 
 
@@ -448,7 +448,7 @@ void MessageProcessor::proceedSignOut(Message *msg) {
     Logger::info(this->log->getString());
 
     Player *p = this->app->getPlayer(this->clientSocket);
-    //this->app->removeUser(p);
+    this->app->removeUser(p);
 }
 
 void MessageProcessor::setApp(Application *app) {

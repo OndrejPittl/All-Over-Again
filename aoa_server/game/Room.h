@@ -120,6 +120,8 @@ class Room {
     int getTime() const;
 
     PlayerMap copyPlayers();
+
+    bool hasGameEnded();
 };
 
 

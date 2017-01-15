@@ -54,5 +54,7 @@ void  printPlayers(PlayerMap m);
 
 void printRooms(RoomMap m);
 
+bool checkIfExistsInPlayerVector(PlayerVector &v, int uid);
+
 
 #endif

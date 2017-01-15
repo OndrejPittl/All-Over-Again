@@ -47,6 +47,12 @@ class Application {
         PlayerVector offlinePlayers;
 
         /**
+         * This vector holds socket values/ids of clients being suspicious
+         * of hacking with sending invalid messages.
+         */
+        std::vector<int> suspiciousClients;
+
+        /**
          * Existing rooms.
          */
         //std::map<int, Room*> rooms;
@@ -130,6 +136,12 @@ class Application {
         void cancelRoomKick(Room *room);
 
         void disbandRoom(Room *room);
+
+    void registerSuspiciousBehaviour();
+
+    void registerSuspiciousBehaviour(int uid);
+
+    void handleSuspiciousClients();
 };
 
 

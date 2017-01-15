@@ -11,6 +11,7 @@
 #include "Message.h"
 #include "RawMessage.h"
 #include "../partial/StringBuilder.h"
+#include "../core/Application.h"
 
 
 class MessageValidator {
@@ -29,12 +30,9 @@ class MessageValidator {
 
 
     private:
-        static const char MSG_STX;
-        static const char MSG_ETX;
-        static const char MSG_DELIMITER;
-
         SafeQueue<Message *> *messageQueue;
         SafeQueue<RawMessage *> *rawMessageQueue;
+        Application *app;
         StringBuilder *log;
 
         void init();
@@ -50,7 +48,7 @@ class MessageValidator {
          * @param queue
          * @param readableMessages
          */
-        MessageValidator(SafeQueue<Message *> *queue, SafeQueue<RawMessage *> *readableMessages);
+        MessageValidator(SafeQueue<Message *> *queue, SafeQueue<RawMessage *> *readableMessages, Application *app);
 
         /**
          * Runs a MSGValidator in a separate thread.
@@ -59,6 +57,8 @@ class MessageValidator {
         std::thread run();
 
         bool checkHelloPacket(std::string msg, std::string *pureMessage);
+
+
 };
 
 #endif

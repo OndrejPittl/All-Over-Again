@@ -7,13 +7,15 @@
 #include "../partial/tools.h"
 #include "../partial/StringBuilder.h"
 #include "../core/Logger.h"
+#include "../core/Application.h"
 
 //const std::string MessageValidator::STX = "\u0002";
 
 
-MessageValidator::MessageValidator(SafeQueue<Message *> *queue, SafeQueue<RawMessage *> *rawMessageQueue) {
+MessageValidator::MessageValidator(SafeQueue<Message *> *queue, SafeQueue<RawMessage *> *rawMessageQueue, Application *app) {
     this->messageQueue = queue;
     this->rawMessageQueue = rawMessageQueue;
+    this->app = app;
     this->init();
 }
 
@@ -49,6 +51,7 @@ void MessageValidator::runValidation() {
 
             // checksum check
             if(!hello && !this->checkMessageChecksum(sMsg, &msgValidText)) {
+                this->app->registerSuspiciousBehaviour(sock);
                 continue;
             }
 
@@ -77,10 +80,11 @@ std::vector<std::string> MessageValidator::separateMessages(RawMessage msg){
     long stxPos = -1,
         etxPos = -1;
 
-
-    if(txt.find(Message::STX) == std::string::npos || txt.find(Message::ETX) == std::string::npos)
+    if(txt.find(Message::STX) == std::string::npos || txt.find(Message::ETX) == std::string::npos) {
+        int s = msg.getSock();
+        this->app->registerSuspiciousBehaviour(s);
         return messages;
-
+    }
 
     for(std::string::size_type i = 0; i < txt.size(); ++i) {
         int aChar = txt[i],
@@ -125,13 +129,12 @@ bool MessageValidator::checkMessageChecksum(std::string msg, std::string *pureMe
     std::string checkSumStr = msg.substr(0, delimPos),
                 message = msg.substr(delimPos + 1, msgLen - delimPos);
 
-    if(!isNumber(checkSumStr))
+    if(!isNumber(checkSumStr)) {
         return false;
+    }
 
     checkSum = stol(checkSumStr);
     (*pureMessage) = message;
 
     return checkSum == checksum(message, Message::MSG_CHECKSUM_MODULO);
 }
-
-

@@ -29,7 +29,7 @@ bool validateUsername(std::string username) {
 *	Checks whether a string given is a number or not.
 */
 bool isNumber(std::string str){
-	return validate(str, "^([0-9]*)$");
+	return str.length() > 0 && validate(str, "^([0-9]*)$");
 }
 
 /**
@@ -124,5 +124,16 @@ void printRooms(RoomMap m) {
 
         std::cout << "key: " << it->first << " - ID: " << r->getID() << ", diff: " << (int) r->getDifficulty()
                   << ", dim: " << (int) r->getBoardDimension() << ", type: " << (int) r->getGameType() << ", players: " << r->getPlayerCount() << std::endl;
+    }
+}
+
+bool checkIfExistsInPlayerVector(PlayerVector &vec, int uid) {
+    if(vec.size() <= 0)
+        return false;
+
+    int i = 0;
+    for (auto const& p : vec){
+        if(p->getID() == uid)
+            return true;
     }
 }

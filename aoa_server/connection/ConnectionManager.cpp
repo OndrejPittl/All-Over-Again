@@ -17,6 +17,8 @@ const uint ConnectionManager::DEFAULT_PORT = 23456;
 
 const int ConnectionManager::CLIENT_FD_OFFSET = 4;
 
+const int ConnectionManager::COMM_INVALID_MSG_LIMIT = 5;
+
 
 
 ConnectionManager::ConnectionManager(uint portNumber) {
@@ -99,10 +101,11 @@ void ConnectionManager::prepareClientSocketSet(){
 }
 
 void ConnectionManager::restoreSocketSets(){
+    FD_ZERO(&this->readSockSet);
     this->readSockSet = this->cliSockSet;
 }
 
-void ConnectionManager::waitForRequests(){
+int ConnectionManager::waitForRequests(){
     int result;
 
     // After every select() call is a set of descriptors overridden.
@@ -110,10 +113,11 @@ void ConnectionManager::waitForRequests(){
     //result = select(FD_SETSIZE, readSockSet, writeSockSet, (fd_set *)0, (struct timeval *)0 );
     result = select(FD_SETSIZE, &this->readSockSet, (fd_set *)0, (fd_set *)0, (struct timeval *)0 );
 
-    if (result < 0) {
-        exit(Logger::printErr(ERR_SELECT));
-    }
+//    if (result < 0) {
+//        exit(Logger::printErr(ERR_SELECT));
+//    }
 
+    return result;
 }
 
 int ConnectionManager::isSockReadable(int sock){
@@ -142,7 +146,12 @@ fd_set ConnectionManager::getReadSocketSet(){
 void ConnectionManager::deregisterClient(int sock){
     close(sock);
     FD_CLR(sock, &this->cliSockSet);
-    Logger::info("A client was disconnected and removed from the set.");
+
+    this->log->clear();
+    this->log->append("A client ");
+    this->log->append(sock);
+    this->log->append(" was disconnected and removed from the set.");
+    Logger::info(this->log->getString());
 }
 
 //void ConnectionManager::registerClient(int sock) {

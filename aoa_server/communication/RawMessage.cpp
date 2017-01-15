@@ -3,6 +3,7 @@
 #include <string>
 
 #include "RawMessage.h"
+#include "../core/Logger.h"
 
 RawMessage::RawMessage(int sock, size_t size, std::string msg) {
     this->sock = sock;
