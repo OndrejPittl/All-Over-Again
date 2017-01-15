@@ -292,7 +292,7 @@ void MessageProcessor::proceedRestartGame() {
 //    }
 
     this->proceedStartGame(r, r->isReplayReady());
-    if(r->isReplayReady()) this->proceedLeaveGame();
+    if(!r->isReplayReady()) this->proceedLeaveGame();
 }
 
 

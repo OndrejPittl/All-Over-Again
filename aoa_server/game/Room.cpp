@@ -237,6 +237,7 @@ void Room::changeStatus(GameStatus s) {
         case GameStatus::FINISHED: str.append("FINISHED"); break;
         case GameStatus::FINISHED_REPLAY: str.append("FINISHED_REPLAY"); break;
         case GameStatus::FINISHED_END: str.append("FINISHED_END"); break;
+        case GameStatus::ENDED: str.append("ENDED"); break;
     }
 
     Logger::info(str);
