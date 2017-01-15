@@ -28,6 +28,7 @@ public class Application {
 
 
 
+	private static GameStatus prevStatus;
 	private static GameStatus status;
 
 
@@ -318,8 +319,6 @@ public class Application {
             errs.add(e);
         }
 
-        this.clearErrors();
-
         return errs;
     }
 
@@ -396,9 +395,18 @@ public class Application {
 
     public static void changeStatus(GameStatus status){
         System.out.println("+++ APP STATUS: " + status);
+        Application.updatePrevStatus();
         Application.status = status;
     }
 
+    public static void updatePrevStatus(){
+        System.out.println("(previous status: " + Application.status + ")");
+        Application.prevStatus = Application.status;
+    }
+
+    public static GameStatus getPrevStatus(){
+        return Application.prevStatus;
+    }
 
 
 
@@ -460,8 +468,7 @@ public class Application {
     }
 
     public synchronized void handleGameResults(String msg) {
-        this.winnerID = this.comm.waitForResults(msg);
-        System.out.println();
+        this.winnerID = this.comm.handleGameReqults(msg);
     }
 
     public void requestRoomList() {

@@ -82,6 +82,8 @@ public class GUIController extends Observable implements Runnable {
                 case ROOM_JOINING:
                 case GAME_INITIALIZING:
 
+                    Application.awaitAtBarrier("GUIC releases CLI with waiting screen.");
+
                     this.gui.runWaiting();
 
 //                    Application.awaitAtClientBarrier("GUIControls releases after waiting screen init.");
@@ -92,9 +94,9 @@ public class GUIController extends Observable implements Runnable {
                     this.waitAtScreen(1000);
 
 
-//                    if (Application.getStatus() == GameStatus.GAME_INITIALIZING) {
-//                        continue;
-//                    }
+                    if (Application.getStatus() == GameStatus.ROOM_SELECTING) {
+                        continue;
+                    }
 
                     this.gui.runGamePlayground();
 
@@ -123,7 +125,7 @@ public class GUIController extends Observable implements Runnable {
                     //System.out.println("__________ GUIC check GAME FINISHED");
 //                        if (this.app.isGameFinished()) {
 
-                    if (Application.getStatus() == GameStatus.GAME_END) {
+                    if (Application.getStatus() == GameStatus.GAME_END || Application.getStatus() == GameStatus.GAME_RESULTS) {
                         //System.out.println("?????? GUIC REGISTERED: GAME FINISHED!!! LEAVING GAME-PROGRESS");
                         System.out.println("====== Game is over.");
                         break;
@@ -140,8 +142,6 @@ public class GUIController extends Observable implements Runnable {
 
                     //Application.awaitAtClientBarrier("GUIControl releases after turn ends.");
                     Application.awaitAtBarrier("GUIC releases CLI after turn ends.");
-
-                    //this.gui.
 
                     //Application.awaitAtBarrier("GUIC waits for CLI for turn data send.");
 

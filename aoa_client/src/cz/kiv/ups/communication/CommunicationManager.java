@@ -340,7 +340,7 @@ public class CommunicationManager {
         return this.parser.parseTurnInfo(msg, diff);
     }
 
-    public int waitForResults(String msg) {
+    public int handleGameReqults(String msg) {
         return this.parser.parseResults(msg);
     }
 

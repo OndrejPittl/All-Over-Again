@@ -4,14 +4,12 @@ import cz.kiv.ups.application.Application;
 import cz.kiv.ups.game.BoardDimension;
 import cz.kiv.ups.game.GameDifficulty;
 import cz.kiv.ups.game.GameType;
+import cz.kiv.ups.model.Error;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import cz.kiv.ups.model.GameStatus;
 import cz.kiv.ups.model.Room;
 import cz.kiv.ups.model.ViewRoom;
@@ -53,7 +51,11 @@ public class GameCenterController extends ScreenController {
 
     @FXML
     private TableColumn<ViewRoom, String> dimensionColumn;
-	
+
+    @FXML
+    private Label lbl_err_join;
+
+
 	
 
 
@@ -144,9 +146,6 @@ public class GameCenterController extends ScreenController {
 	    GameDifficulty diff = this.cb_difficulty.getSelectionModel().getSelectedItem();
 	    BoardDimension dim = this.cb_dimension.getSelectionModel().getSelectedItem();
 
-	    System.out.println("DIMENSIOOOOOOOOOOOON: " + dim.getTitle());
-	    System.out.println("DIMENSIOOOOOOOOOOOON: " + dim.getDimension());
-
         this.handleSelection(new Room(type, diff, dim));
     }
 
@@ -160,4 +159,12 @@ public class GameCenterController extends ScreenController {
         this.app.selectRoom(r);
         Platform.runLater(()->Application.awaitAtGuiBarrier("GUI releases. Room being selected. (11GRG)"));
     }
+
+    @Override
+    protected void registerErrorLabels(){
+        // The errors cannot come in at once.
+        this.registerErrorLabel(Error.GAME_REPLAY_REFUSED, this.lbl_err_join);
+        this.registerErrorLabel(Error.ROOM_JOIN_REFUSED, this.lbl_err_join);
+    }
+
 }
