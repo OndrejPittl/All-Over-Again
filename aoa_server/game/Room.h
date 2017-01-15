@@ -20,21 +20,24 @@ class Room {
         int activePlayerIndex;
         int turn;
         int winnerID;
-        bool ended;
         GameStatus status;
         GameType type;
-        bd::BoardDimension boardDimension;
+        BoardDimension boardDimension;
         GameDifficulty difficulty;
-        std::map<int, Player> players;
+        std::map<int, Player*> players;
         std::queue<int> progress;
         std::vector<int> playerOrder;
+
+        void init();
 
     public:
         Room();
 
-        Room(GameType type, GameDifficulty difficulty, bd::BoardDimension dimension);
+        Room(int id);
 
-        void init();
+        Room(GameType type, GameDifficulty difficulty, BoardDimension dimension);
+
+
 
         void restart();
 
@@ -48,9 +51,9 @@ class Room {
 
         int getPlayerCount();
 
-        bd::BoardDimension getBoardDimension();
+        BoardDimension getBoardDimension();
 
-        void setBoardDimension(bd::BoardDimension boardDimension);
+        void setBoardDimension(BoardDimension boardDimension);
 
         int getActivePlayerID();
 
@@ -60,11 +63,11 @@ class Room {
 
         void setDifficulty(GameDifficulty difficulty);
 
-        std::map<int, Player> &getPlayers();
+        PlayerMap &getPlayers();
 
         void registerPlayer(Player *p);
 
-        void deregisterPlayer(Player &p);
+        void deregisterPlayer(Player *p);
 
         bool isRoomFull();
 
@@ -116,7 +119,12 @@ class Room {
 
     int getTime() const;
 
+    PlayerMap copyPlayers();
 };
+
+
+typedef std::map<int, Room*> RoomMap;
+
 
 
 #endif

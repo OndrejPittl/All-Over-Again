@@ -17,7 +17,7 @@ void Game::init() {
 
 }
 
-bool Game::validateTurn(const std::queue<int> &progress, Room &room) {
+bool Game::validateTurn(const std::queue<int> &progress, Room *room) {
     int progCount, prevProgCount, expectedCount;
     bool correct;
     std::queue<int> previousProgress;
@@ -25,12 +25,12 @@ bool Game::validateTurn(const std::queue<int> &progress, Room &room) {
     correct = true;
 
 
-    previousProgress = room.getProgress();
+    previousProgress = room->getProgress();
 
     // new progress: progress count == prev progress count + difficult
     progCount = (int) progress.size();
     prevProgCount = (int) previousProgress.size();
-    expectedCount = prevProgCount + (int) room.getDifficulty() + 1;
+    expectedCount = prevProgCount + (int) room->getDifficulty() + 1;
 
     std::cout << "____ PROGRESS: old: " << prevProgCount << ", new: " << progCount << ", expected: " << expectedCount << std::endl;
 
@@ -39,7 +39,7 @@ bool Game::validateTurn(const std::queue<int> &progress, Room &room) {
     }
 
 
-    if(room.hasProgress()) {
+    if(room->hasProgress()) {
         // NOT first turn
         correct = this->compareProgress(previousProgress, progress);
     }
@@ -49,6 +49,12 @@ bool Game::validateTurn(const std::queue<int> &progress, Room &room) {
 
 
 
+/**
+ * COPIES of progress are being modified.
+ * @param oldProg
+ * @param newProg
+ * @return
+ */
 bool Game::compareProgress(std::queue<int> oldProg, std::queue<int> newProg) {
     while(!oldProg.empty()) {
         int prev, next;

@@ -10,9 +10,19 @@
 // headers
 
 
+
+
+
+
+
 bool validate(std::string str, std::string regexp) {
     std::regex regex(regexp);
     return regex_match(str, regex);
+
+}
+
+bool validateUsername(std::string username) {
+    return validate(username, VALIDATION_USERNAME_REGEX);
 }
 
 /**
@@ -79,27 +89,40 @@ void printVector(std::vector<std::string> vec) {
 
 }
 
-void printMap(std::map<int, Player> m) {
+void printPlayerVector(PlayerVector vec) {
+    std::cout << "Printing vector of players:" << std::endl;
+
+    if(vec.size() <= 0)
+        std::cout << "No player in a vector." << std::endl;
+
+    int i = 0;
+    for (auto const& v : vec){
+        std::cout << i++ << ". [" << v->getID() << "] " << v->getUsername() << (v->isOnline() ? "(online)" : "(offline)") << std::endl;
+    }
+
+}
+
+void printPlayers(PlayerMap m) {
     std::cout << "Printing a map:" << std::endl;
 
     if(m.size() <= 0)
         std::cout << "Map is empty." << std::endl;
 
     for(auto it = m.cbegin(); it != m.cend(); ++it) {
-        std::cout << "key: " << it->first << " - " << it->second.getUsername() << std::endl;
+        std::cout << "key: " << it->first << " - " << it->second->getUsername() << std::endl;
     }
 }
 
-void printRooms(std::map<int, Room> m) {
+void printRooms(RoomMap m) {
     std::cout << "Printing rooms:" << std::endl;
 
     if(m.size() <= 0)
         std::cout << "No room." << std::endl;
 
     for(auto it = m.cbegin(); it != m.cend(); ++it) {
-        Room r = it->second;
+        Room *r = it->second;
 
-        std::cout << "key: " << it->first << " - id: " << r.getID() << ", diff: " << (int) r.getDifficulty()
-                  << ", dim: " << (int) r.getBoardDimension() << ", type: " << (int) r.getGameType() << ", players: " << r.getPlayerCount() << std::endl;
+        std::cout << "key: " << it->first << " - ID: " << r->getID() << ", diff: " << (int) r->getDifficulty()
+                  << ", dim: " << (int) r->getBoardDimension() << ", type: " << (int) r->getGameType() << ", players: " << r->getPlayerCount() << std::endl;
     }
 }

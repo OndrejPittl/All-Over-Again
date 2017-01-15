@@ -2,15 +2,35 @@
 #define PLAYER_H
 
 #include <string>
+#include <map>
+#include <vector>
 
 
 class Player {
-
     private:
-        int id;
+
+        /**
+         * The same value as a sock connection index.
+         */
+        int ID;
+
+        /**
+         * ID of a room/session.
+         */
         int roomID;
+
+        /**
+         *  A flag whether or not is a user online.
+         */
         bool online;
+
+        /**
+         * Username of a user.
+         */
         std::string username;
+
+        int incorrectMsgCount;
+
 
         void init();
         void setStatus(bool online);
@@ -26,6 +46,7 @@ class Player {
         void setRoomID(int id);
         int getRoomID() const;
         bool hasRoom();
+        void leaveRoom();
 
         void setUsername(std::string username);
         std::string getUsername() const;
@@ -34,7 +55,14 @@ class Player {
         void setOffline();
         bool isOnline() const;
 
+        int getIncorrectMsgCount() const;
+        void registerIncorrectMsgCount(int incorrectMsgCount);
+        void clearIncorrectMsgCount();
 };
+
+typedef std::map<int, Player*> PlayerMap;
+
+typedef std::vector<Player*> PlayerVector;
 
 
 #endif

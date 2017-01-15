@@ -44,11 +44,9 @@ class MessageProcessor {
         void proceedFirstTurnData();
         void proceedTurnDataBase(bool ack);
         void proceedTurnData(Message *msg);
-        void proceedEndGame(Room &room);
-        void proceedLeaveGame(Message *msg);
+        void proceedEndGame(Room *room);
+        void proceedLeaveGame();
         void proceedSignOut(Message *msg);
-        void prepare(Player &player, Room *room);
-
 
 //        void (*processFunctions[7])() = {
 //                proceedSignIn(),
@@ -65,8 +63,8 @@ class MessageProcessor {
         std::thread run();
         void setApp(Application *app);
         void init();
-        void proceedStartGame(Room& r);
-        void answerRoomAndClean(const Room &r, void (MessageProcessor::*callback)());
+        void proceedStartGame(Room *r, bool ack);
+        void answerRoomAndClean(const Room *r, void (MessageProcessor::*callback)());
 
     void clearMsg();
 

@@ -9,7 +9,12 @@ Room::Room() {
     this->init();
 }
 
-Room::Room(GameType type, GameDifficulty difficulty, bd::BoardDimension dimension) {
+Room::Room(int id) {
+    this->init();
+    this->id = id;
+}
+
+Room::Room(GameType type, GameDifficulty difficulty, BoardDimension dimension) {
     this->init();
     this->type = type;
     this->difficulty = difficulty;
@@ -42,16 +47,16 @@ int Room::getPlayerCount() {
     return (int) this->players.size();
 }
 
-bd::BoardDimension Room::getBoardDimension() {
+BoardDimension Room::getBoardDimension() {
     return this->boardDimension;
 }
 
-void Room::setBoardDimension(bd::BoardDimension boardDimension) {
+void Room::setBoardDimension(BoardDimension boardDimension) {
     this->boardDimension = boardDimension;
 }
 
 int Room::getActivePlayerID() {
-    return this->players[this->playerOrder[this->activePlayerIndex]].getID();
+    return this->players[this->playerOrder[this->activePlayerIndex]]->getID();
 }
 
 void Room::updateActivePlayer() {
@@ -79,12 +84,16 @@ void Room::setDifficulty(GameDifficulty difficulty) {
     this->difficulty = difficulty;
 }
 
-std::map<int, Player> &Room::getPlayers() {
+PlayerMap &Room::getPlayers() {
+    return this->players;
+}
+
+PlayerMap Room::copyPlayers() {
     return this->players;
 }
 
 void Room::registerPlayer(Player *p) {
-    this->players[p->getID()] = *p;
+    this->players[p->getID()] = p;
     this->playerOrder.push_back(p->getID());
 
     if(this->isRoomFull()) {
@@ -114,7 +123,7 @@ void Room::setGameType(GameType type) {
  * @return
  */
 bool Room::isRoomFull() {
-    return this->getPlayerCount() == (int) this->getGameType();
+    return this->getPlayerCount() >= (int) this->getGameType();
 }
 
 /**
@@ -138,7 +147,7 @@ std::queue<int> Room::getPlayerSockets() const {
     std::queue<int> q;
 
     for(auto it = this->players.cbegin(); it != this->players.cend(); ++it) {
-        q.push(it->second.getID());
+        q.push(it->second->getID());
     }
 
     return q;
@@ -172,16 +181,16 @@ int Room::getTurn() const {
     return this->turn;
 }
 
-void Room::deregisterPlayer(Player &p) {
-    this->players.erase(p.getID());
-    this->changeStatus(GameStatus::CONNECTING);
+void Room::deregisterPlayer(Player *p) {
+    this->players.erase(p->getID());
+    //this->changeStatus(GameStatus::CONNECTING);
 }
 
 int Room::countOnlinePlayers() const {
     int onlinePlayers = 0;
 
     for(auto it = this->players.cbegin(); it != this->players.cend(); ++it) {
-        if(it->second.isOnline())
+        if(it->second->isOnline())
             onlinePlayers++;
     }
 
@@ -198,7 +207,7 @@ int Room::getWinnerID() {
 
 void Room::finishGame() {
     int index = (this->turn + 1) % this->getPlayerCount();
-    this->winnerID = this->players[this->playerOrder[index]].getID();
+    this->winnerID = this->players[this->playerOrder[index]]->getID();
     this->changeStatus(GameStatus::FINISHED);
 }
 
@@ -238,6 +247,8 @@ bool Room::isReady() {
 }
 
 bool Room::checkReadyToContinue(bool replay) {
+    if(this->status == GameStatus::ENDED)
+        return false;
 
     if(this->type == GameType::SINGLEPLAYER) {
 
@@ -250,6 +261,7 @@ bool Room::checkReadyToContinue(bool replay) {
         return replay;
     }
 
+    // multiplayer:
     if(this->status == GameStatus::FINISHED) {
 
         if(replay) {
@@ -263,6 +275,7 @@ bool Room::checkReadyToContinue(bool replay) {
     }
 
     // both checked
+    this->changeStatus(GameStatus::ENDED);
     return true;
 }
 

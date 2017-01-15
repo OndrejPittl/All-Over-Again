@@ -19,7 +19,8 @@ class MessageParser {
     public:
         MessageParser();
         void init();
-        Room *parseNewRoomRequest(Message *msg);
+
+        void parseNewRoomRequest(Message *msg, Room *room);
 
         std::queue<std::string> split(std::string message);
 

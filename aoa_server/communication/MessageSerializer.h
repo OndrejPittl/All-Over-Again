@@ -14,13 +14,13 @@ class MessageSerializer {
     private:
         StringBuilder *sb;
         StringBuilder *log;
-        void serializeRoomAndJoin(Room& r);
+        void serializeRoomAndJoin(Room *r);
 
     public:
         MessageSerializer();
         void init();
-        std::string serializeRooms(std::map<int, Room>& rooms);
-        std::string serializeRoom(Room& r);
+        std::string serializeRooms(RoomMap &rooms);
+        std::string serializeRoom(Room *r);
 
 };
 

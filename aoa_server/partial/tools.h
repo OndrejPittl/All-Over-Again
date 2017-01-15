@@ -14,7 +14,13 @@ enum CommandType {
 };
 
 
+const std::string VALIDATION_USERNAME_REGEX = "^[a-zA-Z0-9-_<>]{3,15}$";
+
+
+
 bool validate(std::string str, std::string regexp);
+
+bool validateUsername(std::string username);
 
 /**
 *	Checks whether a string given is a number or not.
@@ -42,9 +48,11 @@ long checksum(std::string str, int modulo = -1);
 
 void printVector(std::vector<std::string> vec);
 
-void printMap(std::map<int, Player> m);
+void printPlayerVector(PlayerVector vec);
 
-void printRooms(std::map<int, Room> m);
+void  printPlayers(PlayerMap m);
+
+void printRooms(RoomMap m);
 
 
 #endif

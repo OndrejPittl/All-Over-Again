@@ -2,16 +2,14 @@
 #define BOARD_DIMENSION_H
 
 
-namespace bd {
-    enum BoardDimension {
-        TINY = 1,
-        SMALL,
-        NORMAL,
-        LARGE,
-        HUGEUE = 5
-    };
-}
+enum class BoardDimension {
+    BOARD_TINE = 1,
+    BOARD_SMALL,
+    BOARD_NORMAL,
+    BOARD_LARGE,
+    BOARD_HUGE
+};
 
-bd::BoardDimension convertInternalBoardDimension(int index);
+BoardDimension convertInternalBoardDimension(int index);
 
 #endif

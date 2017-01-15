@@ -16,4 +16,4 @@ build: srv.cpp
 	@ echo 'Building.....DONE!';
 
 run:
-	./$(SRV) 23456
+	./$(SRV) -p 23456

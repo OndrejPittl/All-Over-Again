@@ -8,12 +8,12 @@
 Player::Player() {}
 
 Player::Player(int id) {
-    this->id = id;
+    this->ID = id;
     this->init();
 }
 
 Player::Player(int id, std::string username) {
-    this->id = id;
+    this->ID = id;
     this->username = username;
     this->init();
 }
@@ -21,21 +21,19 @@ Player::Player(int id, std::string username) {
 void Player::init() {
     this->setRoomID(-1);
     this->setOnline();
+    this->clearIncorrectMsgCount();
 }
 
 void Player::setID(int id) {
-    this->id = id;
+    this->ID = id;
 }
 
 int Player::getID() const {
-    return this->id;
+    return this->ID;
 }
-
 void Player::setRoomID(int id) {
     this->roomID = id;
 }
-
-
 
 int Player::getRoomID() const {
     return this->roomID;
@@ -49,9 +47,12 @@ std::string Player::getUsername() const {
     return this->username;
 }
 
-
 bool Player::hasRoom() {
     return this->roomID != -1;
+}
+
+void Player::leaveRoom() {
+    this->roomID = -1;
 }
 
 void Player::setStatus(bool online) {
@@ -70,5 +71,15 @@ bool Player::isOnline() const {
     return this->online;
 }
 
+int Player::getIncorrectMsgCount() const {
+    return incorrectMsgCount;
+}
 
+void Player::registerIncorrectMsgCount(int incorrectMsgCount) {
+    Player::incorrectMsgCount++;
+}
+
+void Player::clearIncorrectMsgCount() {
+    this->incorrectMsgCount = 0;
+}
 

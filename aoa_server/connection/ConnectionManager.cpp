@@ -5,6 +5,7 @@
 #include <zconf.h>
 #include <stdio.h>
 #include <cstring>
+#include <netinet/tcp.h>
 
 // headers
 #include "../core/Logger.h"
@@ -12,12 +13,14 @@
 #include "../partial/StringBuilder.h"
 
 
+const uint ConnectionManager::DEFAULT_PORT = 23456;
+
 const int ConnectionManager::CLIENT_FD_OFFSET = 4;
 
 
 
-ConnectionManager::ConnectionManager(char *portNumber) {
-    this->portNum = atoi(portNumber);
+ConnectionManager::ConnectionManager(uint portNumber) {
+    this->portNum = portNumber;
     this->init();
 }
 
@@ -41,16 +44,17 @@ void ConnectionManager::init(){
 
 void ConnectionManager::prepare(){
 
+    int optval = 1; // == enabled
+
 	// socket receiving connections, IPv4 & TCP
 	this->srvSocket = socket(AF_INET, SOCK_STREAM, 0);
 
+    if (setsockopt(this->srvSocket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) < 0) {
+        exit(Logger::printErr(ERR_SETSOCKOPT));
+    }
+
 	// binding a socket with a port, using global namespace
 	this->result = ::bind(this->srvSocket, (struct sockaddr *) &this->srvAddr, sizeof(struct sockaddr_in));
-
-    this->log->clear();
-    this->log->append("bind result: ");
-    this->log->append(this->result);
-    Logger::info(this->log->getString(), false);
 
 	if (this->result != 0) {
 		exit(Logger::printErr(ERR_BIND));
@@ -64,10 +68,10 @@ void ConnectionManager::prepare(){
 	}
 
     this->log->clear();
-    this->log->append("Server is listening on port ");
+    this->log->append("-----------------------------------\n");
+    this->log->append("                     Server is listening on port ");
     this->log->append(getPortNumber());
-    this->log->append(".\n");
-    this->log->append("------------------------------");
+    this->log->append(".\n                     -----------------------------------");
     Logger::info(this->log->getString());
 
     // clearMsg a set of sockets
@@ -77,7 +81,7 @@ void ConnectionManager::prepare(){
     FD_SET(this->srvSocket, &this->cliSockSet);
 }
 
-int ConnectionManager::getPortNumber(){
+uint ConnectionManager::getPortNumber(){
 	return this->portNum;
 }
 
@@ -96,7 +100,6 @@ void ConnectionManager::prepareClientSocketSet(){
 
 void ConnectionManager::restoreSocketSets(){
     this->readSockSet = this->cliSockSet;
-    this->writeSockSet = this->cliSockSet;
 }
 
 void ConnectionManager::waitForRequests(){
@@ -117,10 +120,6 @@ int ConnectionManager::isSockReadable(int sock){
     return FD_ISSET(sock, &this->readSockSet);
 }
 
-int ConnectionManager::isSockWritable(int sock){
-    return FD_ISSET(sock, &this->writeSockSet);
-}
-
 fd_set ConnectionManager::getClientSocketSet(){
     return this->cliSockSet;
 }
@@ -129,35 +128,16 @@ fd_set ConnectionManager::getReadSocketSet(){
     return this->readSockSet;
 }
 
-fd_set ConnectionManager::getWriteSocketSet(){
-    return this->writeSockSet;
-}
 
-
-void ConnectionManager::registerNewClient(){
-	/**
-	*	IP adresa & port of a new client.
-	*/
-	struct sockaddr_in cliAddr;
-
-	/**
-    *	Length of client address.
-    */
-	int cliAddrLen;
-
-	/**
-	 * A new client socket.
-	 */
-	int cliSock = accept(this->srvSocket, (struct sockaddr *) &cliAddr, (socklen_t *) &cliAddrLen);
-
-    this->registerClient(cliSock);
-
-    this->log->clear();
-    this->log->append("New client connected to socket: ");
-    this->log->append(cliSock);
-    this->log->append(".");
-    Logger::info(this->log->getString());
-}
+//void ConnectionManager::registerNewClient(int cliSock){
+//    FD_SET(cliSock, &this->cliSockSet);
+//
+//    this->log->clear();
+//    this->log->append("New client connected to socket: ");
+//    this->log->append(cliSock);
+//    this->log->append(".");
+//    Logger::info(this->log->getString());
+//}
 
 void ConnectionManager::deregisterClient(int sock){
     close(sock);
@@ -165,8 +145,76 @@ void ConnectionManager::deregisterClient(int sock){
     Logger::info("A client was disconnected and removed from the set.");
 }
 
-void ConnectionManager::registerClient(int sock) {
-    FD_SET(sock, &this->cliSockSet);
+//void ConnectionManager::registerClient(int sock) {
+//    FD_SET(sock, &this->cliSockSet);
+//}
+
+int ConnectionManager::acceptConnection() {
+
+    /**
+	*	IP adresa & port of a new client.
+	*/
+    struct sockaddr_in cliAddr;
+
+    /**
+    *	Length of client address.
+    */
+    int cliAddrLen;
+
+    /**
+     * A new client socket.
+     */
+    int cliSock = accept(this->srvSocket, (struct sockaddr *) &cliAddr, (socklen_t *) &cliAddrLen);
+
+
+    int optVal = 1,
+        optLen = sizeof(optVal);
+
+
+    if(setsockopt(cliSock, SOL_SOCKET, SO_KEEPALIVE, &optVal, optLen) < 0) {
+        close(cliSock);
+        exit(Logger::printErr(ERR_SETSOCKOPT));
+    }
+
+
+    // TCP KEEP ALIVE: probes
+    optVal = 2;
+
+    if(setsockopt(cliSock, IPPROTO_TCP, TCP_KEEPCNT, &optVal, optLen) < 0) {
+        close(cliSock);
+        exit(Logger::printErr(ERR_SETSOCKOPT));
+    }
+
+
+    // TCP KEEP ALIVE: time
+//    optVal = 3;
+//
+//    if(setsockopt(cliSock, IPPROTO_TCP, TCP_KEEPIDLE, &optVal, optLen) < 0) {
+//        close(cliSock);
+//        exit(Logger::printErr(ERR_SETSOCKOPT));
+//    }
+
+
+
+    // TCP KEEP ALIVE: intvl
+    optVal = 2;
+
+    if(setsockopt(cliSock, IPPROTO_TCP, TCP_KEEPINTVL, &optVal, optLen) < 0) {
+        close(cliSock);
+        exit(Logger::printErr(ERR_SETSOCKOPT));
+    }
+
+
+    FD_SET(cliSock, &this->cliSockSet);
+
+    this->log->clear();
+    this->log->append("New client connected to socket: ");
+    this->log->append(cliSock);
+    this->log->append(".");
+    Logger::info(this->log->getString());
+
+
+    return cliSock;
 }
 
 

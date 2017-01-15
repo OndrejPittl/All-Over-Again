@@ -11,11 +11,18 @@
 class Developer {
 
     public:
-        static void printOnlineOfflineUser(std::map<int, Player> online, std::map<int, Player> offline){
+//        static void printOnlineOfflineUser(std::map<int, Player> online, std::map<int, Player> offline){
+//            std::cout << "PRINTING ONLINE: " << std::endl;
+//            printPlayers(online);
+//            std::cout << "PRINTING OFFLINE: " << std::endl;
+//            printPlayers(offline);
+//        }
+
+        static void printOnlineOfflineUsers(PlayerMap online, PlayerVector offline){
             std::cout << "PRINTING ONLINE: " << std::endl;
-            printMap(online);
+            printPlayers(online);
             std::cout << "PRINTING OFFLINE: " << std::endl;
-            printMap(offline);
+            printPlayerVector(offline);
         }
 
 };

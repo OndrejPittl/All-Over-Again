@@ -29,13 +29,13 @@ void MessageParser::init() {
  * @param msg
  * @return
  */
-Room *MessageParser::parseNewRoomRequest(Message *msg) {
+void MessageParser::parseNewRoomRequest(Message *msg, Room *room) {
     std::string part, typeStr, diffStr, dimStr;
     std::queue<std::string> parts;
 
     GameType type;
     GameDifficulty diff;
-    bd::BoardDimension  dim;
+    BoardDimension  dim;
 
     parts = this->split(msg->getMessage());
     typeStr = parts.front(); parts.pop();
@@ -46,7 +46,9 @@ Room *MessageParser::parseNewRoomRequest(Message *msg) {
     diff = convertInternalGameDifficulty(std::stoi(diffStr));
     dim = convertInternalBoardDimension(std::stoi(dimStr));
 
-    return new Room(type, diff, dim);
+    room->setGameType(type);
+    room->setDifficulty(diff);
+    room->setBoardDimension(dim);
 }
 
 std::queue<std::string> MessageParser::split(std::string message) {

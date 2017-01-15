@@ -42,7 +42,10 @@ enum class GameStatus {
     /**
      * Game is over, wanna end.
      */
-    FINISHED_END
+    FINISHED_END,
+
+
+    ENDED
 };
 
 

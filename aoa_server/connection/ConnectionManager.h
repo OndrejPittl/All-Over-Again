@@ -17,7 +17,7 @@ class ConnectionManager {
 		/**
 		*	Port number that is being used.
 		*/
-		int portNum;
+		uint portNum;
 
 		/**
 		*	Return values of partial operations.
@@ -43,11 +43,6 @@ class ConnectionManager {
         /**
         *	"Working" copy of a set of sockets. Collection that is being modified by select();
         */
-        fd_set writeSockSet;
-
-        /**
-        *	"Working" copy of a set of sockets. Collection that is being modified by select();
-        */
         fd_set readSockSet;
 
 
@@ -57,7 +52,9 @@ class ConnectionManager {
 		void init();
 
 	public:
-		
+
+		static const uint DEFAULT_PORT;
+
 		/**
 		*	Offset where tracked sockets begin.
 		*	Stdin, stdout & stderr excluded.
@@ -67,7 +64,7 @@ class ConnectionManager {
 		/**
 		*	Constructor.
 		*/
-        ConnectionManager(char *portNumber);
+        ConnectionManager(uint portNumber);
 
 
 		void prepare();
@@ -75,7 +72,7 @@ class ConnectionManager {
 		/**
 		*	Port number getter.
 		*/
-		int getPortNumber();
+		uint getPortNumber();
 
 		/**
 		*	Server socket getter.
@@ -94,19 +91,21 @@ class ConnectionManager {
 
         int isSockReadable(int sock);
 
-        int isSockWritable(int sock);
+//        int isSockWritable(int sock);
 
         fd_set getClientSocketSet();
 
         fd_set getReadSocketSet();
 
-        fd_set getWriteSocketSet();
+//        fd_set getWriteSocketSet();
 
-        void registerNewClient();
+//        void registerNewClient(int cliSock);
 
         void deregisterClient(int sock);
 
-	void registerClient(int sock);
+	//void registerClient(int sock);
+
+    int acceptConnection();
 };
 
 

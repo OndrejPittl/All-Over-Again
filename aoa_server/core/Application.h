@@ -10,6 +10,7 @@
 #include "../game/Player.h"
 #include "../game/Room.h"
 #include "../partial/StringBuilder.h"
+#include "../partial/Indexer.h"
 #include "../game/Game.h"
 
 
@@ -34,24 +35,29 @@ class Application {
         /**
          * Users connected to a server and are interacting with an app.
          */
-        //std::map <int, Player*> onlineUsers;
-        std::map<int, Player> onlineUsers;
+        //std::vector <Player> onlinePlayers;
+        //std::map<int, Player> onlinePlayers;
+        PlayerMap onlinePlayers;
 
         /**
          *  Users previously connected to a server however without a response, BUT not signed out!
          */
-        // std::vector<Player>
-        std::map<int, Player> offlineUsers;
+        //std::map<int, Player> offlineUsers;
+        //std::vector<Player> offlinePlayers;
+        PlayerVector offlinePlayers;
 
         /**
          * Existing rooms.
          */
-        std::map<int, Room> rooms;
+        //std::map<int, Room*> rooms;
+        RoomMap rooms;
+
+        Indexer *roomIndexer;
 
 
-        int roomIndex;
 
-        std::queue<int> freedRoomIndexeQueue;
+//        int roomIndex;
+//        std::queue<int> freedRoomIndexeQueue;
 
 
 
@@ -64,66 +70,66 @@ class Application {
 
         bool checkUsernameAvailability(std::string username);
 
-        void deregisterUserFrom(Player& p, std::map<int, Player>& users);
+        //void deregisterUserFrom(Player& p, std::vector<Player>& users);
 
 
     public:
-
-        static const std::string USERNAME_VALIDATION_REGEX;
 
         Application();
 
         Application(ConnectionManager *conn, CommunicationManager *comm);
 
-        bool validateUsername(std::string basic_string);
+        void registerUser(int uid);
 
-        bool registerUser(int uid, std::string username);
+        bool signInUser(int uid, std::string username);
 
-        void deregisterOnlineUser(int uid);
+        void signOutUser(int uid);
 
-        //void setDependencies(ConnectionManager *conn, CommunicationManager *comm);
+        RoomMap &getRooms();
 
-        std::map<int, Room> getRooms();
+        Room *createNewRoom();
 
-        int createNewRoom(Room *room);
-
-        int getFreeRoomIndex();
+        void assignPlayer(Player *player, Room *room);
 
         void assignPlayer(int uid, int roomID);
 
-        Room& getRoom(int rid);
+        Room *getRoom(int rid);
 
-        void setRoom(Room& r);
-
-        //void startGameIfReady(int rid);
+        int registerRoom(Room *r);
 
         bool joinRoom(int uid, int rid);
 
-        Player getPlayer(int uid);
+        bool startGameIfReady(Room *room);
 
-    bool startGameIfReady(int rid);
+        void checkRoomCancel(int rid);
 
-    void checkRoomCancel(int rid);
+        void removeUser(Player *player);
 
-    void deregisterUserCompletely(Player &player);
+        bool proceedTurn(int rid, const std::queue<int> &progress);
 
-    bool proceedTurn(int rid, const std::queue<int> &progress);
+        void cancelRoom(int rid);
 
-    void cancelRoom(int rid);
+        void removePlayer(int uid);
 
-    void removePlayer(int uid);
+        Player *getPlayer(int uid);
 
-    Player& getOnlinePlayer(int uid);
+        Player *getOfflinePlayer(int uid);
 
-    Player& getOfflinePlayer(int uid);
+        void storePlayer(Player *p);
 
-    void setOnlinePlayer(Player &p);
+        int storeOfflinePlayer(Player *p);
 
-    void setOfflinePlayer(Player &p);
+        void leaveRoom(Player *player);
 
-    void deregisterUserFromRoom(Player &player);
+        void deregisterUser(int uid);
 
-    void deregisterUser(int uid);
+        void fillMockRooms();
+
+        void cancelRoom(Room *room);
+
+        void cancelRoomKick(Room *room);
+
+        void disbandRoom(Room *room);
 };
 
 

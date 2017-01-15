@@ -49,7 +49,6 @@ void CommunicationManager::startMessageSender(){
 }
 
 void CommunicationManager::receiveMessage(int sock, int byteCount) {
-
     std::string strMsg = this->recvMsg(sock, byteCount);
 
     if(strMsg.length() <= 0)
@@ -82,12 +81,11 @@ std::string CommunicationManager::recvMsg(int sock, int byteCount) {
         return std::string();
 
     this->log->clear();
-    this->log->append("\n");
     this->log->append("<<<<<<< ");
     this->log->append(msgLen);
-    this->log->append(" bytes received from: ");
+    this->log->append(" B received from: ");
     this->log->append(sock);
-    this->log->append(" in a message: ");
+    this->log->append(" in a message:\n                     > ");
     this->log->append(buffer);
 
     Logger::info(this->log->getString());

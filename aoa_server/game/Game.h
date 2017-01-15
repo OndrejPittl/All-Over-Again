@@ -15,7 +15,7 @@ class Game {
         static const int MOVE_TIME;
         static const int FIRST_TURN_RESERVE;
         Game();
-        bool validateTurn(const std::queue<int> &progress, Room &room);
+        bool validateTurn(const std::queue<int> &progress, Room *room);
 
 };
 

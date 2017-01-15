@@ -19,7 +19,8 @@ enum ErrCode {
     ERR_LISTEN,
     ERR_SELECT,
     ERR_ACCEPT,
-    ERR_MSG_RECEIVE,
+    ERR_SETSOCKOPT,
+	ERR_MSG_RECEIVE,
 };
 
 enum class LoggerSeverity {
@@ -98,6 +99,9 @@ class Logger {
 		static int printErr(ErrCode ec);
 
 
+		static void print(std::string str);
+
+		static void disableLogging(bool disabled);
 };
 
 #endif

@@ -24,8 +24,7 @@ void MessageSender::runSending(){
         Message *msg = this->messageQueue->pop();
 
         this->log->clear();
-        this->log->append("\n");
-        this->log->append(">>>>>>> sending a message: ");
+        this->log->append(">>>>>>> sending a message:\n                     > ");
         this->log->append(msg->getMessage());
         Logger::info(this->log->getString());
 

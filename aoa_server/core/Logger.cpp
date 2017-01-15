@@ -30,6 +30,7 @@ const std::string Logger::ERROR_TABLE[] = {
 	"Listen error at listen().",
 	"Select error at select().",
 	"Accept error at accept().",
+    "Set Socket Option Error.",
 	"Message receive error."
 };
 
@@ -141,4 +142,12 @@ void Logger::logConsole() {
 
 void Logger::logConsoleErr() {
     std::cerr << Logger::sb->getString();
+}
+
+void Logger::print(std::string str) {
+    println(str);
+}
+
+void Logger::disableLogging(bool disabled) {
+    Logger::logging = disabled;
 }
