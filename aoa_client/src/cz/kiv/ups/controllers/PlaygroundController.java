@@ -12,8 +12,11 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.util.Duration;
 import cz.kiv.ups.model.FXMLSource;
@@ -75,8 +78,7 @@ public class PlaygroundController extends ScreenController {
     private BoardFieldController[] fieldControllers;
 
     private ArrayList<GameMove> moves;
-
-
+    private boolean waitAskResult = false;
 
 
     public void prepare(){
@@ -108,7 +110,8 @@ public class PlaygroundController extends ScreenController {
                 this.timerValue--;
                 this.lbl_timer.setText(String.valueOf(this.timerValue));
 
-                if(this.timerValue == 0 || this.isNewTurn()) {
+                //if(this.timerValue == 0 || this.isNewTurn()) {
+                if(this.timerValue == 0) {
                     this.endTurn();
                 }
             })
@@ -135,6 +138,13 @@ public class PlaygroundController extends ScreenController {
             controller.setData(p);
 
             item = (BorderPane) src.getRoot();
+
+            Label you = (Label) item.lookup("#lbl_you");
+            if(you != null) you.setVisible(this.room.getCurrentPlayerID() == p.getID());
+
+            ImageView icon = (ImageView) item.lookup("#iv_activePlayerIcon");
+            if(icon != null) icon.setVisible(p.isActive());
+
             vb_playerWrapper.getChildren().add(item);
         }
     }
@@ -291,5 +301,19 @@ public class PlaygroundController extends ScreenController {
         );
 
         timeline.play();
+    }
+
+    public void updatePlayerList() {
+        this.initPlayerList();
+    }
+
+    public void askPlayerWait() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, ViewConfig.MSG_ASK_OPPONENT_LEFT , ButtonType.YES, ButtonType.NO);
+        alert.showAndWait();
+        this.app.setWaitingAskResult(alert.getResult() == ButtonType.YES);
+    }
+
+    public boolean isWaitingForPlayer() {
+        return waitAskResult;
     }
 }

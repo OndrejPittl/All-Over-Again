@@ -20,6 +20,8 @@ public class ViewConfig {
 
 	public static final String MSG_GAME_END = "Game ends.";
 
+	public static final String MSG_ASK_OPPONENT_LEFT = "Your opponent has gone offline. Would you like to wait?";
+
 	public static final int TIMER_TURN_INTRO_MOVE_DURATION = 1000;
 
 

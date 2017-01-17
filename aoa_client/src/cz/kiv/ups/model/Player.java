@@ -5,12 +5,23 @@ public class Player {
 	private int ID = -1;
 	
 	private String name;
-	
-	//private String IP;
-	
+
 	private boolean isActive;
-	
-	
+
+	private boolean isOnline;
+
+	private int roomID = -1;
+
+
+
+	// playerlist
+	public Player(int id, String username, boolean online, boolean active) {
+		this.ID = id;
+		this.name = username;
+		this.isOnline = online;
+		this.isActive = active;
+	}
+
 	public Player(String name) {
 		this.name = name;
 	}
@@ -61,18 +72,32 @@ public class Player {
 	}
 
 	/**
-	 * @return the isActive
+	 * @return the isOnline
 	 */
-	public boolean isActive() {
-		return isActive;
+	public boolean isOnline() {
+		return isOnline;
 	}
 
 	/**
-	 * @param isActive the isActive to set
+	 * @param online the isOnline to set
 	 */
-	public void setActive(boolean isActive) {
-		this.isActive = isActive;
+	public void setOnline(boolean online) {
+		this.isOnline= online;
 	}
+
+    /**
+     *
+     */
+    public boolean isActive() {
+        return this.isActive;
+    }
+
+    /**
+     *
+     */
+    public void setActive(boolean active) {
+        this.isActive = active;
+    }
 
 	public static Player[] parsePlayers(String sequence, String delimiter){
 		String[] parts = sequence.split(delimiter);
@@ -85,7 +110,19 @@ public class Player {
 		return players;
 	}
 
-	public String toString(){
+    public boolean hasRoom() {
+        return this.roomID != -1;
+    }
+
+    public int getRoomID() {
+        return this.roomID;
+    }
+
+    public void setRoomID(int roomID) {
+        this.roomID = roomID;
+    }
+
+    public String toString(){
 		return "user(" + this.ID + " | " + this.name + ")";
 	}
 }

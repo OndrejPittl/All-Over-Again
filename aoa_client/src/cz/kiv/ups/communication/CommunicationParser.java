@@ -85,9 +85,13 @@ public class CommunicationParser {
 
         if(!this.checkACK(parts))
             return null;
-		
-		int id = Integer.parseInt(parts[2]);
-		player.setID(id);
+
+        int id = Integer.parseInt(parts[2]);
+        player.setID(id);
+
+        boolean reJoined = Integer.parseInt(parts[3]) == 1;
+		if(reJoined) player.setRoomID(0);
+
 		return player;
 	}
 
@@ -250,6 +254,28 @@ public class CommunicationParser {
         return Integer.parseInt(parts[1]);
     }
 
+    public Player[] parsePlayerList(String response) {
+        Player[] players;
+        int attrCount, playerCount, index, offset = 1;
+
+        index = 0;
+        attrCount = 4;
+        String[] parts = response.split(CommunicationConfig.MSG_DELIMITER);
+        playerCount = (parts.length - offset)/attrCount;
+        players = new Player[playerCount];
+
+        for (int i = offset; i < parts.length; i++) {
+            int uid = Integer.parseInt(parts[i]);
+            String username = parts[++i];
+            boolean online = Integer.parseInt(parts[++i]) == 1;
+            boolean active = Integer.parseInt(parts[++i]) == 1;
+            players[index++] = new Player(uid, username, online, active);
+        }
+
+
+        return players;
+    }
+
 
 //	private static int parseToInt(String str){
 //		return Integer.parseInt(str);
@@ -298,8 +324,8 @@ public class CommunicationParser {
 			String nick = parts[i * params + offset + 1];
 			String IP =  parts[i * params + offset + 2];
 			int isOnline = Integer.parseInt(parts[i * params + offset + 3]);
-			int isActive = Integer.parseInt(parts[i * params + offset + 4]);
-			players.add(new Player(ID, nick, IP, isOnline == 1, isActive == 1));
+			int isOnline = Integer.parseInt(parts[i * params + offset + 4]);
+			players.add(new Player(ID, nick, IP, isOnline == 1, isOnline == 1));
 		}
 		
 		return players;
@@ -332,8 +358,8 @@ public class CommunicationParser {
 		//	String nick = playerParts[i * params + 1];
 		//	String IP =  playerParts[i * params + 2];
 		//	int isOnline = Integer.parseInt(playerParts[i * params + 3]);
-		//	int isActive = Integer.parseInt(playerParts[i * params + 4]);
-		//	result.add(new PlayerClient(ID, nick, IP, isOnline == 1, isActive == 1));
+		//	int isOnline = Integer.parseInt(playerParts[i * params + 4]);
+		//	result.add(new PlayerClient(ID, nick, IP, isOnline == 1, isOnline == 1));
 		//}
 		
 	}*/

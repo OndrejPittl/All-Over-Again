@@ -29,7 +29,7 @@ public class PlayerController extends ScreenController {
 
     public void setData(Player p){
         this.iv_activePlayerIcon.setVisible(tmpActive);
-        // this.iv_activePlayerIcon.setVisible(p.isActive());
+        // this.iv_activePlayerIcon.setVisible(p.isOnline());
 
         this.lbl_name.setText(p.getName());
         this.lbl_status.setText(ViewConfig.MSG_STATUS_ONLINE);

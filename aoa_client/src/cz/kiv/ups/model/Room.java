@@ -20,7 +20,11 @@ public class Room {
 	private BoardDimension boardDimension;
 
 	private Player[] players;
-	
+
+	private  Player currentPlayer;
+
+	private  Player opponent;
+
 	private int activePlayerID;
 	
 
@@ -146,4 +150,62 @@ public class Room {
         this.turn = turn;
     }
 
+//	public Player getOpponent(){
+//		Player opponent = null;
+//
+//		for (Player p : this.players) {
+//			if(p.getID() != this.currentPlayer.getID())
+//				opponent = p;
+//		}
+//
+//		return opponent;
+//	}
+
+//	public void updateOpponent(Player opponent){
+//		for (int i = 0; i < this.players.length; i++) {
+//			if(this.players[i].getID() == opponent.getID()){
+//				this.players[i].setOnline(opponent.isOnline());
+//				break;
+//			}
+//		}
+//	}
+
+	public void updatePlayers(Player[] players) {
+        Player opponent = null;
+
+		for (Player p : players) {
+			if(p.getID() != this.currentPlayer.getID())
+				opponent = p;
+		}
+
+		if(opponent == null)
+		    return;
+
+		this.players = players;
+
+		// determine: player has gone offline
+        this.opponent.setOnline(opponent.isOnline());
+
+        // determine: player has left a room
+        this.setPlayerCount(players.length);
+
+	}
+
+	public boolean isOpponentOnline(){
+	    return this.getType() == GameType.SINGLEPLAYER || this.opponent.isOnline();
+	    //return this.opponent.isOnline();
+    }
+
+    public void setCurrentPlayer(Player currentPlayer) {
+        this.currentPlayer = currentPlayer;
+
+        for (Player p : this.players) {
+            if(p.getID() != this.currentPlayer.getID())
+                this.opponent = p;
+        }
+    }
+
+    public int getCurrentPlayerID() {
+        return this.currentPlayer.getID();
+    }
 }

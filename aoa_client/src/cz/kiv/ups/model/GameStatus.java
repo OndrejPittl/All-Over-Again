@@ -16,7 +16,7 @@ public enum GameStatus {
     /**
      *  Players getting connected.
      */
-    SIGNING_IN(new MessageType[]{ MessageType.SIGN_IN }),
+    SIGNING_IN(new MessageType[]{ MessageType.SIGN_IN, MessageType.GAME_JOIN }),
 
     /**
      * Game center, room selection (create/join).
@@ -46,12 +46,12 @@ public enum GameStatus {
     /**
      * Playing a game, turn starts.
      */
-    GAME_PLAYING_TURN_START (new MessageType[]{ MessageType.TURN_DATA }),
+    GAME_PLAYING_TURN_START (new MessageType[]{ MessageType.TURN_DATA, MessageType.PLAYER_LIST }),
 
     /**
      * Playing a game, turn ends.
      */
-    GAME_PLAYING_TURN_END (new MessageType[]{ MessageType.TURN_DATA }),
+    GAME_PLAYING_TURN_END (new MessageType[]{ MessageType.TURN_DATA, MessageType.PLAYER_LIST }),
 
     /**
      * Game paused, waiting for a player.

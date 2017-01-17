@@ -58,7 +58,7 @@ public enum MessageType {
     GAME_RESULT(CommunicationConfig.REQ_GAME_END),
     GAME_LEAVE (CommunicationConfig.REQ_GAME_END),
     SIGN_OUT (CommunicationConfig.REQ_SIGN_OUT),
-    PING (CommunicationConfig.REQ_PING);
+    PLAYER_LIST (CommunicationConfig.REQ_PLAYER_LIST);
 
     private int code;
 

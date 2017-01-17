@@ -52,10 +52,11 @@ public class Application {
 
     private int winnerID;
 
+    private boolean waitingAskResult = false;
+
+
 
     private static java.util.logging.Logger logger;
-
-
 
 
     //private boolean signedIn = false;
@@ -123,7 +124,12 @@ public class Application {
     }
 
     public synchronized void selectRoom(Room r){
-	    this.selectedRoom = r;
+        this.selectedRoom = r;
+    }
+
+    public synchronized void selectUpdateRoom(Room r){
+        this.selectedRoom = r;
+        this.selectedRoom.setCurrentPlayer(this.currentPlayer);
     }
 
 
@@ -426,7 +432,7 @@ public class Application {
         if(selected == null)
             return false;
 
-        this.selectRoom(selected);
+        this.selectUpdateRoom(selected);
         return true;
     }
 
@@ -471,14 +477,75 @@ public class Application {
         this.winnerID = this.comm.handleGameReqults(msg);
     }
 
-    public void requestRoomList() {
+    public synchronized void requestRoomList() {
         this.comm.requestRoomList();
     }
 
-    public void requestRoomListAndWait(){
+    public synchronized void requestRoomListAndWait(){
         Room[] rooms  = this.comm.requestRoomListAndWait();
 
         if(rooms != null)
             this.setRooms(rooms);
+    }
+
+    /**
+     * true: everything ok
+     * false: an opponent is offline / has left the room
+     */
+    public synchronized boolean handlePlayerList(String msg) {
+        if(this.getSelectedRoom().getType() == GameType.SINGLEPLAYER)
+            return true;
+
+        Player[] players = this.comm.handlePlayerList(msg);
+        Room room = this.getSelectedRoom();
+
+        room.updatePlayers(players);
+        this.selectRoom(room);
+
+        if (!this.isOpponentInGame()) {
+
+            // a player has left room
+            return false;
+
+        } else {
+
+            // the opponent is in game
+
+            Player opponent = null;
+            for (Player p : players) {
+                if(p.getID() != this.currentPlayer.getID())
+                    opponent = p;
+            }
+
+            if(opponent == null) {
+                System.out.println("NEMAAAAA NASTAAAAAAAT");
+                return false;
+            }
+
+            // true: opponent online, false: offline
+            return room.isOpponentOnline();
+        }
+    }
+
+    public synchronized boolean isOpponentOnline() {
+        return this.getSelectedRoom().isOpponentOnline();
+    }
+
+    public synchronized boolean isOpponentInGame() {
+        int playerLimit = this.getSelectedRoom().getType().getPlayerCount(),
+            playerCount = this.getSelectedRoom().getPlayerCount();
+        return playerCount == playerLimit;
+    }
+
+    public synchronized boolean isWaitingAskResult() {
+        return waitingAskResult;
+    }
+
+    public synchronized void setWaitingAskResult(boolean waitingAskResult) {
+        this.waitingAskResult = waitingAskResult;
+    }
+
+    public synchronized Player getCurrentPlayer() {
+        return currentPlayer;
     }
 }

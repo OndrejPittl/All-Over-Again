@@ -171,6 +171,21 @@ public class Screen extends Stage implements Observer {
         });
     }
 
+    public void updatePlayerList(){
+        Platform.runLater(() -> {
+            this.playgroundController.updatePlayerList();
+        });
+    }
+
+    public void askPlayerWait(){
+        Platform.runLater(() -> {
+            this.playgroundController.askPlayerWait();
+            Application.awaitAtGuiBarrier("GUI: releasess GUIC with user interaction.");
+        });
+
+        Application.awaitAtGuiBarrier("GUIC: waits for GUI for user interaction.");
+    }
+
 	
 	//observer
 	@Override

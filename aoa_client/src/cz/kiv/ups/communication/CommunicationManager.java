@@ -362,6 +362,14 @@ public class CommunicationManager {
             return null;
         }
     }
+
+    /**
+     * incoming:     [uid] ; [username] ; [0: offline / 1: online] ; [0: not active / 1: active] ;  ...
+     *                 5   ;   ondra    ;             1            ;                1            ;  ...
+     */
+    public Player[] handlePlayerList(String msg) {
+        return this.parser.parsePlayerList(msg);
+    }
 }
 
 

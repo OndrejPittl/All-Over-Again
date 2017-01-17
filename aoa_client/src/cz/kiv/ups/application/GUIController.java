@@ -59,8 +59,16 @@ public class GUIController extends Observable implements Runnable {
                     //Application.awaitAtClientBarrier("GUIControl waits for checking username. (7GCWC)");
                     Application.awaitAtBarrier("GUIC: waits for CLI for username check.");
 
+
+                    if(Application.getStatus() == GameStatus.ROOM_JOINING)
+                        Application.awaitAtBarrier("GUIC: waits for CLI room joined approved.");
+
+
                     break;
                 case ROOM_SELECTING:
+
+                    if(Application.getPrevStatus() == GameStatus.GAME_INITIALIZING)
+                        Application.awaitAtBarrier("GUIC: releases CLI after coming back at room select.");
 
                     //Application.awaitAtClientBarrier("GUIControl waits for room list. (8_2GCWC)");
                     Application.awaitAtBarrier("GUIC waits for CLI for room list.");
@@ -78,20 +86,24 @@ public class GUIController extends Observable implements Runnable {
                     Application.awaitAtBarrier("GUIC waits for CLI for room selection approved.");
                     break;
 
+                case GAME_WAITING:
                 case ROOM_CREATING:
                 case ROOM_JOINING:
                 case GAME_INITIALIZING:
 
-                    Application.awaitAtBarrier("GUIC releases CLI with waiting screen.");
+                    //Application.awaitAtBarrier("GUIC releases CLI with waiting screen.");
 
                     this.gui.runWaiting();
+                    this.waitAtScreen(500);
+                    Application.awaitAtBarrier("GUIC releases CLI after running waiting........");
+
+                    //singleplayer start game
+                    //Application.awaitAtBarrier("GUIC releases CLI with waiting screen init.");
 
 //                    Application.awaitAtClientBarrier("GUIControls releases after waiting screen init.");
 //                    Application.awaitAtClientBarrier("GUIControl waits for game initialization. (15GCWC)");
 
                     Application.awaitAtBarrier("GUIC: waits for CLI for game initialization.");
-
-                    this.waitAtScreen(1000);
 
 
                     if (Application.getStatus() == GameStatus.ROOM_SELECTING) {
@@ -102,8 +114,6 @@ public class GUIController extends Observable implements Runnable {
 
 
                     Application.awaitAtGuiBarrier("GUIC: waits for GUI for board initialization.");
-
-
                     Application.awaitAtBarrier("GUIC releases CLI with board initialized.");
 
 
@@ -114,6 +124,32 @@ public class GUIController extends Observable implements Runnable {
                     break;
                 case GAME_PLAYING_TURN_START:
                 case GAME_PLAYING_TURN_END:
+                    Application.awaitAtBarrier("++++ GUIC: waits for CLI for player update.");
+
+                    this.gui.updatePlayerList();
+
+                    if(!this.app.isOpponentOnline()) {
+
+                        // opponent has gone offline
+                        this.gui.askPlayerWait();
+
+                        Application.awaitAtBarrier("++++ GUIC: releases CLI with WAITING result.");
+
+
+                        if(this.app.isWaitingAskResult()) {
+                            // if we DO wait
+                            Application.awaitAtBarrier("++++ GUIC: waits for CLI for WAITING result process.");
+                            continue;
+                        }
+
+                    } else {
+                        Application.awaitAtBarrier("++++ GUIC: releases CLI with player update completed.");
+                    }
+
+
+
+
+
 
                     //Application.awaitAtClientBarrier("GUIControl waits for turn start. (17GCWC)");
                     Application.awaitAtBarrier("GUIC waits for CLI for turn data.");
@@ -146,11 +182,11 @@ public class GUIController extends Observable implements Runnable {
                     //Application.awaitAtBarrier("GUIC waits for CLI for turn data send.");
 
                     break;
-                case GAME_WAITING:
-                    break;
+
                 case GAME_END:
                 case GAME_RESULTS:
 
+                    Application.awaitAtBarrier("GUIC releases CLI after END GAME registered.");
 
                     // game results
                     //Application.awaitAtClientBarrier("GUIControl waits for game results.");
