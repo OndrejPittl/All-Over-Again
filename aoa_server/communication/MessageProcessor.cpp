@@ -47,8 +47,16 @@ bool MessageProcessor::handleMessageType(Message *msg) {
 
     txt = msg->getMessage();
     delimPos = txt.find(Message::DELIMITER);
-    msgTypeStr = txt.substr(0, delimPos);
-    msgBody = txt.substr(delimPos + 1);
+
+    if(delimPos == std::string::npos) {
+        // message contains only type of a message
+        msgTypeStr = txt;
+        msgBody = "";
+    } else {
+        // message contains type of a message and its body
+        msgTypeStr = txt.substr(0, delimPos);
+        msgBody = txt.substr(delimPos + 1);
+    }
 
     if(this->checkHelloPacket(txt)) {
         msg->setType(convertInternalMessageType(0));
@@ -100,12 +108,13 @@ void MessageProcessor::proceedHelloPacket() {
  *
  * incoming:    msg-type ; nick
  *                  1    ;  xxx
- * outcoming:   msg-type ; ack ;  uid
- *                  1    ;  1  ;   5
+ * outcoming:   msg-type ; ack ;  uid ; [0: new / 1: re-joined]
+ *                  1    ;  1  ;   5  ;         0
  *                  1    ;  0
  * @param msg
  */
 void MessageProcessor::proceedSignIn(Message *msg) {
+    bool reJoin = false;
     int uid = msg->getSock();
     std::string username = msg->getMessage();
 
@@ -122,12 +131,28 @@ void MessageProcessor::proceedSignIn(Message *msg) {
         sbMsg->append(Message::ACK);
         sbMsg->append(Message::DELIMITER);
         sbMsg->append(uid); // UID
+        sbMsg->append(Message::DELIMITER);
+
+        Player *p = this->app->getPlayer(uid);
+        reJoin = p->hasRoom();
+
+        if(reJoin) {
+            sbMsg->append("1"); // re-joined
+        } else {
+            sbMsg->append("0"); // new
+        }
+
     } else {
         // rejected
         sbMsg->append(Message::NACK);
     }
 
     this->answerMessageAndClean();
+
+
+    if(reJoin)
+        this->handleRejoin();
+
 }
 
 /**
@@ -210,20 +235,24 @@ void MessageProcessor::proceedNewGame(Message *msg) {
 void MessageProcessor::proceedJoinGame(Message *msg) {
     int rid;
     bool joinResult;
-    std::string roomStr;
 
     this->log->clear();
     this->log->append("MSGProcessor, processing joingame:");
     Logger::info(this->log->getString());
 
+    rid = this->parser->parseJoinRoomRequest(msg->getMessage());
+    joinResult = this->app->joinRoom(msg->getSock(), rid);
+    Room *room = this->app->getRoom(rid);
+
+    this->proceedJoinGame(room, joinResult);
+}
+
+void MessageProcessor::proceedJoinGame(Room *room, bool joinResult) {
+    std::string roomStr;
 
     this->sbMsg->clear();
     this->sbMsg->append(MessageType::GAME_JOIN);
     this->sbMsg->append(Message::DELIMITER);
-
-    rid = this->parser->parseJoinRoomRequest(msg->getMessage());
-    joinResult = this->app->joinRoom(msg->getSock(), rid);
-    Room *room = this->app->getRoom(rid);
 
     if(joinResult) {
 
@@ -277,7 +306,7 @@ void MessageProcessor::proceedRestartGame() {
     if(r->isReplayReady()) {
 
         r->restart();
-        r->startTurn();
+        //r->startTurn();
 
         // everybody wants to replay a game -> start game
 
@@ -313,6 +342,14 @@ void MessageProcessor::proceedTurnDataBase(bool ack) {
     Player *p = this->app->getPlayer(this->clientSocket);
     Room *r = this->app->getRoom(p->getRoomID());
 
+
+    // ----- broadcast: player info
+    this->proceedPlayerInfo();
+
+
+
+
+    sbMsg->clear();
     sbMsg->append(MessageType::TURN_DATA);
     sbMsg->append(Message::DELIMITER);
 
@@ -360,30 +397,46 @@ void MessageProcessor::proceedTurnData(Message *msg) {
     Player *p = this->app->getPlayer(this->clientSocket);
     rid = p->getRoomID();
     Room *r = this->app->getRoom(rid);
-    progressStr = msg->getMessage();
-
-    this->parser->parseTurn(progressStr, progress);
-    result = this->app->proceedTurn(rid, progress);
 
 
-    r->startTurn();
+    if(msg != nullptr) {
+
+        // NOT FIRST TIME, ack dependent on progress
+        this->parser->parseTurn(msg->getMessage(), progress);
+        result = this->app->proceedTurn(rid, progress);
+
+    } else {
+
+        // first time, ack = true
+        result = true;
+
+    }
+
+    if(!this->reJoining)
+        r->startTurn();
+
+    progressStr = this->serializer->serializeRoomProgress(r);
 
     this->proceedTurnDataBase(result);
 
-    if(result) {
+    // not first turn && progress ok
+    if(r->hasProgress() && result) {
+//        this->log->clear();
+//        this->log->append("ROOM PROGRESS SERIALIZED: ");
+//        this->log->append(progressStr);
+//        Logger::info(this->log->getString());
+
         this->sbMsg->append(Message::DELIMITER);
         this->sbMsg->append(progressStr);
     }
 
-    Logger::info("--------- sending a new progress: ");
-    Logger::info(this->sbMsg->getString());
+//    Logger::info("--------- sending a new progress: ");
+//    Logger::info(this->sbMsg->getString());
 
     this->answerRoomAndClean(r, &MessageProcessor::answerMessage);
 
-    Logger::info("--------- sent to all");
-
     if(!result) {
-        Logger::info("--------- send END game:");
+        Logger::info("--------- sending END game:");
         this->proceedEndGame(r);
     }
 }
@@ -412,10 +465,8 @@ void MessageProcessor::proceedEndGame(Room *room) {
 }
 
 /**
- *
  * incoming:    msg-type
  *                  8
- * @param msg
  */
 void MessageProcessor::proceedLeaveGame() {
     this->log->clear();
@@ -425,7 +476,6 @@ void MessageProcessor::proceedLeaveGame() {
     Player *p = this->app->getPlayer(this->clientSocket);
     Room *r = this->app->getRoom(p->getRoomID());
 
-    this->app->leaveRoom(p);
 
     if(r->checkReadyToContinue(false)) {
         // a second player replies: does not wont to play again
@@ -434,6 +484,9 @@ void MessageProcessor::proceedLeaveGame() {
         this->proceedStartGame(r, false);
         this->app->disbandRoom(r);
     }
+
+    // WANTS to leave the room
+    this->app->leaveRoomCheckCancel(p);
 }
 
 /**
@@ -448,8 +501,54 @@ void MessageProcessor::proceedSignOut(Message *msg) {
     Logger::info(this->log->getString());
 
     Player *p = this->app->getPlayer(this->clientSocket);
-    this->app->removeUser(p);
+    Room *r = this->app->getRoom(p->getID());;
+
+    if(r->getGameType() == GameType::SINGLEPLAYER) {
+        this->app->leaveRoomCheckCancel(p);
+    } else {
+        this->app->signOutUser(this->clientSocket);
+    }
 }
+
+
+/**
+ * outcoming:    [uid] ; [username] ; [0: offline / 1: online]; [0: not active / 1: active];  ...
+ *                 5   ;   ondra    ;             1           ;                1           ;  ...
+ */
+void MessageProcessor::proceedPlayerInfo(){
+    Player *p = this->app->getPlayer(this->clientSocket);
+    Room *r = this->app->getRoom(p->getRoomID());
+    this->proceedPlayerInfo(r);
+}
+
+void MessageProcessor::proceedPlayerInfo(Room *r){
+    this->log->clear();
+    this->log->append("MSGProcessor, processing playerinfo:");
+    Logger::info(this->log->getString());
+
+
+    std::string playerInfo = this->serializer->serializeRoomPlayers(r);
+
+    this->sbMsg->clear();
+    this->sbMsg->append(MessageType::PLAYER_INFO);
+    this->sbMsg->append(Message::DELIMITER);
+    this->sbMsg->append(playerInfo);
+
+    //this->answerMessageAndClean();
+    this->answerRoomAndClean(r, &MessageProcessor::answerMessage);
+}
+
+void MessageProcessor::handleRejoin() {
+    Player *player = this->app->getPlayer(this->clientSocket);
+    Room *room = this->app->getRoom(player->getRoomID());
+
+    this->reJoining = true;
+    this->proceedJoinGame(room, true);
+    this->reJoining = false;
+}
+
+
+
 
 void MessageProcessor::setApp(Application *app) {
     this->app = app;
@@ -475,8 +574,10 @@ void MessageProcessor::proceedStartGame(Room *r, bool ack) {
     this->answerRoomAndClean(r, &MessageProcessor::answerMessage);
     r->changeStatus(GameStatus::STARTED);
 
-    this->proceedFirstTurnData();
-    this->answerRoomAndClean(r, &MessageProcessor::answerMessage);
+//    this->proceedFirstTurnData();
+//    this->answerRoomAndClean(r, &MessageProcessor::answerMessage);
+
+    this->proceedTurnData(nullptr); // with no previous progress
     r->changeStatus(GameStatus::PLAYING);
 }
 
@@ -517,6 +618,17 @@ void MessageProcessor::clearMsg() {
 bool MessageProcessor::checkHelloPacket(std::string msg) {
     return msg.find(Message::HELLO_PACKET) == 0l && msg.length() == Message::HELLO_PACKET.length();
 }
+
+void MessageProcessor::handleUserGoneOffline(Room *r) {
+    // a user has left a room -> inform other players
+
+    Logger::error("TOTO BY SE MĚLO STÁT POUZE V PŘÍPADĚ, ŽE UŽIVATEL ZAVŘEL HRU KŘÍŽKEM. NEJSEM SI VŠAK JIST, ZDA TO BUDE JEDINÝ PŘÍPAD, ALE BÝT BY MĚL (TŘEBAŽE NEBUDE, BUDE).");
+
+    this->proceedPlayerInfo(r);
+
+}
+
+
 
 
 

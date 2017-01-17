@@ -89,3 +89,10 @@ void Player::clearIncorrectMsgCount() {
     this->incorrectMsgCount = 0;
 }
 
+void Player::merge(Player *p) {
+    this->setRoomID(p->getRoomID());
+    this->setOnline();
+    this->clearIncorrectMsgCount();
+    this->setUsername(p->getUsername());
+}
+

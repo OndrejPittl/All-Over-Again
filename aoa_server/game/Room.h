@@ -24,7 +24,7 @@ class Room {
         GameType type;
         BoardDimension boardDimension;
         GameDifficulty difficulty;
-        std::map<int, Player*> players;
+        PlayerMap players;
         std::queue<int> progress;
         std::vector<int> playerOrder;
 
@@ -51,7 +51,7 @@ class Room {
 
         int getPlayerCount();
 
-        BoardDimension getBoardDimension();
+        BoardDimension getBoardDimension() const;
 
         void setBoardDimension(BoardDimension boardDimension);
 
@@ -59,7 +59,7 @@ class Room {
 
         void updateActivePlayer();
 
-        GameDifficulty getDifficulty();
+        GameDifficulty getDifficulty() const;
 
         void setDifficulty(GameDifficulty difficulty);
 
@@ -122,6 +122,8 @@ class Room {
     PlayerMap copyPlayers();
 
     bool hasGameEnded();
+
+    void reassignPlayer(Player *player, Player *prevPlayer);
 };
 
 

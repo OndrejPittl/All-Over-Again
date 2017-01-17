@@ -14,6 +14,7 @@ enum MessageType {
     GAME_END,
     GAME_LEAVE,
     SIGN_OUT,
+    PLAYER_INFO,
 };
 
 MessageType convertInternalMessageType(int index);

@@ -109,7 +109,9 @@ class Application {
 
         void checkRoomCancel(int rid);
 
-        void removeUser(Player *player);
+        void removeOnlineUser(int uid);
+
+        void removeOfflineUser(int uid);
 
         bool proceedTurn(int rid, const std::queue<int> &progress);
 
@@ -125,7 +127,8 @@ class Application {
 
         int storeOfflinePlayer(Player *p);
 
-        void leaveRoom(Player *player);
+        //void leaveRoomAndCheck(Player *player);
+        void leaveRoomCheckCancel(Player *player);
 
         void deregisterUser(int uid);
 
@@ -142,6 +145,16 @@ class Application {
     void registerSuspiciousBehaviour(int uid);
 
     void handleSuspiciousClients();
+
+    void reconnectUser(Player *player);
+
+    void reassignPlayer(Player *player);
+
+    void leaveRoom(Player *player);
+
+    void freeUsername(Player *player);
+
+    void resignIn(int uid);
 };
 
 

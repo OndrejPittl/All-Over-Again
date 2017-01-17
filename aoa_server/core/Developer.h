@@ -19,10 +19,13 @@ class Developer {
 //        }
 
         static void printOnlineOfflineUsers(PlayerMap online, PlayerVector offline){
+
+            std::cout << "============================" << std::endl;
             std::cout << "PRINTING ONLINE: " << std::endl;
             printPlayers(online);
             std::cout << "PRINTING OFFLINE: " << std::endl;
             printPlayerVector(offline);
+            std::cout << "============================" << std::endl;
         }
 
 };

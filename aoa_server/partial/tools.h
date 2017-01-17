@@ -56,5 +56,8 @@ void printRooms(RoomMap m);
 
 bool checkIfExistsInPlayerVector(PlayerVector &v, int uid);
 
+void printUsernames (std::map <std::string, int> usernames);
+
+bool keyExistsInPlayerMap (PlayerMap &players, int uid);
 
 #endif

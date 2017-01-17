@@ -18,6 +18,11 @@ class MessageProcessor {
 
         int clientSocket;
 
+        /**
+         * Flag indicating the user is being rejoined to their previously played game.
+         */
+        bool reJoining = false;
+
         StringBuilder *sbMsg;
         StringBuilder *log;
 
@@ -27,6 +32,8 @@ class MessageProcessor {
 
         SafeQueue<Message *> *messageQueue;
         SafeQueue<Message *> *sendMessageQueue;
+
+
 
         void perform(Message *msg);
         bool handleMessageType(Message *msg);
@@ -69,6 +76,21 @@ class MessageProcessor {
     void clearMsg();
 
     void answerMessageAndClean();
+
+
+    void proceedPlayerInfo();
+
+    void handleUserGoneOffline(Room *r);
+
+    void proceedPlayerInfo(Room *);
+
+    void handleRejoin();
+
+    void proceedJoiGame();
+
+    void proceedJoinGame(Room *room, bool joinResult);
+
+    void proceedJoinGame(Room *room, bool joinResult, bool rejoin);
 
 
 };

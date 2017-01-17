@@ -97,24 +97,26 @@ void printPlayerVector(PlayerVector vec) {
 
     int i = 0;
     for (auto const& v : vec){
-        std::cout << i++ << ". [" << v->getID() << "] " << v->getUsername() << (v->isOnline() ? "(online)" : "(offline)") << std::endl;
+        std::cout << i++ << ". [" << v->getID() << ", " << (v->hasRoom() ? v->getRoomID() : -1) << "] " << v->getUsername() << (v->isOnline() ? " (online)" : " (offline)") << std::endl;
     }
 
 }
 
 void printPlayers(PlayerMap m) {
-    std::cout << "Printing a map:" << std::endl;
+    std::cout << "Printing a PLAYER MAP:" << std::endl;
 
     if(m.size() <= 0)
         std::cout << "Map is empty." << std::endl;
 
+    int i = 0;
+
     for(auto it = m.cbegin(); it != m.cend(); ++it) {
-        std::cout << "key: " << it->first << " - " << it->second->getUsername() << std::endl;
+        std::cout << (i++) << ". [" << it->first << ", " << (it->second->hasRoom() ? it->second->getRoomID() : -1) << "] " << it->second->getUsername()<< (it->second->isOnline() ? " (online)" : " (offline)") << std::endl;
     }
 }
 
 void printRooms(RoomMap m) {
-    std::cout << "Printing rooms:" << std::endl;
+    std::cout << "============== Printing rooms ==============" << std::endl;
 
     if(m.size() <= 0)
         std::cout << "No room." << std::endl;
@@ -123,8 +125,10 @@ void printRooms(RoomMap m) {
         Room *r = it->second;
 
         std::cout << "key: " << it->first << " - ID: " << r->getID() << ", diff: " << (int) r->getDifficulty()
-                  << ", dim: " << (int) r->getBoardDimension() << ", type: " << (int) r->getGameType() << ", players: " << r->getPlayerCount() << std::endl;
+                  << ", dim: " << (int) r->getBoardDimension() << ", type: " << (int) r->getGameType() << ", players: " << r->getPlayerCount() << "(online: " << r->countOnlinePlayers() << ")" << std::endl;
     }
+
+    std::cout << "============================================" << std::endl;
 }
 
 bool checkIfExistsInPlayerVector(PlayerVector &vec, int uid) {
@@ -136,4 +140,21 @@ bool checkIfExistsInPlayerVector(PlayerVector &vec, int uid) {
         if(p->getID() == uid)
             return true;
     }
+}
+
+void printUsernames(std::map <std::string, int> usernames){
+    int i = 0;
+
+    std::cout << "--- printing usernames ---" << std::endl;
+
+    for(auto it = usernames.cbegin(); it != usernames.cend(); ++it) {
+        std::cout << (i++) << ". " << it->first << " (" << it->second << ")" << std::endl;
+    }
+
+    std::cout << "----------" << std::endl;
+}
+
+
+bool keyExistsInPlayerMap (PlayerMap &players, int uid) {
+    return players.find(uid) != players.end();
 }

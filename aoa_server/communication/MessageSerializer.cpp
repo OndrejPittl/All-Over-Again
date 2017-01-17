@@ -65,3 +65,46 @@ std::string MessageSerializer::serializeRoom(Room *r) {
     return this->sb->getString();
 }
 
+std::string MessageSerializer::serializeRoomPlayers(Room *r){
+    PlayerMap &players = r->getPlayers();
+    unsigned long playerCount = players.size();
+
+    this->sb->clear();
+
+    for(auto it = players.cbegin(); it != players.cend(); ++it) {
+        Player *p = it->second;
+        this->sb->append(p->getID());
+        this->sb->append(Message::DELIMITER);
+        this->sb->append(p->getUsername());
+        this->sb->append(Message::DELIMITER);
+        this->sb->append(p->isOnline() ? "1" : "0");
+        this->sb->append(Message::DELIMITER);
+        this->sb->append(p->getID() == r->getActivePlayerID() ? "1" : "0");
+        if(--playerCount > 0) this->sb->append(Message::DELIMITER);
+    }
+
+    return this->sb->getString();
+}
+
+std::string MessageSerializer::serializeRoomProgress(Room *room) {
+    std::queue<int> progress;
+    int progressStepCount;
+
+    if(!room->hasProgress())
+        return "";
+
+    progress = room->getProgress();
+    progressStepCount = (int) progress.size();
+
+    this->sb->clear();
+
+    while(!progress.empty()) {
+        int p = progress.front(); progress.pop();
+
+        this->sb->append(p);
+        if(--progressStepCount > 0) this->sb->append(Message::DELIMITER);
+    }
+
+    return this->sb->getString();
+}
+

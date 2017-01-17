@@ -108,7 +108,7 @@ class CommunicationManager {
 		void setApp(Application *app);
 
 
-	void checkSuspiciousClients();
+	MessageProcessor *getMsgProcessor() const;
 };
 
 #endif

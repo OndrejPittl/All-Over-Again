@@ -99,3 +99,7 @@ std::string CommunicationManager::recvMsg(int sock, int byteCount) {
 void CommunicationManager::setApp(Application *app) {
     this->app = app;
 }
+
+MessageProcessor *CommunicationManager::getMsgProcessor() const {
+    return this->msgProcessor;
+}

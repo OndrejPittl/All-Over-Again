@@ -29,9 +29,11 @@ void Room::init() {
 }
 
 void Room::restart() {
+    Logger::error("Restartuju progress v roomu.");
     this->turn = 0;
     this->winnerID = -1;
     this->progress = std::queue<int>();
+    this->updateActivePlayer();
 }
 
 int Room::getID() {
@@ -47,7 +49,7 @@ int Room::getPlayerCount() {
     return (int) this->players.size();
 }
 
-BoardDimension Room::getBoardDimension() {
+BoardDimension Room::getBoardDimension() const {
     return this->boardDimension;
 }
 
@@ -56,7 +58,7 @@ void Room::setBoardDimension(BoardDimension boardDimension) {
 }
 
 int Room::getActivePlayerID() {
-    return this->players[this->playerOrder[this->activePlayerIndex]]->getID();
+    return this->playerOrder[this->activePlayerIndex];
 }
 
 void Room::updateActivePlayer() {
@@ -76,7 +78,7 @@ void Room::updateActivePlayer() {
 //    Logger::info(str);
 }
 
-GameDifficulty Room::getDifficulty() {
+GameDifficulty Room::getDifficulty() const {
     return this->difficulty;
 }
 
@@ -147,7 +149,8 @@ std::queue<int> Room::getPlayerSockets() const {
     std::queue<int> q;
 
     for(auto it = this->players.cbegin(); it != this->players.cend(); ++it) {
-        q.push(it->second->getID());
+        if(it->second->isOnline())
+            q.push(it->second->getID());
     }
 
     return q;
@@ -170,20 +173,30 @@ bool Room::hasProgress() {
 }
 
 void Room::startTurn() {
-    this->updateActivePlayer();
     this->turn++;
+    this->updateActivePlayer();
 }
 
 int Room::getTurn() const {
-
-    int t = this->getTime();
-
     return this->turn;
 }
 
 void Room::deregisterPlayer(Player *p) {
+    int uid = p->getID();
+
+    //this->playerOrder: vector[int] = uid
+
+    int i = 0;
+    for (auto const& o : this->playerOrder) {
+        int id = this->playerOrder[i];
+        if(id == uid) break;
+        i++;
+    }
+
+    // i contains index in playerOrder
+    this->playerOrder.erase(this->playerOrder.begin() + i);
     this->players.erase(p->getID());
-    //this->changeStatus(GameStatus::CONNECTING);
+
 }
 
 int Room::countOnlinePlayers() const {
@@ -275,6 +288,10 @@ bool Room::checkReadyToContinue(bool replay) {
         return false;
     }
 
+    if(this->status == GameStatus::FINISHED_REPLAY) {
+        return true;
+    }
+
     // both checked
     this->changeStatus(GameStatus::ENDED);
     return true;
@@ -289,38 +306,32 @@ bool Room::hasGameEnded() {
 }
 
 int Room::getTime() const {
-    int t = this->turn * Game::MOVE_TIME;
-    return this->turn == 1 ? t + Game::FIRST_TURN_RESERVE : t;
+    /*
+     *  difficulty (0 - 2): 1 - 2
+     *  dimension  (1 - 5): 1 - 2
+     */
+
+    double  turn     = this->getTurn(),
+            turnCoef = (turn > 5) ? turn * 0.8 : (turn > 10) ? turn * 0.5 : (turn > 15) ? turn * 0.6 : turn,
+            diff     = (double) this->getDifficulty(),
+            diffCoef = (diff == 2) ? 2 : 1,
+            dim      = (double) this->getBoardDimension(),
+            dimCoef  = (dim > 3) ? 2 : 1;
+    int     time     = (int) (turnCoef * (diffCoef + dimCoef));
+
+    time += 500;
+
+    return this->turn == 1 ? time + Game::FIRST_TURN_RESERVE : time;
 }
 
-//bool Room::checkReadyToNextTurnStart() {
-//    return ++this->endTurnCount >= this->getPlayerCount();
-//}
+void Room::reassignPlayer(Player *player, Player *prevPlayer) {
+    // room status?
+    // players
+    // player order
 
+    this->changeStatus(GameStatus::READY);
 
-//
-// *
-// * @return true: everybody wants replay
-// */
-//bool Room::isReplayReady() {
-//           // everybody online            everybody sent a reply request
-//    return this->isRoomFull() && this->replayReady == this->getPlayerCount();
-//}
-//
-//
-// *
-// * @return true: everybody sent a response, false: still waiting for someone
-// */
-//bool Room::checkPlayerReplayReady() {
-//    this->replayReady++;
-//    this->replayResponse++;
-//
-//    std::cout << this->replayReady << " / " << this->countOnlinePlayers() << " ... total: " << this->replayResponse;
-//
-//         // everybody online            everybody sent a response
-//    return this->isRoomFull() && this->replayResponse == this->countOnlinePlayers();
-//}
-//
-//void Room::checkPlayerReplayRefuse() {
-//    this->replayResponse++;
-//}
+    // this->players: PlayerMap[uid] = player
+    this->deregisterPlayer(prevPlayer);
+    this->registerPlayer(player);
+}

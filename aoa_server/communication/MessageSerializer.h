@@ -22,6 +22,9 @@ class MessageSerializer {
         std::string serializeRooms(RoomMap &rooms);
         std::string serializeRoom(Room *r);
 
+    string serializeRoomPlayers(Room *r);
+
+    string serializeRoomProgress(Room *room);
 };
 
 

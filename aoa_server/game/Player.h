@@ -62,6 +62,8 @@ class Player {
     void registerIncorrectMsgCount();
 
     bool hasUsername() const;
+
+    void merge(Player *p);
 };
 
 typedef std::map<int, Player*> PlayerMap;
