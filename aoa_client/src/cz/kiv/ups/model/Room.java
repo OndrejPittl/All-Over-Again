@@ -16,7 +16,6 @@ public class Room {
 
 	private GameDifficulty difficulty;
 
-//	private int boardDimension;
 	private BoardDimension boardDimension;
 
 	private Player[] players;
@@ -25,8 +24,6 @@ public class Room {
 
 	private  Player opponent;
 
-	private int activePlayerID;
-	
 
 
 	public Room() {
@@ -57,10 +54,6 @@ public class Room {
 	 */
 	public void setID(int id) {
 		ID = id;
-	}
-
-	public boolean hasID(){
-		return this.ID != -1;
 	}
 
 	/**
@@ -119,21 +112,6 @@ public class Room {
 		this.players = players;
 	}
 
-	/**
-	 * @return the activePlayerID
-	 */
-	public int getActivePlayerID() {
-		return activePlayerID;
-	}
-
-	/**
-	 * @param activePlayerID the activePlayerID to set
-	 */
-	public void setActivePlayerID(int activePlayerID) {
-		this.activePlayerID = activePlayerID;
-	}
-
-
 	public GameType getType() {
 		return type;
 	}
@@ -150,26 +128,6 @@ public class Room {
         this.turn = turn;
     }
 
-//	public Player getOpponent(){
-//		Player opponent = null;
-//
-//		for (Player p : this.players) {
-//			if(p.getID() != this.currentPlayer.getID())
-//				opponent = p;
-//		}
-//
-//		return opponent;
-//	}
-
-//	public void updateOpponent(Player opponent){
-//		for (int i = 0; i < this.players.length; i++) {
-//			if(this.players[i].getID() == opponent.getID()){
-//				this.players[i].setOnline(opponent.isOnline());
-//				break;
-//			}
-//		}
-//	}
-
 	public void updatePlayers(Player[] players) {
         Player opponent = null;
 
@@ -182,6 +140,10 @@ public class Room {
 		    return;
 
 		this.players = players;
+
+
+		this.updateOpponent();
+
 
 		// determine: player has gone offline
         this.opponent.setOnline(opponent.isOnline());
@@ -199,11 +161,22 @@ public class Room {
     public void setCurrentPlayer(Player currentPlayer) {
         this.currentPlayer = currentPlayer;
 
-        for (Player p : this.players) {
-            if(p.getID() != this.currentPlayer.getID())
-                this.opponent = p;
-        }
+        for (int i = 0; i < this.players.length; i++) {
+			if(this.players[i].getName().equals(this.currentPlayer.getName())) {
+				this.players[i] = this.currentPlayer;
+				break;
+			}
+		}
+
+        this.updateOpponent();
     }
+
+    private void updateOpponent(){
+		for (Player p : this.players) {
+			if(p.getID() != this.currentPlayer.getID())
+				this.opponent = p;
+		}
+	}
 
     public int getCurrentPlayerID() {
         return this.currentPlayer.getID();

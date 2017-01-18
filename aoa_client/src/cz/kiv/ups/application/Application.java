@@ -5,6 +5,7 @@ import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
 import cz.kiv.ups.communication.CommunicationManager;
+import cz.kiv.ups.config.LogConfig;
 import cz.kiv.ups.config.ViewConfig;
 import cz.kiv.ups.game.GameMove;
 import cz.kiv.ups.game.GameTurn;
@@ -14,28 +15,26 @@ import cz.kiv.ups.model.Error;
 import cz.kiv.ups.model.GameStatus;
 import cz.kiv.ups.model.Player;
 import cz.kiv.ups.model.Room;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 
 public class Application {
 
 	private static Application instance = null;
 
+    private static Logger logger = Logger.getLogger();
+
 	/**
 	 * Connection.
 	 */
 	private Connection conn;
-
 	private CommunicationManager comm;
-
 
 
 	private static GameStatus prevStatus;
 	private static GameStatus status;
 
-
-	private static CyclicBarrier clientBarrier;
-
 	private static CyclicBarrier guiBarrier;
-
 	private static CyclicBarrier barrier;
 
 
@@ -56,25 +55,10 @@ public class Application {
 
 
 
-    private static java.util.logging.Logger logger;
-
-
-    //private boolean signedIn = false;
-//    private boolean gameStarted = false;
-//    private boolean gameFinished = false;
-//    private boolean exitingGame = false;
-    //private boolean turnDataOK = true;
-
-
-
-
-	
-	
 	/**
 	 * 
 	 */
 	private Application(){
-		Application.clientBarrier = new CyclicBarrier(2);
         Application.guiBarrier = new CyclicBarrier(2);
         Application.barrier = new CyclicBarrier(2);
 		this.init();
@@ -95,22 +79,9 @@ public class Application {
      */
 	private void init(){
 	    Application.changeStatus(GameStatus.HELLO_AUTHORIZATION);
-//	    this.setGameFinished(false);
         this.errors = new ArrayList<>();
         this.winnerID = -1;
-        this.logger = java.util.logging.Logger.getLogger(getClass().getName());
-        //this.signedIn = false;
 	}
-
-    /**
-     *
-     */
-//    public void resetGame(){
-//	    this.setExitingGame(false);
-//        this.setGameStarted(false);
-//        this.setGameFinished(false);
-//        this.winnerID = -1;
-//    }
 
 
 	public synchronized boolean updateRoomList(String msg){
@@ -133,48 +104,10 @@ public class Application {
     }
 
 
-//    public void handleSignIn(){
-//		//check nickname availability
-//		this.comm.checkUsernameAvailability();
-//    }
-
-//    public void requestCreateJoinRoom(){
-//        Room selected;
-//
-//        if(this.getSelectedRoom().hasID()) {
-//
-//            //join game
-//            // this.selectRoom(this.rooms[index]);
-//            selected = this.comm.joinGame(this.getSelectedRoom());
-//            this.selectRoom(selected);
-//
-//        } else {
-//
-//            //new game
-//            selected = this.comm.requestNewGame(this.getSelectedRoom());
-//            this.selectRoom(selected);
-//        }
-//    }
-
-
-
-
-
-
-
 	public void setDependencies(Connection conn, CommunicationManager comm){
 		this.conn = conn;
 		this.comm = comm;
 	}
-
-	public Connection getConnection() {
-		return conn;
-	}
-
-	public CommunicationManager getCommunicationManager() {
-		return comm;
-	}
-
 
 
 	/**
@@ -191,50 +124,41 @@ public class Application {
 		this.rooms = rooms;
 	}
 
-	public static void awaitAtClientBarrier(String str){
-		String status = Application.clientBarrier.getNumberWaiting() == 0 ? "waiting" : "released";
-
-//        Application.logger.info("### BARRIER_CLI (" + status + "): " + str);
-        System.out.println("### BARRIER_CLI (" + status + "): " + str);
-
-		
-		try {
-			Application.clientBarrier.await();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (BrokenBarrierException e) {
-			e.printStackTrace();
-		}
-	}
-
     public static void awaitAtGuiBarrier(String str){
-	    String status = Application.guiBarrier.getNumberWaiting() == 0 ? "waiting" : "released";
+	    if(Application.guiBarrier == null){
+            //Thread.currentThread().interrupt();
+            return;
+        }
 
-//        Application.logger.info("### BARRIER_GUI (" + status + "): " + str);
-        System.out.println("################# BARRIER_GUI (" + status + "): " + str);
+        if(LogConfig.DEVELOPER_MODE) {
+            String status = Application.guiBarrier.getNumberWaiting() == 0 ? "waiting" : "released";
+            logger.debug("########## BARRIER_GUI (" + status + "): " + str);
+        }
 
         try {
-
             Application.guiBarrier.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (BrokenBarrierException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | BrokenBarrierException e) {
+            Application.barrier = null;
+            Thread.currentThread().interrupt();
         }
     }
 
     public static void awaitAtBarrier(String str){
-        String status = Application.barrier.getNumberWaiting() == 0 ? "waiting" : "released";
+        if(Application.barrier == null){
+            //Thread.currentThread().interrupt();
+            return;
+        }
 
-        System.out.println("################## BARRIER (" + status + "): " + str);
-//        Application.logger.info("### BARRIER_GUI (" + status + "): " + str);
+        if(LogConfig.DEVELOPER_MODE) {
+            String status = Application.barrier.getNumberWaiting() == 0 ? "waiting" : "released";
+            logger.debug("###### BARRIER (" + status + "): " + str);
+        }
 
         try {
             Application.barrier.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (BrokenBarrierException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | BrokenBarrierException e) {
+            Application.barrier = null;
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -255,10 +179,6 @@ public class Application {
 	    return this.turn.getActivePlayerID() == this.currentPlayer.getID();
     }
 
-    public synchronized GameMove[] getProgress() {
-        return this.turn.getMoves();
-    }
-
 	public synchronized void storeProgress(ArrayList<GameMove> gameProgress){
 		this.turn.setMoves(gameProgress);
 	}
@@ -267,19 +187,9 @@ public class Application {
         return this.turn.getTime();
     }
 
-    public synchronized int getActivePlayerID() {
-        return this.turn.getActivePlayerID();
-    }
-
     public synchronized int getTurn(){
 	    return this.getSelectedRoom().getTurn() - 1;
     }
-
-//    public synchronized void setGameFinished(boolean finished){
-//		this.gameFinished = finished;
-//	}
-
-
 
 	public synchronized void signIn(Player player){
 		this.currentPlayer = player;
@@ -288,31 +198,6 @@ public class Application {
 	public synchronized Player getPlayerInfo(){
 		return this.currentPlayer;
 	}
-
-
-    public synchronized boolean isSignedIn() {
-        return this.currentPlayer != null && this.currentPlayer.hasID();
-    }
-
-	public synchronized void signOut(){
-	    this.currentPlayer = null;
-    }
-
-//	public synchronized boolean isGameFinished() {
-//		return gameFinished;
-//	}
-
-    public synchronized boolean isRoomJoined(){
-        return this.getSelectedRoom() != null;
-    }
-
-//	public synchronized boolean isGameStarted() {
-//		return gameStarted;
-//	}
-//
-//	public synchronized void setGameStarted(boolean started){
-//        this.gameStarted = started;
-//    }
 
 	public synchronized void registerError(Error err){
 	    this.errors.add(err);
@@ -332,16 +217,6 @@ public class Application {
         return errs;
     }
 
-//	public synchronized boolean isTurnDataOK(){
-//		return this.turnDataOK;
-//	}
-//
-//	public synchronized void setTurnDataOK(boolean ok){
-//		this.turnDataOK = ok;
-//	}
-
-
-
 	private synchronized boolean amIWinner() {
 		 return this.currentPlayer.getID() == this.winnerID;
 	}
@@ -359,28 +234,6 @@ public class Application {
         return ViewConfig.MSG_GAME_LOSE;
 	}
 
-//    public synchronized boolean isExitingGame() {
-//        return exitingGame;
-//    }
-//
-//    public synchronized void setExitingGame(boolean exitingGame) {
-//        this.exitingGame = exitingGame;
-//    }
-
-    public synchronized void disconnectRoom() {
-        this.selectRoom(null);
-    }
-
-
-    public void restartGame(){
-        this.comm.handleRestartGame();
-    }
-
-
-    public void leaveGame() {
-        this.comm.handleLeaveGame();
-    }
-
     public synchronized GameTurn getGameTurn(){
         return this.turn;
     }
@@ -389,14 +242,29 @@ public class Application {
         this.turn = turn;
     }
 
-    public static void disconnect(boolean hard){
+    public static void disconnect(boolean hard, String message){
+        //Main.restartApp();
         Connection.disconnect();
+
+        if(message != null) {
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION, message , ButtonType.OK);
+                alert.showAndWait();
+
+                if(hard) {
+                    Platform.exit();
+                    System.exit(1);
+                }
+            });
+
+            return;
+        }
+
 
         if(hard) {
             Platform.exit();
             System.exit(1);
         }
-
     }
 
     public static GameStatus getStatus(){
@@ -404,23 +272,19 @@ public class Application {
     }
 
     public static void changeStatus(GameStatus status){
-        System.out.println("+++ APP STATUS: " + status);
+        logger.debug("+++ APP STATUS: " + status);
         Application.updatePrevStatus();
         Application.status = status;
     }
 
     public static void updatePrevStatus(){
-        System.out.println("(previous status: " + Application.status + ")");
+        logger.debug("(previous status: " + Application.status + ")");
         Application.prevStatus = Application.status;
     }
 
     public static GameStatus getPrevStatus(){
         return Application.prevStatus;
     }
-
-
-
-
 
     public void requestCreateRoom(){
         this.comm.requestNewGame(this.getSelectedRoom());
@@ -438,10 +302,6 @@ public class Application {
 
         this.selectUpdateRoom(selected);
         return true;
-    }
-
-    public void requestNewGame(){
-        this.comm.requestNewGame(this.getSelectedRoom());
     }
 
     public boolean handleUsernameSelection(String msg){
@@ -471,8 +331,7 @@ public class Application {
         turn = this.turn.getTurn();
         this.getSelectedRoom().setTurn(turn);
 
-
-        System.out.println("HANDLIIIIIIIIING TURN START: " + turn);
+        logger.info("Start of turn " + turn + " processed.");
 
         return true;
     }
@@ -514,7 +373,6 @@ public class Application {
         } else {
 
             // the opponent is in game
-
             Player opponent = null;
             for (Player p : players) {
                 if(p.getID() != this.currentPlayer.getID())
@@ -522,7 +380,6 @@ public class Application {
             }
 
             if(opponent == null) {
-                System.out.println("NEMAAAAA NASTAAAAAAAT");
                 return false;
             }
 

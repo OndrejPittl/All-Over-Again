@@ -62,10 +62,6 @@ public class GameMove {
         return symbol;
     }
 
-    public void setIndex(int index) {
-        this.index = index;
-    }
-
     private boolean hasColor(){
         return this.color != null;
     }

@@ -1,6 +1,7 @@
 package cz.kiv.ups.controllers;
 
 import cz.kiv.ups.application.Application;
+import cz.kiv.ups.application.Logger;
 import cz.kiv.ups.config.Routes;
 import cz.kiv.ups.config.ViewConfig;
 import cz.kiv.ups.game.GameMove;
@@ -26,6 +27,8 @@ import java.util.Optional;
 
 
 public class PlaygroundController extends ScreenController {
+
+    private static Logger logger = Logger.getLogger();
 
     private Room room;
 
@@ -54,20 +57,11 @@ public class PlaygroundController extends ScreenController {
     @FXML
     private Button btn_giveUp;
 
-//    @FXML
-//    private Button btn_btn;
-//
-//    @FXML
-//    private Button btn_exitGame;
-
     @FXML
     private GridPane gp_playground;
 
     @FXML
     private VBox vb_playerWrapper;
-
-    @FXML
-    private VBox vb_timerWrapper;
 
 
 
@@ -108,15 +102,14 @@ public class PlaygroundController extends ScreenController {
                 this.timerValue--;
                 this.lbl_timer.setText(String.valueOf(this.timerValue));
 
-                //if(this.timerValue == 0 || this.isNewTurn()) {
                 if(this.timerValue == 0) {
-                    System.out.println("* * * * * END TURN: timer runs out");
+                    logger.debug("* * * * * END TURN: timer runs out");
                     this.endTurn();
                 }
             })
         );
 
-        System.out.println("Timer setting to: " + this.timerValue);
+        logger.debug("Timer setting to: " + this.timerValue);
         this.timer.setCycleCount(this.timerValue);
     }
 
@@ -137,12 +130,6 @@ public class PlaygroundController extends ScreenController {
             controller.update(p, this.room.getCurrentPlayerID());
 
             item = (BorderPane) src.getRoot();
-
-            Label you = (Label) item.lookup("#lbl_you");
-            if(you != null) you.setVisible(this.room.getCurrentPlayerID() == p.getID());
-
-            ImageView icon = (ImageView) item.lookup("#iv_activePlayerIcon");
-            if(icon != null) icon.setVisible(p.isActive());
 
             vb_playerWrapper.getChildren().add(item);
         }
@@ -191,11 +178,11 @@ public class PlaygroundController extends ScreenController {
         this.updateMoveStats();
 
         if(this.moveCounter == this.turn.getTurn()) {
-            System.out.println("* * * * * END TURN: move counter");
+            logger.debug("* * * * * END TURN: move counter");
             this.endTurn();
         }
 
-        System.out.println(Arrays.toString(this.moves.toArray()));
+        logger.debug(Arrays.toString(this.moves.toArray()));
     }
 
     private void updateMoveStats(){
@@ -213,7 +200,7 @@ public class PlaygroundController extends ScreenController {
         this.turn = this.app.getGameTurn();
         this.amIActive = this.app.amIActive();
 
-        System.out.println("------------   starting turn: " + this.turn.getTurn());
+        logger.debug("------------   starting turn: " + this.turn.getTurn());
 
         Platform.runLater(() -> {
             this.updateMoveStats();
@@ -257,7 +244,7 @@ public class PlaygroundController extends ScreenController {
             if(this.amIActive)
                 this.proceedTurnStart();
             else {
-                System.out.println("* * * * * END TURN: not my turn (first turn without progress)");
+                logger.debug("* * * * * END TURN: not my turn (first turn without progress)");
                 this.endTurn();
             }
             return;
@@ -291,7 +278,7 @@ public class PlaygroundController extends ScreenController {
                         if(this.amIActive)
                             this.proceedTurnStart();
                         else {
-                            System.out.println("* * * * * END TURN: not my turn (after turn task)");
+                            logger.debug("* * * * * END TURN: not my turn (after turn task)");
                             this.endTurn();
                         }
                     }

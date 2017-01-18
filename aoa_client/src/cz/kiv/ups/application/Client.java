@@ -4,16 +4,19 @@ import cz.kiv.ups.communication.CommunicationManager;
 import cz.kiv.ups.communication.Message;
 import cz.kiv.ups.communication.MessageType;
 import cz.kiv.ups.config.ConnectionConfig;
-import cz.kiv.ups.game.GameType;
+import cz.kiv.ups.config.ErrorConfig;
 import cz.kiv.ups.model.Error;
 import cz.kiv.ups.model.GameStatus;
-
-import java.util.logging.Logger;
 
 
 public class Client implements Runnable {
 
-    private String[] args;
+    private static Logger logger = Logger.getLogger();
+
+    private String ip;
+
+    private int port;
+
 
     /**
      * Connection.
@@ -24,11 +27,7 @@ public class Client implements Runnable {
 
     private Application app;
 
-    private Logger logger;
-
     private Message msg;
-
-
 
 
     private int helloRequestCount = 0;
@@ -36,25 +35,17 @@ public class Client implements Runnable {
 
 
 
-    public Client(String[] args, Application app) {
-        this.args = args;
+    public Client(Application app, String ip, int port) {
         this.app = app;
+        this.ip = ip;
+        this.port = port;
+
         this.init();
     }
 
     private void init(){
-        //this.app.setClient(this);
-        //this.barrier = Application.getBarrier();
-
-        this.logger = Logger.getLogger(getClass().getName());
-
         this.comm = new CommunicationManager(this.app);
-
-        this.conn = new Connection(
-                this.args[0],
-                Integer.parseInt(this.args[1])
-        );
-
+        this.conn = new Connection(this.ip, this.port);
         this.app.setDependencies(this.conn, this.comm);
     }
 
@@ -62,42 +53,43 @@ public class Client implements Runnable {
 
     public void run() {
 
-        boolean result;
+        Application.awaitAtBarrier("CLI: waits for Running screen.");
 
-        //connection try – max 10 tries
-        if (!this.conn.connect()) {
-            Application.disconnect(true);
-        }
-        this.comm.setConnection(this.conn);
-        this.comm.startService();
+        for(;;) {
 
+            Application.awaitAtBarrier("GUIC: waits for Conn screen.");
 
-        Application.awaitAtBarrier("CLI: waits for gui init.");
-
-        do {
-
-            this.performAction();
-
-
-            if(Application.getStatus() == GameStatus.EXIT_GAME) {
-                this.handleDisconect();
-                break;
+            //connection try – max 10 tries with 2 sec delays
+            if (!this.conn.connect()) {
+                Application.disconnect(true, ErrorConfig.CONNECTION_SERVER_UNREACHABLE);
             }
 
-            System.out.println("CLIIII: waits for a message at a queue.");
-
-            this.msg = this.comm.receiveMessage();
-
-            System.out.println("CLIIII: gets a message from a queue.");
-
-            if (this.msg == null)
-                continue;
-
-            this.handleResponse();
+            this.comm.setConnection(this.conn);
+            this.comm.startService();
 
 
+            Application.awaitAtBarrier("CLI: waits for gui init.");
 
-        } while (true);
+            do {
+                this.performAction();
+
+                if(Application.getStatus() == GameStatus.EXIT_GAME) {
+                    this.handleDisconect();
+                    break;
+                }
+
+                logger.info("CLI: waits at QUEUE for a message.");
+
+                if ((this.msg = this.comm.receiveMessage()) == null) {
+                    return;
+                }
+
+                logger.info("+++ CLI: takes a message: " + this.msg.getMessage());
+
+                this.handleResponse();
+            } while (true);
+
+        }
     }
 
     private void performAction() {
@@ -109,7 +101,7 @@ public class Client implements Runnable {
             case ROOM_SELECTING:        this.handleRoomListRequest(); break;
             case ROOM_CREATING:         this.handleRoomCreationRequest(); break;
             case ROOM_JOINING:          this.handleRoomJoinRequest(); break;
-            case GAME_INITIALIZING:     break; // this.handleGameStart(); // this.handleGameInitRequest(); break;
+            case GAME_INITIALIZING:     break;
             case GAME_RESTART:          this.handleGameRestartRequest(); break;
             case GAME_PLAYING_TURN_START:
             case GAME_PLAYING_TURN_END: this.handleTurnDataRequest(); break;
@@ -134,7 +126,6 @@ public class Client implements Runnable {
      *  SIGN IN
      */
     private void handleSignInRequest() {
-        //Application.awaitAtClientBarrier("CLI: Waits for username. (3CWC)");
         Application.awaitAtBarrier("CLI wait for username.");
         this.comm.sendUsernameRequest();
     }
@@ -151,7 +142,6 @@ public class Client implements Runnable {
      */
     private void handleRoomCreationRequest() {
         this.app.requestCreateRoom();
-        //Application.changeStatus(GameStatus.ROOM_CREATING);
     }
 
     /**
@@ -162,19 +152,10 @@ public class Client implements Runnable {
             return;
 
         this.app.requestJoinRoom();
-        //Application.changeStatus(GameStatus.ROOM_JOINING);
     }
 
-    private void handleGameStart() {
-
-    }
-
-    /**
-     *  GAME INIT
-     */
-    private void handleGameInitRequest() {
-
-    }
+    private void handleGameStart() {}
+    private void handleGameInitRequest() {}
 
     /**
      * GAME RESTART
@@ -184,12 +165,8 @@ public class Client implements Runnable {
         // send game start
         this.comm.handleRestartGame();
         Application.changeStatus(GameStatus.GAME_INITIALIZING);
-        Application.awaitAtBarrier("CLI releases GUIC with new progress: RESTART GAME.");
-        //Application.awaitAtBarrier("CLI waits for GUIC for running waiting........");
 
-        //pokuuus
-        //Application.awaitAtBarrier("CLI waits for GUIC for waiting screen.");
-        //Application.awaitAtClientBarrier("Client waits for waiting screen init.");
+        Application.awaitAtBarrier("CLI releases GUIC with new progress: RESTART GAME.");
     }
 
     /**
@@ -200,39 +177,14 @@ public class Client implements Runnable {
             return;
 
         // TURN_END: send progress
-        //Application.awaitAtClientBarrier("CLI: waits for user interaction. (19CWC)");
-
         Application.awaitAtBarrier("CLI waits for GUIC for turn end.");
         Application.changeStatus(GameStatus.GAME_PLAYING_TURN_START);
         this.app.proceedEndTurn();
     }
 
-//    private void readWhileTurnWaiting(){
-//        do {
-//           Message m = this.comm.receiveMessage();
-//           if (m == null) continue;
-//           this.handleResponse();
-//        } while (true);
-//    }
-
-
-    /**
-     *  GAME WAIT
-     */
-    private void handleWaitingRequest() {
-        // waits for a player
-    }
-
-    /**
-     * GAME END
-     */
-    private void handleGameEnd() {
-        //this.comm.handleLeaveGame();
-    }
-
-    private void handleGAmeResult() {
-
-    }
+    private void handleGameEnd() {}
+    private void handleWaitingRequest() {}
+    private void handleGAmeResult() {}
 
     /**
      *  LEAVE GAME
@@ -251,13 +203,10 @@ public class Client implements Runnable {
      */
     private void handleExitGame() {
         // send sign out
-        this.comm.handleSignOut();
-        Application.awaitAtBarrier("CLI releases GUIC with new progress: EXIT GAME.");
+        //this.comm.handleSignOut();
+        //Application.awaitAtBarrier("CLI releases GUIC with new progress: EXIT GAME.");
+        Application.disconnect(true, null);
     }
-
-
-
-
 
     private void handleResponse() {
         MessageType type = this.msg.getType();
@@ -265,11 +214,6 @@ public class Client implements Runnable {
         // skipping unexpected!
         if(!Application.getStatus().isAcceptable(type))
             return;
-
-        //while not expected???
-
-
-
 
         switch (type) {
             case HELLO:         this.handleHelloAuthorization(); break;
@@ -289,31 +233,26 @@ public class Client implements Runnable {
     }
 
     private void handlePlayerList() {
-        System.out.println("CLI: got PLAYER LIST");
+        logger.debug("+++ CLI: got PLAYER LIST.");
 
         // detects a change -> wait / end
         // updates players
 
-
         boolean result = this.app.handlePlayerList(this.msg.getMessage());
 
         if(result) {
-
             // everything ok, just update player list
-            System.out.println("PLAAAAAAAAAAAAAAAAAAAAAAAYER LIST: OK!!!!!!");
-
-
+            logger.debug("Player list: ok");
 
         } else {
 
             // a player is offline / has left the room
-
-            System.out.println("PLAAAAAAAAAAAAAAAAAAAAAAAYER LIST: FAIL!!!!!!");
-
+            logger.debug("Player list: NOT ok");
         }
 
         Application.awaitAtBarrier("++++ CLI releases GUIC with player update processed.");
         Application.awaitAtBarrier("++++ CLI: waits for GUIC for player list update/asking for WAITING.");
+
 
         if(!result) {
             if(this.app.isWaitingAskResult()) {
@@ -329,41 +268,29 @@ public class Client implements Runnable {
                 Application.changeStatus(GameStatus.GAME_END);
                 Application.awaitAtBarrier("++++ CLI: releases GUIC with WAITING result process.");
                 Application.awaitAtBarrier("++++ CLI waits for GUIC for END GAME registered.");
-
             }
-
-
         }
-
-
-
     }
 
     /**
      * hello packet handshake – max 3 tries
      */
     private void handleHelloAuthorization() {
-        //this.logger.fine("CLI: Got hello response.");
-        System.out.println("CLI: Got hello response.");
-
+        logger.debug("CLI: Got HELLO response.");
 
         if(this.comm.checkHelloPacket(this.msg.getMessage())) {
-            //this.logger.fine("CLI: Hello authorization successful.");
-            System.out.println("CLI: Hello authorization successful.");
+            logger.info("CLI: Hello authorization successful.");
             Application.changeStatus(GameStatus.SIGNING_IN);
             Application.awaitAtBarrier("CLI: hello authorization succeeded.");
             return;
         }
 
         if(this.helloRequestCount++ < ConnectionConfig.MAX_HELLO_TRY_COUNT) {
-            //this.logger.fine("CLI: Hello authorization failed.");
-            System.out.println("CLI: Hello authorization failed.");
+            logger.error("CLI: Hello authorization failed.");
 
         } else {
-            //this.logger.fine("CLI: Hello authorization failed " + this.helloRequestCount + " times. Shutting down.");
-            System.out.println("CLI: Hello authorization failed " + this.helloRequestCount + " times. Shutting down.");
-
-            Application.disconnect(true);
+            logger.error("CLI: Hello authorization failed " + this.helloRequestCount + " times. Shutting down.");
+            Application.disconnect(true, ErrorConfig.CONNECTION_SERVER_UNAUTHORIZED);
         }
 
         try {
@@ -375,11 +302,10 @@ public class Client implements Runnable {
      *  SIGN IN
      */
     private void handleSignIn() {
-        boolean reJoined = false;
+        boolean reJoined;
 
         if(this.app.handleUsernameSelection(this.msg.getMessage())) {
-            //this.logger.fine("CLI: Sign in successful.");
-            System.out.println("CLI: Sign in successful.");
+            logger.info("CLI: Sign in successful.");
 
             reJoined = this.app.getCurrentPlayer().hasRoom();
             if(reJoined) {
@@ -392,13 +318,10 @@ public class Client implements Runnable {
             }
 
         } else {
-            this.logger.fine("CLI: Sign in failed.");
-            System.out.println("CLI: Sign in failed.");
-
+            logger.error("CLI: Sign in failed.");
             this.app.registerError(Error.USERNAME_TAKEN);
         }
 
-        //Application.awaitAtClientBarrier("CLI: releases. Username checked. (8CRC)");
         Application.awaitAtBarrier("CLI: releases GUIC. Username checked.");
     }
 
@@ -407,21 +330,14 @@ public class Client implements Runnable {
      */
     private void handleRoomList() {
         if(this.app.updateRoomList(this.msg.getMessage())) {
-            this.logger.fine("CLI: Room list in successfully updated.");
-            System.out.println("CLI: Room list in successfully updated.");
+            logger.info("CLI: Room list in successfully updated.");
 
         } else {
-            this.logger.fine("CLI: Room list update failed.");
-            System.out.println("CLI: Room list update failed.");
+            logger.error("CLI: Room list update failed.");
         }
-
-//        Application.awaitAtClientBarrier("CLI releases GUIC.");
-//        Application.awaitAtClientBarrier("CLI: releases with room list. (8_3CRC)");
-//        Application.awaitAtClientBarrier("Client waits for user room selection/creation. (9CWC)");
 
         Application.awaitAtBarrier("CLI releases GUIC with room list.");
         Application.awaitAtBarrier("CLI waits for GUIC for room select.");
-
     }
 
     /**
@@ -429,27 +345,16 @@ public class Client implements Runnable {
      */
     private void handleNewGame() {
         if(this.app.handleRoomSelection(this.msg.getMessage())) {
-            //this.logger.fine("CLI: New game successfully created and joined.");
-            System.out.println("CLI: New game successfully created and joined.");
+            logger.info("CLI: New game successfully created and joined.");
 
             Application.changeStatus(GameStatus.GAME_INITIALIZING);
-
             Application.awaitAtBarrier("CLI releases GUIC with room selection approved.");
 
-            // pokuuus
-            //Application.awaitAtBarrier("CLI waits for GUIC for running waiting........");
-
         } else {
-            //this.logger.fine("CLI: New game creation failed.");
-            System.out.println("CLI: New game creation failed.");
-
+            logger.error("CLI: New game creation failed.");
             Application.changeStatus(GameStatus.ROOM_SELECTING);
-
             Application.awaitAtBarrier("CLI releases GUIC with room selection failed.");
         }
-
-        //Application.awaitAtClientBarrier("CLI: releases. Room selection handled. (14CRC)");
-
     }
 
     /**
@@ -457,58 +362,35 @@ public class Client implements Runnable {
      */
     private void handleJoinGame() {
         if(this.app.handleRoomSelection(this.msg.getMessage())) {
-//            this.logger.fine("CLI: Join game succeeded.");
-            System.out.println("CLI: Join game succeeded.");
+            logger.info("CLI: Join game succeeded.");
 
             Application.changeStatus(GameStatus.GAME_INITIALIZING);
-
             Application.awaitAtBarrier("CLI: releases GUIC. Room join approved.");
-            //Application.awaitAtBarrier("GUIC releases CLI with waiting screen.");
 
         } else {
-            //this.logger.fine("CLI: Join game failed.");
-            System.out.println("CLI: Join game failed.");
+            logger.error("CLI: Join game failed.");
 
             Application.changeStatus(GameStatus.ROOM_SELECTING);
             this.app.registerError(Error.ROOM_JOIN_REFUSED);
 
             Application.awaitAtBarrier("CLI: releases GUIC. Room join failed.");
         }
-
-        //Application.awaitAtClientBarrier("CLI: releases GUIC. Room selection handled. (14CRC)");
-        //Application.awaitAtClientBarrier("Client waits for waiting screen init.");
-
-
     }
 
     /**
      *  START GAME
      */
     private void handleStartGame() {
-
-//        if(Application.getPrevStatus() != GameStatus.GAME_WAITING
-//                && this.app.getSelectedRoom().getType() == GameType.SINGLEPLAYER) {
-//            //singleplayer start game
-//            Application.awaitAtBarrier("CLI waits for GUIC for waiting screen init.");
-//        }
-
-
         Application.awaitAtBarrier("CLI waits for GUIC for running waiting........");
-
 
         boolean result = this.comm.handleGameInit(this.msg.getMessage());
 
-        //Application.awaitAtClientBarrier("CLI: waits for waiting screen init.");
-//        Application.awaitAtBarrier("CLI releases GUIC with game initialized.");
-
         if(result) {
-            //this.logger.fine("CLI: Game init succeeded.");
-            System.out.println("CLI: Game init succeeded.");
+            logger.info("CLI: Game init succeeded.");
             Application.changeStatus(GameStatus.GAME_PLAYING_TURN_START);
 
         } else {
-            //this.logger.fine("CLI: Game init failed.");
-            System.out.println("CLI: Game init failed.");
+            logger.error("CLI: Game init failed.");
 
             if(Application.getPrevStatus() == GameStatus.GAME_RESTART) {
                 // end -> start == play again
@@ -517,10 +399,6 @@ public class Client implements Runnable {
 
             Application.changeStatus(GameStatus.ROOM_SELECTING);
         }
-
-        //Application.awaitAtClientBarrier("CLI: releases after game initialization. (16CRC)");
-        //if(result) Application.awaitAtClientBarrier("CLI: waits for board init.");
-
 
         Application.awaitAtBarrier("CLI releases GUIC with game initialization done.");
 
@@ -538,18 +416,14 @@ public class Client implements Runnable {
         boolean result = this.app.handleTurnStart(this.msg.getMessage());
 
         if(result) {
-            //this.logger.fine("CLI: Turn start ok, game continues.");
-            System.out.println("CLI: Turn start ok, game continues.");
+            logger.info("CLI: Turn was played very well. Game continues.");
             Application.changeStatus(GameStatus.GAME_PLAYING_TURN_END);
-            //Application.awaitAtClientBarrier("AFTER BEGENNING TURN");
 
         } else {
-            //this.logger.fine("CLI: Turn start ok, game finishes!.");
-            System.out.println("CLI: Turn start NOT ok, game finishes!.");
+            logger.error("CLI: Turn was played badly. Game finishes!");
             Application.changeStatus(GameStatus.GAME_END);
         }
 
-        //Application.awaitAtClientBarrier("CLI: releases after turn start. (18CRC)");
         Application.awaitAtBarrier("CLI releases GUIC with turn data.");
         if(!result) Application.awaitAtBarrier("CLI waits for GUIC after turn data processed.");
     }
@@ -559,14 +433,7 @@ public class Client implements Runnable {
      */
     private void handleEndGame() {
         this.app.handleGameResults(this.msg.getMessage());
-        //this.logger.fine("CLI: Game ends.");
-        System.out.println("CLI: Game ends.");
-
-
-//        if(Application.getStatus() == GameStatus.GAME_INITIALIZING) {
-//            Application.changeStatus(GameStatus.ROOM_SELECTING);
-//            return;
-//        }
+        logger.info("CLI: Game ends.");
 
         Application.changeStatus(GameStatus.GAME_RESULTS);
 
@@ -579,14 +446,7 @@ public class Client implements Runnable {
 
     }
 
-
-
-
-
-
     private void handleDisconect(){
-        System.out.println("!!!!!!!!!!!!!!!!!CLIENT ENDS!!!!!!!!!!!!!!!!!");
-        Application.disconnect(false);
+        Application.disconnect(false, null);
     }
-
 }

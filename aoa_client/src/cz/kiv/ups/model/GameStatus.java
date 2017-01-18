@@ -6,8 +6,6 @@ import cz.kiv.ups.communication.MessageType;
 import java.util.Arrays;
 
 public enum GameStatus {
-
-
     /**
      * Hello packet authorization.
      */
@@ -67,7 +65,6 @@ public enum GameStatus {
     /**
      * Game has finished.
      */
-//    GAME_RESULTS(new MessageType[]{ MessageType.GAME_START, MessageType.GAME_RESULT}),
     GAME_RESULTS(new MessageType[]{ MessageType.GAME_START}),
 
     /**
@@ -77,7 +74,6 @@ public enum GameStatus {
 
 
     private final MessageType[] acceptableMessageTypes;
-
 
     GameStatus(MessageType[] acceptableMessageTypes) {
         this.acceptableMessageTypes = acceptableMessageTypes;

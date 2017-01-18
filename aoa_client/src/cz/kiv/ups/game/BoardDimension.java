@@ -8,13 +8,11 @@ public enum BoardDimension {
     LARGE   (4, "large (4x4)"),
     HUGE    (5, "huge (5x5)");
 
-
-
     private int dimension;
 
     private String title;
 
-    private BoardDimension(int dim, String title) {
+    BoardDimension(int dim, String title) {
         this.dimension = dim;
         this.title = title;
     }
@@ -23,22 +21,13 @@ public enum BoardDimension {
         return dimension;
     }
 
-    public void setDimension(int dimension) {
-        this.dimension = dimension;
-    }
-
     public String getTitle() {
         return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
     }
 
     public static BoardDimension getNth(int dim){
         return BoardDimension.values()[dim];
     }
-
 
     public String toString(){
         return this.title;

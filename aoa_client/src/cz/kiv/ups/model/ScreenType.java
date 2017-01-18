@@ -50,20 +50,17 @@ public enum ScreenType {
 	private String title;
 	
 	
-	private ScreenType(int id, String name) {
+	ScreenType(int id, String name) {
 		this.id = id;
 		this.name = name;
 		this.title = AppConfig.APP_NAME;
 	}
 	
-	private ScreenType(int id, String name, String title) {
+	ScreenType(int id, String name, String title) {
 		this.id = id;
 		this.name = name;
 		this.title = title + " | " + AppConfig.APP_NAME;
 	}
-	
-	
-
 
 	/**
 	 * @return the ID

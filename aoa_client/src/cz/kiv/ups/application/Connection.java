@@ -6,11 +6,13 @@ import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-
 import cz.kiv.ups.config.ConnectionConfig;
 
 
 public class Connection {
+
+    private static Logger logger = Logger.getLogger();
+
 	
 	/**
 	 * Server port.
@@ -55,7 +57,7 @@ public class Connection {
 		while(!this.createSocket()) {
 
 			count++;
-			Logger.logConnectionFailed(count);
+			logger.error("CLI: " + count + ". connection try failed.");
 			
 			if(count >= ConnectionConfig.MAX_CONNECTION_TRY_COUNT) {
 				return false;
@@ -65,8 +67,8 @@ public class Connection {
 				Thread.sleep(ConnectionConfig.CONNECTION_TRY_PERIOD_MS);
 			} catch (InterruptedException e) {}
 		}
-		
-		Logger.logConnectionSucceeded(this.getHostAddress(), this.getHostName());
+
+		logger.info("CLI: Connected to : " + this.getHostAddress() + " named: " + this.getHostName());
 		return true;
 	}
 	
@@ -74,7 +76,7 @@ public class Connection {
 	 * Method handling disconnection from server.
 	 */
 	public static void disconnect(){
-		//Connection.closeSocket();
+		Connection.closeSocket();
 	}
 	
 	private static void closeSocket() {
@@ -82,9 +84,11 @@ public class Connection {
 			try {
 				Connection.clientSocket.close();
 			} catch (IOException e) {
-				System.err.print("ErrorConfig: closing socket.\n");
-				e.printStackTrace();
+				logger.error("Closing socket.");
+				//e.printStackTrace();
 			}
+
+
 		}
 	}
 	
@@ -99,11 +103,9 @@ public class Connection {
 			this.outStream = Connection.clientSocket.getOutputStream();
 			this.inStream = Connection.clientSocket.getInputStream();
 		} catch (UnknownHostException e) {
-			System.err.print("ErrorConfig: creating connection.\n");
-			//e.printStackTrace();
+			logger.error("Error: creating connection.");
 		} catch (IOException e) {
-			System.err.print("ErrorConfig: creating connection.\n");
-			//e.printStackTrace();
+			logger.error("Error: creating connection.");
 		}
 
 		return this.isConnected();

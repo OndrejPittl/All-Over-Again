@@ -38,10 +38,6 @@ public class ViewRoom {
 		this.viewDimension = new SimpleStringProperty(dimension.getTitle());
 	}
 
-	public int getID() {
-		return this.room.getID();
-	}
-
 	public Room getRoom() {
 		return room;
 	}

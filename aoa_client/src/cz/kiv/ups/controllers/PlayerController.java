@@ -11,8 +11,6 @@ import cz.kiv.ups.model.Player;
 
 public class PlayerController extends ScreenController {
 
-    private static boolean tmpActive = true;
-
     @FXML
     private Label lbl_name;
 

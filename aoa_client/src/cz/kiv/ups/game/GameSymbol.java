@@ -1,8 +1,5 @@
 package cz.kiv.ups.game;
 
-/**
- * Created by OndrejPittl on 02.01.17.
- */
 public enum GameSymbol implements IGameList {
 
     Symbol1(0),

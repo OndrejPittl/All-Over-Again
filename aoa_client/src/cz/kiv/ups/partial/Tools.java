@@ -9,6 +9,15 @@ public class Tools {
         return str.matches("^([0-9]*)$");
     }
 
+    public static boolean isNumberInRange(String str, int lower, int upper){
+        if(!Tools.isNumber(str))
+            return false;
+
+        int num = Integer.parseInt(str);
+
+        return num >= lower && num <= upper;
+    }
+
     public static boolean isValidIP(String str) {
         return str.matches("^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$")
                 || str.equals("localhost");
@@ -34,7 +43,6 @@ public class Tools {
         if(mod > 0)
             sum = sum % mod;
 
-//        System.out.println("checksum'of \"" + str + "\": " + sum);
         return (int) sum;
     }
 }

@@ -21,13 +21,6 @@ public class ResultsController extends ScreenController {
     @FXML
     private Button btn_again;
 
-    @FXML
-    private Button btn_leave;
-
-    @FXML
-    private Button btn_exit;
-
-
     @Override
     protected void init() {}
 
@@ -57,13 +50,11 @@ public class ResultsController extends ScreenController {
 
     public void leaveGame(){
         // leave a room, stay signed in
-        //this.app.disconnectRoom();
         this.makeChoice();
     }
 
     public void exitGame(){
         // exit a game to OS
-        //this.app.setExitingGame(true);
         Application.changeStatus(GameStatus.EXIT_GAME);
         this.makeChoice();
     }

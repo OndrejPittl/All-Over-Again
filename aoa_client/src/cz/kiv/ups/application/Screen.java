@@ -17,17 +17,21 @@ import javafx.stage.Stage;
 import cz.kiv.ups.model.ScreenSettings;
 import cz.kiv.ups.model.ScreenType;
 
-public class Screen extends Stage implements Observer {
-	
-	private Application app;
-	
+public class Screen extends Stage {
+
+    private static Logger logger = Logger.getLogger();
+
+    private Application app;
+
 	private Stage stage;
 
 	private Screen me;
 
 
+	private MessageController connectingController;
+
 	private PlaygroundController playgroundController;
-	
+
 
 	
 	public Screen(Stage window, Application app) {
@@ -41,27 +45,18 @@ public class Screen extends Stage implements Observer {
     }
 
     private void init(){
-		this.stage.setOnCloseRequest((e) -> {
-			Application.disconnect(true);
-		});
-
-		this.stage.show();
-        this.centerStage();
-	}
+		this.stage.setOnCloseRequest((e) -> Application.disconnect(true, null));
+        this.setOnShown((e) -> this.centerStage());
+    }
 	
 	private Initializable runScreen(ScreenType screen) throws IOException {
-        System.out.println("--- running: " + screen.getName());
+        logger.debug("--- running: " + screen.getName());
 
 		ScreenSettings cfg = ViewConfig.getScreen(screen);
         FXMLSource src = DataLoader.loadLayout(cfg.getName());
 		BorderPane root = (BorderPane) src.getRoot();
 
-		Scene scene = new Scene(
-			root,
-			cfg.getWidth(),
-			cfg.getHeight()
-		);
-
+		Scene scene = new Scene(root, cfg.getWidth(), cfg.getHeight());
 		DataLoader.loadStylesheet(this, scene, "style");
 
 		this.stage.setMinWidth(cfg.getMinWidth());
@@ -69,7 +64,9 @@ public class Screen extends Stage implements Observer {
 		this.stage.setTitle(cfg.getTitle());
         this.stage.setScene(scene);
 
-        //this.centerStage();
+        if(!this.stage.isShowing()) {
+        	this.stage.show();
+		}
 
 		return src.getController();
 	}
@@ -96,18 +93,27 @@ public class Screen extends Stage implements Observer {
 		
 		return null;
 	}
-	
-	public void runConnecting(){
-		Platform.runLater(() -> {
-			try {
-				MessageController controller = (MessageController) me.runScreen(ScreenType.Message);
-				controller.setMessage(ViewConfig.MSG_CONNECTION);
-				controller.setApp(app);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		});
-	}
+
+    public void runConnecting(boolean started){
+        Platform.runLater(() -> {
+            try {
+                this.connectingController = (MessageController) me.runScreen(ScreenType.Message);
+                this.connectingController.setMessage(started ? ViewConfig.MSG_CONNECTION : ViewConfig.MSG_STARTING);
+                this.connectingController.setApp(app);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public void runConnectingMsg(){
+        Platform.runLater(() -> this.connectingController.setMessage(ViewConfig.MSG_CONNECTION));
+    }
+
+    public void runRunningMsg(){
+        Platform.runLater(() -> this.connectingController.setMessage(ViewConfig.MSG_STARTING));
+    }
+
 
 	public void runWaiting(){
 		Platform.runLater(() -> {
@@ -152,7 +158,6 @@ public class Screen extends Stage implements Observer {
                 this.playgroundController.setApp(app);
                 this.playgroundController.prepare();
                 Application.awaitAtGuiBarrier("GUI releases after board initialization.");
-                //controller.updateRoomList();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -185,18 +190,6 @@ public class Screen extends Stage implements Observer {
 
         Application.awaitAtGuiBarrier("GUIC: waits for GUI for user interaction.");
     }
-
-	
-	//observer
-	@Override
-	public void update(Observable o, Object arg) {
-		//a change appeared
-		
-	}
-	
-	public Stage getWindow(){
-		return this.stage;
-	}
 
     public void beginTurn() {
         this.playgroundController.startTurn();

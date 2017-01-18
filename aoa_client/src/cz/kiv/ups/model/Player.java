@@ -12,8 +12,6 @@ public class Player {
 
 	private int roomID = -1;
 
-
-
 	// playerlist
 	public Player(int id, String username, boolean online, boolean active) {
 		this.ID = id;

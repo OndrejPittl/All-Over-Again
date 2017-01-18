@@ -17,7 +17,6 @@ public class MessageController extends ScreenController {
 	protected void init(){
 		Image image = new Image(Routes.getImagesDir() + Routes.IMG_LOADER);
 		this.iv_loading.setImage(image);
-//		System.out.println("after init.................");
     }
 
 	public void setMessage(String msg){
