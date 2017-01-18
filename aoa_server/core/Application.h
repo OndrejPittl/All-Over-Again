@@ -44,7 +44,10 @@ class Application {
          */
         //std::map<int, Player> offlineUsers;
         //std::vector<Player> offlinePlayers;
-        PlayerVector offlinePlayers;
+        //PlayerVector offlinePlayers;
+        PlayerMap offlinePlayers;
+
+        Indexer *offlinePlayerIndexer;
 
         /**
          * This vector holds socket values/ids of clients being suspicious

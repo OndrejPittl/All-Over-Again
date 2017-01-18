@@ -27,6 +27,7 @@ Application::Application(ConnectionManager *conn, CommunicationManager *comm) {
 
 void Application::init() {
     this->roomIndexer = new Indexer();
+    this->offlinePlayerIndexer = new Indexer();
     this->game = new Game();
     this->log = new StringBuilder();
     //this->fillMockRooms();
@@ -163,9 +164,6 @@ bool Application::signInUser(int uid, std::string username) {
 
     if(mergable) {
         Logger::info("mergiiiiiiiiing");
-        // merging
-        this->reconnectUser(player);
-
         // a game must go on!
         this->reassignPlayer(player);
     }
@@ -184,10 +182,33 @@ bool Application::signInUser(int uid, std::string username) {
 
 
 void Application::reassignPlayer(Player *player) {
-    Player *prevPlayer = this->getOfflinePlayer(this->usernames[player->getUsername()]);
-    Room *r = this->getRoom(player->getRoomID());
+    int prevPlayerUid;
 
-    r->reassignPlayer(player, prevPlayer);
+    std::string username;
+
+    Player *prevPlayer;
+
+    Room *room;
+
+
+
+    Developer::printOnlineOfflineUsers(this->onlinePlayers, this->offlinePlayers);
+
+    username = player->getUsername();
+    prevPlayerUid = this->usernames[username];
+    prevPlayer = this->getOfflinePlayer(prevPlayerUid);
+    room = this->getRoom(prevPlayer->getRoomID());
+
+    player->merge(prevPlayer);
+    room->reassignPlayer(player, prevPlayer);
+    this->removeOfflineUser(prevPlayerUid);
+
+    this->log->clear();
+    this->log->append("A user ");
+    this->log->append(username);
+    this->log->append(" was reconnected!");
+    Logger::info(this->log->getString());
+    Developer::printOnlineOfflineUsers(this->onlinePlayers, this->offlinePlayers);
 }
 
 void Application::reconnectUser(Player *player){
@@ -204,7 +225,8 @@ void Application::reconnectUser(Player *player){
     offPlayer = this->getOfflinePlayer(offUid);
     player->merge(offPlayer);
 
-    this->offlinePlayers.erase(this->offlinePlayers.begin() + offUid);
+    this->offlinePlayers.erase(offUid);
+    this->offlinePlayerIndexer->free(offUid);
 
     this->log->clear();
     this->log->append("A user ");
@@ -355,7 +377,8 @@ void Application::removeOfflineUser(int offUid) {
 
     Developer::printOnlineOfflineUsers(this->onlinePlayers, this->offlinePlayers);
 
-    this->offlinePlayers.erase(this->offlinePlayers.begin() + offUid);
+    this->offlinePlayers.erase(offUid);
+    this->offlinePlayerIndexer->free(offUid);
 
     // -- LOG --
     this->log->clear(); this->log->append("The offline user "); this->log->append(player->getUsername());
@@ -436,6 +459,7 @@ void Application::cancelRoom(Room *room){
 
     // cancel a room
     this->rooms.erase(room->getID());
+    this->roomIndexer->free(room->getID());
 
     printRooms(this->rooms);
 }
@@ -457,6 +481,7 @@ void Application::disbandRoom(Room *room){
 
     // cancel a room
     this->rooms.erase(room->getID());
+    this->roomIndexer->free(room->getID());
 
     printRooms(this->rooms);
 }
@@ -765,7 +790,7 @@ Player *Application::getPlayer(int uid) {
 }
 
 Player *Application::getOfflinePlayer(int uid) {
-    return this->offlinePlayers[uid];
+    return this->offlinePlayers.count(uid) ? this->offlinePlayers[uid] : nullptr;
 }
 
 void Application::storePlayer(Player *p) {
@@ -773,13 +798,10 @@ void Application::storePlayer(Player *p) {
 }
 
 int Application::storeOfflinePlayer(Player *p) {
-    int index;
+    int index = this->offlinePlayerIndexer->take();
 
     // push into offline collection
-    this->offlinePlayers.push_back(p);
-
-    // index of a user in offline collection
-    index = (int) this->offlinePlayers.size() - 1;
+    this->offlinePlayers[index] = p;
 
     // store new index
     this->usernames[p->getUsername()] = index;

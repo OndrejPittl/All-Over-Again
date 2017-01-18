@@ -399,7 +399,7 @@ void MessageProcessor::proceedTurnData(Message *msg) {
     Room *r = this->app->getRoom(rid);
 
 
-    if(msg != nullptr) {
+    if(msg != nullptr && r->isEverybodyOnline()) {
 
         // NOT FIRST TIME, ack dependent on progress
         this->parser->parseTurn(msg->getMessage(), progress);
