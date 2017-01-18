@@ -399,18 +399,64 @@ void MessageProcessor::proceedTurnData(Message *msg) {
     Room *r = this->app->getRoom(rid);
 
 
-    if(msg != nullptr && r->isEverybodyOnline()) {
+    if(msg == nullptr) {
 
-        // NOT FIRST TIME, ack dependent on progress
-        this->parser->parseTurn(msg->getMessage(), progress);
-        result = this->app->proceedTurn(rid, progress);
+        // FIRST turn || while WAITING for a player
+
+        result = true;
 
     } else {
 
-        // first time, ack = true
-        result = true;
+        // NOT first turn
+        // ack dependent on progress (result var)
+
+        if(r->isEverybodyOnline()) {
+            // everybody online -> validate
+            this->parser->parseTurn(msg->getMessage(), progress);
+            result = this->app->proceedTurn(rid, progress);
+
+        } else {
+
+            // a response was received during waiting on a player
+            // -> ignore progress but NOT ignore game end request
+
+            Logger::error("response while WAITING:");
+            Logger::error(msg->getMessage());
+            Logger::error(std::to_string(msg->getMessage().length()));
+
+
+            // end game detection:
+            if(msg->getMessage().empty()) {
+
+                // END GAME!
+                result = false;
+
+            } else {
+                result = true;
+            }
+        }
+
 
     }
+
+//    if(msg != nullptr && r->isEverybodyOnline()) {
+//
+//        // NOT FIRST TIME, ack dependent on progress
+//        this->parser->parseTurn(msg->getMessage(), progress);
+//        result = this->app->proceedTurn(rid, progress);
+//
+//    } else {
+//
+//        // first turn || waiting for a player
+//
+//
+//
+//
+//
+//        // first time, ack = true
+//        result = true;
+//
+//    }
 
     if(!this->reJoining && r->isEverybodyOnline())
         r->startTurn();
@@ -500,14 +546,16 @@ void MessageProcessor::proceedSignOut(Message *msg) {
     this->log->append("MSGProcessor, processing signout:");
     Logger::info(this->log->getString());
 
-    Player *p = this->app->getPlayer(this->clientSocket);
-    Room *r = this->app->getRoom(p->getID());;
+//    Player *p = this->app->getPlayer(this->clientSocket);
+//    Room *r = this->app->getRoom(p->getID());;
 
-    if(r->getGameType() == GameType::SINGLEPLAYER) {
-        this->app->leaveRoomCheckCancel(p);
-    } else {
-        this->app->signOutUser(this->clientSocket);
-    }
+
+    this->app->deregisterUser(this->clientSocket);
+//    if(r->getGameType() == GameType::SINGLEPLAYER) {
+//        this->app->leaveRoomCheckCancel(p);
+//    } else {
+//        this->app->signOutUser(this->clientSocket);
+//    }
 }
 
 
@@ -577,7 +625,9 @@ void MessageProcessor::proceedStartGame(Room *r, bool ack) {
 //    this->proceedFirstTurnData();
 //    this->answerRoomAndClean(r, &MessageProcessor::answerMessage);
 
-    this->proceedTurnData(nullptr); // with no previous progress
+    // new game with no previous progress
+    // or rejoined
+    this->proceedTurnData(nullptr);
     r->changeStatus(GameStatus::PLAYING);
 }
 

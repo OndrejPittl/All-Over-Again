@@ -67,70 +67,70 @@ void ServerOptions::parse() {
     }
 }
 
-bool ServerOptions::has(const std::string &opt) const {
-    return this->options.find(opt)->second > 0;
-}
-
-bool ServerOptions::isOption(const std::string &arg, const Option &opt) {
-    //std::cout << "checking: " << arg << " (" << opt.first << ", " << opt.second << ")" << std::endl;
-    return arg.find(opt.first) != std::string::npos || arg.find(opt.second) != std::string::npos;
-}
-
-int ServerOptions::validatePort(std::string port) {
-    if(isNumberInRange(port, ServerOptions::PORT_NUM_LOWER_LIMIT, ServerOptions::PORT_NUM_UPPER_LIMIT)) {
-        return std::stoi(port);
+    bool ServerOptions::has(const std::string &opt) const {
+        return this->options.find(opt)->second > 0;
     }
 
-    Logger::error("Invalid port inserted. DEFAULT is used.");
-    return -1;
-}
-
-void ServerOptions::print() {
-    this->sb->clear();
-    this->sb->append("Printing input params:\n");
-    for(auto it = this->options.cbegin(); it != this->options.cend(); ++it) {
-        this->sb->append(it->first);
-        this->sb->append(": ");
-        this->sb->append(it->second);
-        this->sb->append("\n");
+    bool ServerOptions::isOption(const std::string &arg, const Option &opt) {
+        //std::cout << "checking: " << arg << " (" << opt.first << ", " << opt.second << ")" << std::endl;
+        return arg.find(opt.first) != std::string::npos || arg.find(opt.second) != std::string::npos;
     }
-    Logger::info(this->sb->getString());
-}
 
-void ServerOptions::printHelp() {
-    this->sb->clear();
-    this->sb->append("usage: ./aoa_server [options]\n\nOptions:\n");
+    int ServerOptions::validatePort(std::string port) {
+        if(isNumberInRange(port, ServerOptions::PORT_NUM_LOWER_LIMIT, ServerOptions::PORT_NUM_UPPER_LIMIT)) {
+            return std::stoi(port);
+        }
 
-    // help
-    this->sb->append(OPT_HELP_FLAGS.first);
-    this->sb->append(", ");
-    this->sb->append(OPT_HELP_FLAGS.second);
-    this->sb->append("                     Displays help information.\n");
+        Logger::error("Invalid port inserted. DEFAULT is used.");
+        return -1;
+    }
 
-    //port
-    this->sb->append(OPT_PORT_FLAGS.first);
-    this->sb->append(" <port>, ");
-    this->sb->append(OPT_PORT_FLAGS.second);
-    this->sb->append(" <port>       Specifies the server to run at <port> port\n");
-    this->sb->append("                               in a range ");
-    this->sb->append(PORT_NUM_LOWER_LIMIT);
-    this->sb->append(" - ");
-    this->sb->append(PORT_NUM_UPPER_LIMIT);
-    this->sb->append(".\n");
+    void ServerOptions::print() {
+        this->sb->clear();
+        this->sb->append("Printing input params:\n");
+        for(auto it = this->options.cbegin(); it != this->options.cend(); ++it) {
+            this->sb->append(it->first);
+            this->sb->append(": ");
+            this->sb->append(it->second);
+            this->sb->append("\n");
+        }
+        Logger::info(this->sb->getString());
+    }
 
-    // quiet
-    this->sb->append(OPT_QUIET_FLAGS.first);
-    this->sb->append(", ");
-    this->sb->append(OPT_QUIET_FLAGS.second);
-    this->sb->append("                    Specifies the server to run at quiet mode.\n");
+    void ServerOptions::printHelp() {
+        this->sb->clear();
+        this->sb->append("usage: ./aoa_server [options]\n\nOptions:\n");
 
-    Logger::print(this->sb->getString());
-}
+        // help
+        this->sb->append(OPT_HELP_FLAGS.first);
+        this->sb->append(", ");
+        this->sb->append(OPT_HELP_FLAGS.second);
+        this->sb->append("                     Displays help information.\n");
 
-const std::string &ServerOptions::getAppName() const {
-    return this->appName;
-}
+        //port
+        this->sb->append(OPT_PORT_FLAGS.first);
+        this->sb->append(" <port>, ");
+        this->sb->append(OPT_PORT_FLAGS.second);
+        this->sb->append(" <port>       Specifies the server to run at <port> port\n");
+        this->sb->append("                               in a range ");
+        this->sb->append(PORT_NUM_LOWER_LIMIT);
+        this->sb->append(" - ");
+        this->sb->append(PORT_NUM_UPPER_LIMIT);
+        this->sb->append(".\n");
 
-uint ServerOptions::get(const std::string &flag) {
-    return this->options[flag];
-}
+        // quiet
+        this->sb->append(OPT_QUIET_FLAGS.first);
+        this->sb->append(", ");
+        this->sb->append(OPT_QUIET_FLAGS.second);
+        this->sb->append("                    Specifies the server to run at quiet mode.\n");
+
+        Logger::print(this->sb->getString());
+    }
+
+    const std::string &ServerOptions::getAppName() const {
+        return this->appName;
+    }
+
+    uint ServerOptions::get(const std::string &flag) {
+        return this->options[flag];
+    }
