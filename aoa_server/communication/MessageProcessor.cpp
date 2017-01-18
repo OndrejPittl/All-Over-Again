@@ -412,7 +412,7 @@ void MessageProcessor::proceedTurnData(Message *msg) {
 
     }
 
-    if(!this->reJoining)
+    if(!this->reJoining && r->isEverybodyOnline())
         r->startTurn();
 
     progressStr = this->serializer->serializeRoomProgress(r);

@@ -12,10 +12,7 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.util.Duration;
@@ -25,6 +22,7 @@ import cz.kiv.ups.model.Room;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Optional;
 
 
 public class PlaygroundController extends ScreenController {
@@ -112,6 +110,7 @@ public class PlaygroundController extends ScreenController {
 
                 //if(this.timerValue == 0 || this.isNewTurn()) {
                 if(this.timerValue == 0) {
+                    System.out.println("* * * * * END TURN: timer runs out");
                     this.endTurn();
                 }
             })
@@ -135,7 +134,7 @@ public class PlaygroundController extends ScreenController {
             src = DataLoader.loadPartialLayout(Routes.LAYOUT_PARTIAL_PLAYER_RECORD);
 
             controller = (PlayerController) src.getController();
-            controller.setData(p);
+            controller.update(p, this.room.getCurrentPlayerID());
 
             item = (BorderPane) src.getRoot();
 
@@ -192,6 +191,7 @@ public class PlaygroundController extends ScreenController {
         this.updateMoveStats();
 
         if(this.moveCounter == this.turn.getTurn()) {
+            System.out.println("* * * * * END TURN: move counter");
             this.endTurn();
         }
 
@@ -241,14 +241,6 @@ public class PlaygroundController extends ScreenController {
         Platform.runLater(() -> Application.awaitAtGuiBarrier("GUI releases. Turn ends."));
     }
 
-    private boolean isNewTurn(){
-        return this.app.getGameTurn().getTurn() != this.turn.getTurn();
-    }
-
-    public void stopGame() {
-        Platform.runLater(() -> this.endTurn());
-    }
-
     private void enableBoard(){
         this.gp_playground.setDisable(false);
     }
@@ -264,7 +256,10 @@ public class PlaygroundController extends ScreenController {
         if(progress == null) {
             if(this.amIActive)
                 this.proceedTurnStart();
-            else this.endTurn();
+            else {
+                System.out.println("* * * * * END TURN: not my turn (first turn without progress)");
+                this.endTurn();
+            }
             return;
         }
 
@@ -295,7 +290,10 @@ public class PlaygroundController extends ScreenController {
                     (ActionEvent) -> {
                         if(this.amIActive)
                             this.proceedTurnStart();
-                        else this.endTurn();
+                        else {
+                            System.out.println("* * * * * END TURN: not my turn (after turn task)");
+                            this.endTurn();
+                        }
                     }
             )).play()
         );
@@ -308,9 +306,22 @@ public class PlaygroundController extends ScreenController {
     }
 
     public void askPlayerWait() {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, ViewConfig.MSG_ASK_OPPONENT_LEFT , ButtonType.YES, ButtonType.NO);
-        alert.showAndWait();
-        this.app.setWaitingAskResult(alert.getResult() == ButtonType.YES);
+        boolean waiting = false;
+
+        ButtonType waitBtn = new ButtonType(ViewConfig.MSG_ASK_YES, ButtonBar.ButtonData.YES);
+        ButtonType leaveBtn = new ButtonType(ViewConfig.MSG_ASK_NO, ButtonBar.ButtonData.NO);
+        Alert alert = new Alert(Alert.AlertType.WARNING, ViewConfig.MSG_ASK_OPPONENT_LEFT_CONTENT, waitBtn, leaveBtn);
+
+        alert.setTitle(ViewConfig.MSG_ASK_OPPONENT_LEFT_TITLE);
+        alert.setHeaderText(ViewConfig.MSG_ASK_OPPONENT_LEFT_HEADER);
+
+        Optional<ButtonType> result = alert.showAndWait();
+
+        if (result.isPresent() && result.get() == waitBtn) {
+            waiting = true;
+        }
+
+        this.app.setWaitingAskResult(waiting);
     }
 
     public boolean isWaitingForPlayer() {

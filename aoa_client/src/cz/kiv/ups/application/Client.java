@@ -114,7 +114,7 @@ public class Client implements Runnable {
             case GAME_PLAYING_TURN_START:
             case GAME_PLAYING_TURN_END: this.handleTurnDataRequest(); break;
             case GAME_WAITING:          this.handleWaitingRequest(); break;
-            case GAME_END:              this.handleGameEnd(); break;                    // not tested
+            case GAME_END:              this.handleGameEnd(); break;
             case GAME_RESULTS:          this.handleLeaveGame(); break;
             case EXIT_GAME:             this.handleExitGame(); break;
         }
@@ -272,15 +272,15 @@ public class Client implements Runnable {
 
 
         switch (type) {
-            case HELLO:     this.handleHelloAuthorization(); break;
-            case SIGN_IN:   this.handleSignIn(); break;
-            case GAME_LIST: this.handleRoomList(); break;
-            case GAME_NEW:  this.handleNewGame(); break;
-            case GAME_JOIN: this.handleJoinGame(); break;
-            case GAME_START:this.handleStartGame(); break;
-            case TURN_DATA: this.handleTurnData(); break;
-            case PLAYER_LIST:this.handlePlayerList(); break;
-            case GAME_RESULT:this.handleEndGame(); break;
+            case HELLO:         this.handleHelloAuthorization(); break;
+            case SIGN_IN:       this.handleSignIn(); break;
+            case GAME_LIST:     this.handleRoomList(); break;
+            case GAME_NEW:      this.handleNewGame(); break;
+            case GAME_JOIN:     this.handleJoinGame(); break;
+            case GAME_START:    this.handleStartGame(); break;
+            case TURN_DATA:     this.handleTurnData(); break;
+            case PLAYER_LIST:   this.handlePlayerList(); break;
+            case GAME_RESULT:   this.handleEndGame(); break;
             case GAME_LEAVE:
             case SIGN_OUT:
                 break;
@@ -312,18 +312,30 @@ public class Client implements Runnable {
 
         }
 
-        Application.awaitAtBarrier("++++ CLI releases GUIC with player update.");
-        Application.awaitAtBarrier("++++ CLI: waits for GUIC for player list update/user interaction.");
+        Application.awaitAtBarrier("++++ CLI releases GUIC with player update processed.");
+        Application.awaitAtBarrier("++++ CLI: waits for GUIC for player list update/asking for WAITING.");
 
+        if(!result) {
+            if(this.app.isWaitingAskResult()) {
 
-        if(!result && this.app.isWaitingAskResult()) {
+                // WAITING RESULT: waiting for the opponent comes back
+                Application.changeStatus(GameStatus.GAME_WAITING);
+                Application.awaitAtBarrier("++++ CLI: releases GUIC with WAITING result process.");
 
-            // waiting for the opponent comes back
-            Application.changeStatus(GameStatus.GAME_WAITING);
+            } else if (!this.app.isWaitingAskResult()) {
 
-            Application.awaitAtBarrier("++++ CLI: releases GUIC with WAITING result process.");
+                // WAITING RESULT: not waiting
+                this.app.forceEndTurn();
+                Application.changeStatus(GameStatus.GAME_END);
+                Application.awaitAtBarrier("++++ CLI: releases GUIC with WAITING result process.");
+                Application.awaitAtBarrier("++++ CLI waits for GUIC for END GAME registered.");
+
+            }
+
 
         }
+
+
 
     }
 

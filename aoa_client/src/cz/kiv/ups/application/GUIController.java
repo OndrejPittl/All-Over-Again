@@ -134,25 +134,26 @@ public class GUIController extends Observable implements Runnable {
                         this.gui.askPlayerWait();
 
                         Application.awaitAtBarrier("++++ GUIC: releases CLI with WAITING result.");
+                        Application.awaitAtBarrier("++++ GUIC: waits for CLI for WAITING result process.");
 
-
-                        if(this.app.isWaitingAskResult()) {
-                            // if we DO wait
-                            Application.awaitAtBarrier("++++ GUIC: waits for CLI for WAITING result process.");
+                        if(this.app.isWaitingAskResult())
                             continue;
-                        }
+
+//                        if(this.app.isWaitingAskResult()) {
+//                            // if we DO wait
+//                            Application.awaitAtBarrier("++++ GUIC: waits for CLI for WAITING result process.");
+//                            continue;
+//                        }
 
                     } else {
                         Application.awaitAtBarrier("++++ GUIC: releases CLI with player update completed.");
+                        Application.awaitAtBarrier("GUIC waits for CLI for turn data.");
                     }
 
 
 
-
-
-
                     //Application.awaitAtClientBarrier("GUIControl waits for turn start. (17GCWC)");
-                    Application.awaitAtBarrier("GUIC waits for CLI for turn data.");
+
 
 
                     // game over

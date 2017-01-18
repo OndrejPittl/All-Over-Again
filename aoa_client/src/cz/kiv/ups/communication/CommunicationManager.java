@@ -129,11 +129,12 @@ public class CommunicationManager {
     public void registerEndTurn(GameMove[] gameProgress) {
         this.sb.append(CommunicationConfig.REQ_TURN_DATA);
 
-        for (int i = 0; i < gameProgress.length; i++) {
-            GameMove m = gameProgress[i];
-            this.sb.append(CommunicationConfig.MSG_DELIMITER);
-            this.sb.append(m.serialize());
-        }
+        if(gameProgress != null)
+            for (int i = 0; i < gameProgress.length; i++) {
+                GameMove m = gameProgress[i];
+                this.sb.append(CommunicationConfig.MSG_DELIMITER);
+                this.sb.append(m.serialize());
+            }
 
         // System.out.println("GAME PROGRESS: " + this.sb.toString());
         this.prepareMessage();

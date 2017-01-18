@@ -243,8 +243,12 @@ public class Application {
     }
 
     public synchronized void proceedEndTurn() {
-	    if(this.amIActive())
+        if(this.amIActive())
             this.comm.registerEndTurn(this.turn.getMoves());
+    }
+
+    public synchronized void forceEndTurn() {
+        this.comm.registerEndTurn(null);
     }
 
     public synchronized boolean amIActive(){

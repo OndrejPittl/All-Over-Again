@@ -2,6 +2,8 @@ package cz.kiv.ups.controllers;
 
 
 import cz.kiv.ups.application.Application;
+import cz.kiv.ups.game.GameType;
+import cz.kiv.ups.model.Player;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -37,6 +39,14 @@ public class ResultsController extends ScreenController {
     public void update(){
         this.lbl_result.setText(this.app.getWinnerText());
         this.lbl_turns.setText(String.valueOf(this.app.getTurn()));
+
+        if(this.app.getSelectedRoom().getType() == GameType.MULTIPLAYER)
+            for (Player p : this.app.getSelectedRoom().getPlayers()) {
+                if(!p.isOnline()) {
+                    this.btn_again.setDisable(true);
+                    return;
+                }
+            }
     }
 
     public void playAgain(){

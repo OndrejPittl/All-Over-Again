@@ -56,7 +56,8 @@ public enum GameStatus {
     /**
      * Game paused, waiting for a player.
      */
-    GAME_WAITING (new MessageType[]{ MessageType.GAME_START, MessageType.GAME_RESULT}),
+//    GAME_WAITING (new MessageType[]{ MessageType.GAME_START, MessageType.GAME_RESULT}),
+    GAME_WAITING (new MessageType[]{ MessageType.GAME_START }),
 
     /**
      * Game ends.
