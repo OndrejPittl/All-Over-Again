@@ -123,7 +123,7 @@ bool Room::isEverybodyOnline() {
  * @return
  */
 bool Room::isJoinable() {
-    return !this->isRoomFull();
+    return !this->isRoomFull() && this->status == GameStatus::CONNECTING;
 }
 
 
