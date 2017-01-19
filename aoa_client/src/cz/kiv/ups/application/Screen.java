@@ -63,6 +63,7 @@ public class Screen extends Stage {
 		this.stage.setMinHeight(cfg.getMinHeight());
 		this.stage.setTitle(cfg.getTitle());
         this.stage.setScene(scene);
+        this.centerStage();
 
         if(!this.stage.isShowing()) {
         	this.stage.show();

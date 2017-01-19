@@ -4,6 +4,7 @@ import cz.kiv.ups.application.Application;
 import cz.kiv.ups.application.Connection;
 
 import java.io.BufferedInputStream;
+import java.net.SocketException;
 import java.util.Arrays;
 
 import cz.kiv.ups.application.Logger;
@@ -53,6 +54,9 @@ public class MessageReceiver implements Runnable {
 
             try {
                 msgTxt = this.receiveMessage();
+            } catch (SocketException e) {
+                Application.disconnect(true, ErrorConfig.CONNECTION_SERVER_OFFLINE_READ);
+                break;
             } catch (IOException e) {
                 Application.disconnect(true, ErrorConfig.CONNECTION_SERVER_OFFLINE_READ);
                 break;

@@ -10,7 +10,7 @@
  */
 const int Game::MOVE_TIME = 10;
 
-const int Game::FIRST_TURN_RESERVE = 3;
+const int Game::FIRST_TURN_RESERVE = 7;
 
 
 Game::Game() {

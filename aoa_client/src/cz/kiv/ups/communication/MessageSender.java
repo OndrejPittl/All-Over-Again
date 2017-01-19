@@ -1,12 +1,15 @@
 package cz.kiv.ups.communication;
 
+import cz.kiv.ups.application.Application;
 import cz.kiv.ups.application.Connection;
 import cz.kiv.ups.application.Logger;
 import cz.kiv.ups.config.CommunicationConfig;
+import cz.kiv.ups.config.ErrorConfig;
 import cz.kiv.ups.partial.Tools;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.SocketException;
 import java.util.concurrent.LinkedBlockingQueue;
 
 
@@ -47,8 +50,11 @@ public class MessageSender implements Runnable {
 
             try {
                 this.sendMessage(m);
+            } catch(SocketException e) {
+                Application.disconnect(true, ErrorConfig.CONNECTION_SERVER_OFFLINE_WRITE);
+                break;
             } catch (IOException e) {
-                e.printStackTrace();
+                Application.disconnect(true, ErrorConfig.CONNECTION_SERVER_OFFLINE_WRITE);
                 break;
             }
         }

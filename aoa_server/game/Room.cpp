@@ -298,7 +298,9 @@ int Room::getTime() const {
             dimCoef  = (dim > 3) ? 2 : 1;
     int     time     = (int) (turnCoef * (diffCoef + dimCoef));
 
-    time += 500;
+    //time += 500;
+
+    time += 3;
 
     return this->turn == 1 ? time + Game::FIRST_TURN_RESERVE : time;
 }

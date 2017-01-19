@@ -3,9 +3,8 @@ package cz.kiv.ups.application;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
+import java.net.*;
+
 import cz.kiv.ups.config.ConnectionConfig;
 
 
@@ -98,14 +97,22 @@ public class Connection {
 	
 	public boolean createSocket() {
 		try {
-			Connection.clientSocket = new Socket(this.serverIP, this.serverPort);
-			this.address = Connection.clientSocket.getInetAddress();
+			//Connection.clientSocket = new Socket(this.serverIP, this.serverPort);
+            Connection.clientSocket = new Socket();
+            Connection.clientSocket.connect(new InetSocketAddress(this.serverIP, this.serverPort), 3000);
+
+            this.address = Connection.clientSocket.getInetAddress();
 			this.outStream = Connection.clientSocket.getOutputStream();
 			this.inStream = Connection.clientSocket.getInputStream();
+		} catch (SocketTimeoutException e) {
+            logger.error("Error: Server unreachable! (timeout)");
+            Application.disconnect(true, null);
 		} catch (UnknownHostException e) {
-			logger.error("Error: creating connection.");
+			logger.error("Error: while creating connection.");
+			Application.disconnect(true, null);
 		} catch (IOException e) {
-			logger.error("Error: creating connection.");
+			logger.error("Error: while creating connection.");
+            Application.disconnect(true, null);
 		}
 
 		return this.isConnected();

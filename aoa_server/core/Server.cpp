@@ -147,11 +147,13 @@ void Server::handleInputArguments() {
 
         // -- log --
         Logger::info("quiet:  active");
+        Logger::info("----------------------------------");
         Logger::disableLogging(true);
     } else {
 
         // -- log --
         Logger::info("quiet:  not active (default)");
+        Logger::info("----------------------------------");
     }
 }
 

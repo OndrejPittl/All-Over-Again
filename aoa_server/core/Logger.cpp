@@ -140,5 +140,5 @@ void Logger::print(std::string str) {
 }
 
 void Logger::disableLogging(bool disabled) {
-    Logger::logging = disabled;
+    Logger::logging = !disabled;
 }
