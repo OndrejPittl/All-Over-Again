@@ -11,13 +11,14 @@ import cz.kiv.ups.model.Player;
 
 public class PlayerController extends ScreenController {
 
-    private static boolean tmpActive = true;
-
     @FXML
     private Label lbl_name;
 
     @FXML
     private Label lbl_status;
+
+    @FXML
+    private Label lbl_you;
 
     @FXML
     private ImageView iv_activePlayerIcon;
@@ -27,15 +28,24 @@ public class PlayerController extends ScreenController {
         this.iv_activePlayerIcon.setImage(image);
     }
 
-    public void setData(Player p){
-        this.iv_activePlayerIcon.setVisible(tmpActive);
-        // this.iv_activePlayerIcon.setVisible(p.isActive());
+    public void update(Player p, int currentPlayerID){
 
+        // player name
         this.lbl_name.setText(p.getName());
-        this.lbl_status.setText(ViewConfig.MSG_STATUS_ONLINE);
 
-        this.tmpActive = false;
+        // player status
+        if (p.isOnline()) {
+                this.lbl_status.setText(ViewConfig.MSG_STATUS_ONLINE);
+                this.lbl_status.setTextFill(ViewConfig.CORRECT);
+            } else {
+                this.lbl_status.setText(ViewConfig.MSG_STATUS_OFFLINE);
+                this.lbl_status.setTextFill(ViewConfig.INCORRECT);
+            }
+
+        // you flag
+        this.lbl_you.setVisible(currentPlayerID == p.getID());
+
+        // active player flag
+        this.iv_activePlayerIcon.setVisible(p.isActive());
     }
-
-
 }

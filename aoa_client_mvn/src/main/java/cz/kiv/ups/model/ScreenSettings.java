@@ -23,15 +23,7 @@ public class ScreenSettings {
 		this.windowSize = size;
 		this.minWindowSize = minSize;
 	}	
-	
 
-
-	/**
-	 * @return the ID
-	 */
-	public int getID() {
-		return this.ID;
-	}
 
 	/**
 	 * @return the windowTitle

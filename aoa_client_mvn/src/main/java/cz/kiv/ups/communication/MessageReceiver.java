@@ -4,9 +4,12 @@ import cz.kiv.ups.application.Application;
 import cz.kiv.ups.application.Connection;
 
 import java.io.BufferedInputStream;
+import java.net.SocketException;
 import java.util.Arrays;
-import java.util.logging.Logger;
+
+import cz.kiv.ups.application.Logger;
 import cz.kiv.ups.config.CommunicationConfig;
+import cz.kiv.ups.config.ErrorConfig;
 import cz.kiv.ups.partial.Tools;
 
 import java.io.IOException;
@@ -19,16 +22,10 @@ public class MessageReceiver implements Runnable {
 
     private LinkedBlockingQueue<Message> receivedMessages;
 
-    private LinkedBlockingQueue<Message> incomingMessagesAsync;
-
     private StringBuilder sb;
 
-    private Logger logger;
+    private static Logger logger = Logger.getLogger();
 
-    /**
-     * Input byte stream.
-     */
-    //private BufferedInputStream bis;
 
     private InputStream inStream;
 
@@ -38,46 +35,44 @@ public class MessageReceiver implements Runnable {
     private byte[] buffer;
 
 
-
-
-    public MessageReceiver(Connection conn, LinkedBlockingQueue<Message> receivedMessages) {
+    public MessageReceiver(LinkedBlockingQueue<Message> receivedMessages) {
         this.receivedMessages = receivedMessages;
         this.init();
     }
 
     private void init(){
-        this.logger = Logger.getLogger(this.getClass().getName());
         this.sb = new StringBuilder();
         this.buffer = new byte[1024];
     }
 
     public void run() {
-
-        boolean helloFound;
-
-
-
         ArrayList<String> messages;
 
         for (;;) {
 
-            this.logger.info("MSGReceiver: waiting for a message.");
+            String msgTxt;
 
-            String msgTxt = this.receiveMessage();
-
-            if(msgTxt == null || msgTxt.length() < 0) {
-                this.logger.info("MSGReceiver: received an EMPTY message. SERVER DOWN!");
-                Application.disconnect(true);
+            try {
+                msgTxt = this.receiveMessage();
+            } catch (SocketException e) {
+                Application.disconnect(true, ErrorConfig.CONNECTION_SERVER_OFFLINE_READ);
+                break;
+            } catch (IOException e) {
+                Application.disconnect(true, ErrorConfig.CONNECTION_SERVER_OFFLINE_READ);
                 break;
             }
 
-            this.logger.info("MSGReceiver: received a message.");
+            if(msgTxt == null || msgTxt.length() < 0) {
+                logger.error("MSGReceiver: received an EMPTY message. SERVER DOWN!");
+                Application.disconnect(true, ErrorConfig.CONNECTION_SERVER_OFFLINE_READ);
+                break;
+            }
 
             messages = this.separateMessages(msgTxt);
 
             for (String msg : messages) {
-                String msgValidText = "";
-                MessageType type = null;
+                String msgValidText;
+                MessageType type;
 
                 // checksum
                 msgValidText = this.checkMessageChecksum(msg);
@@ -93,7 +88,7 @@ public class MessageReceiver implements Runnable {
                 }
 
                 Message m = new Message(type, msgValidText);
-                this.logger.info("MSGReceiver: a message accepted: " + m.getMessage());
+                logger.info("Message accepted: " + m.getMessage());
                 this.receivedMessages.add(m);
             }
         }
@@ -122,8 +117,6 @@ public class MessageReceiver implements Runnable {
 
         String checkSumStr = msg.substring(0, delimPos),
                message = msg.substring(delimPos + 1, msgLen);
-
-//        this.logger.info("len: " + msgLen + " delimPos: " + delimPos + " of a message: " + msg + " with result: " + message);
 
         if(!Tools.isNumber(checkSumStr))
             return null;
@@ -170,29 +163,20 @@ public class MessageReceiver implements Runnable {
     }
 
 
-    private String receiveMessage(){
+    private String receiveMessage() throws IOException {
         int msgLen;
         this.sb.setLength(0);
 
-        try {
+        logger.info("MSGReceiver: waiting for a message.");
 
-            msgLen = this.inStream.read(this.buffer);
+        msgLen = this.inStream.read(this.buffer);
 
-            if(msgLen < 0) {
-                return null;
-            }
-
-            String out = new String(Arrays.copyOf(this.buffer, msgLen));
-
-            System.out.print(">>> received: \"" + out + "\" (" + msgLen + " bytes)\n");
-            return out;
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(msgLen < 0)
             return null;
-        }
 
+        String out = new String(Arrays.copyOf(this.buffer, msgLen));
+        logger.info(">>>>>>>>> received: \"" + out + "\" (" + msgLen + " bytes)");
+        return out;
     }
 
     private boolean isValidCharacter(int c){

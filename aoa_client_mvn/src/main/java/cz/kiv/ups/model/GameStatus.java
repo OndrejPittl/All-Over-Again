@@ -6,8 +6,6 @@ import cz.kiv.ups.communication.MessageType;
 import java.util.Arrays;
 
 public enum GameStatus {
-
-
     /**
      * Hello packet authorization.
      */
@@ -16,7 +14,7 @@ public enum GameStatus {
     /**
      *  Players getting connected.
      */
-    SIGNING_IN(new MessageType[]{ MessageType.SIGN_IN }),
+    SIGNING_IN(new MessageType[]{ MessageType.SIGN_IN, MessageType.GAME_JOIN }),
 
     /**
      * Game center, room selection (create/join).
@@ -46,17 +44,18 @@ public enum GameStatus {
     /**
      * Playing a game, turn starts.
      */
-    GAME_PLAYING_TURN_START (new MessageType[]{ MessageType.TURN_DATA }),
+    GAME_PLAYING_TURN_START (new MessageType[]{ MessageType.TURN_DATA, MessageType.PLAYER_LIST }),
 
     /**
      * Playing a game, turn ends.
      */
-    GAME_PLAYING_TURN_END (new MessageType[]{ MessageType.TURN_DATA }),
+    GAME_PLAYING_TURN_END (new MessageType[]{ MessageType.TURN_DATA, MessageType.PLAYER_LIST }),
 
     /**
      * Game paused, waiting for a player.
      */
-    GAME_WAITING (new MessageType[]{ MessageType.GAME_START, MessageType.GAME_RESULT}),
+//    GAME_WAITING (new MessageType[]{ MessageType.GAME_START, MessageType.GAME_RESULT}),
+    GAME_WAITING (new MessageType[]{ MessageType.GAME_START }),
 
     /**
      * Game ends.
@@ -66,7 +65,6 @@ public enum GameStatus {
     /**
      * Game has finished.
      */
-//    GAME_RESULTS(new MessageType[]{ MessageType.GAME_START, MessageType.GAME_RESULT}),
     GAME_RESULTS(new MessageType[]{ MessageType.GAME_START}),
 
     /**
@@ -76,7 +74,6 @@ public enum GameStatus {
 
 
     private final MessageType[] acceptableMessageTypes;
-
 
     GameStatus(MessageType[] acceptableMessageTypes) {
         this.acceptableMessageTypes = acceptableMessageTypes;

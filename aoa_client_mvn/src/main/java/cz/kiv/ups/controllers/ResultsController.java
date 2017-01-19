@@ -2,6 +2,8 @@ package cz.kiv.ups.controllers;
 
 
 import cz.kiv.ups.application.Application;
+import cz.kiv.ups.game.GameType;
+import cz.kiv.ups.model.Player;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -19,13 +21,6 @@ public class ResultsController extends ScreenController {
     @FXML
     private Button btn_again;
 
-    @FXML
-    private Button btn_leave;
-
-    @FXML
-    private Button btn_exit;
-
-
     @Override
     protected void init() {}
 
@@ -37,6 +32,14 @@ public class ResultsController extends ScreenController {
     public void update(){
         this.lbl_result.setText(this.app.getWinnerText());
         this.lbl_turns.setText(String.valueOf(this.app.getTurn()));
+
+        if(this.app.getSelectedRoom().getType() == GameType.MULTIPLAYER)
+            for (Player p : this.app.getSelectedRoom().getPlayers()) {
+                if(!p.isOnline()) {
+                    this.btn_again.setDisable(true);
+                    return;
+                }
+            }
     }
 
     public void playAgain(){
@@ -47,13 +50,11 @@ public class ResultsController extends ScreenController {
 
     public void leaveGame(){
         // leave a room, stay signed in
-        //this.app.disconnectRoom();
         this.makeChoice();
     }
 
     public void exitGame(){
         // exit a game to OS
-        //this.app.setExitingGame(true);
         Application.changeStatus(GameStatus.EXIT_GAME);
         this.makeChoice();
     }

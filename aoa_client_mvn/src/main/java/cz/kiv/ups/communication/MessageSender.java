@@ -1,21 +1,22 @@
 package cz.kiv.ups.communication;
 
+import cz.kiv.ups.application.Application;
 import cz.kiv.ups.application.Connection;
+import cz.kiv.ups.application.Logger;
 import cz.kiv.ups.config.CommunicationConfig;
+import cz.kiv.ups.config.ErrorConfig;
 import cz.kiv.ups.partial.Tools;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.SocketException;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.logging.Logger;
 
 
 public class MessageSender implements Runnable {
 
 
-    private Logger logger;
-
-    private Connection conn;
+    private static Logger logger = Logger.getLogger();
 
     private LinkedBlockingQueue<Message> messageQueue;
 
@@ -24,19 +25,15 @@ public class MessageSender implements Runnable {
     /**
      * Output byte stream.
      */
-    //private BufferedOutputStream bos;
-
     private OutputStream outStream;
 
 
-    public MessageSender(Connection conn, LinkedBlockingQueue<Message> messageQueue) {
-        this.conn = conn;
+    public MessageSender(LinkedBlockingQueue<Message> messageQueue) {
         this.messageQueue = messageQueue;
         this.init();
     }
 
     private void init(){
-        this.logger = Logger.getLogger(this.getClass().getName());
         this.sb = new StringBuilder();
     }
 
@@ -51,11 +48,19 @@ public class MessageSender implements Runnable {
                 continue;
             }
 
-            this.sendMessage(m);
+            try {
+                this.sendMessage(m);
+            } catch(SocketException e) {
+                Application.disconnect(true, ErrorConfig.CONNECTION_SERVER_OFFLINE_WRITE);
+                break;
+            } catch (IOException e) {
+                Application.disconnect(true, ErrorConfig.CONNECTION_SERVER_OFFLINE_WRITE);
+                break;
+            }
         }
     }
 
-    private void sendMessage(Message m) {
+    private void sendMessage(Message m) throws IOException {
         String msg = m.getMessage();
 
         this.sb.append(CommunicationConfig.MSG_STX);
@@ -72,15 +77,10 @@ public class MessageSender implements Runnable {
      * Universal method sending server a message.
      * @param msg	message to send
      */
-    public void writeMsg(String msg) {
-        try {
-//            this.logger.info("<<<<<<<<< sending: " + msg);
-            System.out.println("<<<<<<<<< sending: " + msg);
-            this.outStream.write(msg.getBytes());
-            this.outStream.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void writeMsg(String msg) throws IOException {
+        logger.info("<<<<<<<<< sending: " + msg);
+        this.outStream.write(msg.getBytes());
+        this.outStream.flush();
     }
 
     private void clearStringBuilder() {
@@ -88,7 +88,6 @@ public class MessageSender implements Runnable {
     }
 
     public void setConnection(Connection conn){
-        this.conn = conn;
         this.outStream = conn.getOutStream();
     }
 }

@@ -1,20 +1,20 @@
 package cz.kiv.ups.controllers;
 
 import cz.kiv.ups.application.Application;
+import cz.kiv.ups.config.ViewConfig;
 import cz.kiv.ups.game.BoardDimension;
 import cz.kiv.ups.game.GameDifficulty;
 import cz.kiv.ups.game.GameType;
+import cz.kiv.ups.model.Error;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import cz.kiv.ups.model.GameStatus;
 import cz.kiv.ups.model.Room;
 import cz.kiv.ups.model.ViewRoom;
+
 
 public class GameCenterController extends ScreenController {
 
@@ -53,9 +53,9 @@ public class GameCenterController extends ScreenController {
 
     @FXML
     private TableColumn<ViewRoom, String> dimensionColumn;
-	
-	
 
+    @FXML
+    private Label lbl_err_join;
 
 	protected void init(){
 		this.initJoinGameSection();
@@ -67,22 +67,27 @@ public class GameCenterController extends ScreenController {
         this.cb_difficulty.getItems().addAll(GameDifficulty.values());
         this.cb_dimension.getItems().addAll(BoardDimension.values());
 
-//        this.cb_players.getSelectionModel().select(0);
-//        this.cb_difficulty.getSelectionModel().select(1);
-//        this.cb_dimension.getSelectionModel().select(3);
 
         this.cb_players.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             this.enableNewGame();
         });
 
         this.cb_difficulty.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (this.isForbiddenCombination(newSelection, this.cb_dimension.getSelectionModel().getSelectedItem()))
+                this.cb_dimension.valueProperty().set(null);
             this.enableNewGame();
         });
 
         this.cb_dimension.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (this.isForbiddenCombination(this.cb_difficulty.getSelectionModel().getSelectedItem(), newSelection))
+                this.cb_difficulty.valueProperty().set(null);
             this.enableNewGame();
         });
 
+    }
+
+    private boolean isForbiddenCombination(GameDifficulty diff, BoardDimension dim){
+        return diff == GameDifficulty.EASY && dim == BoardDimension.TINY;
     }
 
     private void enableNewGame(){
@@ -112,6 +117,8 @@ public class GameCenterController extends ScreenController {
         this.tv_rooms.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             this.btn_joinGame.setDisable(newSelection == null);
         });
+
+        this.tv_rooms.setPlaceholder(new Label(ViewConfig.MSG_GAMECENTER_NO_ROOM));
     }
 
 	public void updateRoomList(){
@@ -144,9 +151,6 @@ public class GameCenterController extends ScreenController {
 	    GameDifficulty diff = this.cb_difficulty.getSelectionModel().getSelectedItem();
 	    BoardDimension dim = this.cb_dimension.getSelectionModel().getSelectedItem();
 
-	    System.out.println("DIMENSIOOOOOOOOOOOON: " + dim.getTitle());
-	    System.out.println("DIMENSIOOOOOOOOOOOON: " + dim.getDimension());
-
         this.handleSelection(new Room(type, diff, dim));
     }
 
@@ -160,4 +164,12 @@ public class GameCenterController extends ScreenController {
         this.app.selectRoom(r);
         Platform.runLater(()->Application.awaitAtGuiBarrier("GUI releases. Room being selected. (11GRG)"));
     }
+
+    @Override
+    protected void registerErrorLabels(){
+        // The errors cannot come in at once.
+        this.registerErrorLabel(Error.GAME_REPLAY_REFUSED, this.lbl_err_join);
+        this.registerErrorLabel(Error.ROOM_JOIN_REFUSED, this.lbl_err_join);
+    }
+
 }

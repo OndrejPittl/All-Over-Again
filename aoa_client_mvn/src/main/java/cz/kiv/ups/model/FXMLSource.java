@@ -3,14 +3,11 @@ package cz.kiv.ups.model;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 
-/**
- * Created by OndrejPittl on 01.01.17.
- */
 public class FXMLSource {
 
-    Parent root;
+    private Parent root;
 
-    Initializable controller;
+    private Initializable controller;
 
     public FXMLSource(Parent root, Initializable controller) {
         this.root = root;
@@ -19,10 +16,6 @@ public class FXMLSource {
 
     public Parent getRoot() {
         return root;
-    }
-
-    public void setRoot(Parent root) {
-        this.root = root;
     }
 
     public Initializable getController() {

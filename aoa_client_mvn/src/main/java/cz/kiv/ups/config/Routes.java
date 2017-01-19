@@ -46,12 +46,6 @@ public class Routes {
     };
 
 
-	
-	
-	public static String getAssetsDir(){
-		return Routes.DIRECTORIES[0];
-	}
-
 	public static String getStyleDir(){
 		return Routes.DIRECTORIES[1];
 	}
@@ -89,9 +83,4 @@ public class Routes {
     public static final String getSymbolPath(int c, int s) {
 	    return Routes.getSymbolImagesDir() + IMG_COLOR_PREFIXES[c] + "_" + IMG_SYMBOL_SUFIXES[s] + IMG_PNG_EXTENSION;
     }
-
-
-//	public static String getImageFile(String filename){
-//		return Routes.getImagesDir() + filename + STYLESHEET_EXTENSION;
-//	}
 }

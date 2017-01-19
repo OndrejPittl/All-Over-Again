@@ -1,6 +1,8 @@
 package cz.kiv.ups.controllers;
 
 import cz.kiv.ups.application.Application;
+import cz.kiv.ups.config.AppConfig;
+import cz.kiv.ups.config.ErrorConfig;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -33,8 +35,11 @@ public class LoginController extends ScreenController {
 		if(UserInputValidator.validateUsername(nick)) {
 			this.app.signIn(new Player(nick));
 
-
 			Platform.runLater(()->Application.awaitAtGuiBarrier("GUI relseases. Username entered. (5GRG)"));
+
+		} else {
+			this.lbl_err_username.setText(ErrorConfig.USERNAME_INVALID);
+			this.lbl_err_username.setVisible(true);
 		}
 	}
 
@@ -43,9 +48,4 @@ public class LoginController extends ScreenController {
 		this.registerErrorLabel(Error.USERNAME_TAKEN, this.lbl_err_username);
 	}
 
-	
-	
-	
-	
-	
 }

@@ -1,6 +1,7 @@
 package cz.kiv.ups.controllers;
 
 import cz.kiv.ups.application.Application;
+import cz.kiv.ups.application.Logger;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import cz.kiv.ups.model.Error;
@@ -13,6 +14,9 @@ import java.util.ResourceBundle;
 
 
 public class ScreenController implements Initializable {
+
+    private static Logger logger = Logger.getLogger();
+
 
     protected Application app;
 
@@ -49,17 +53,13 @@ public class ScreenController implements Initializable {
         if(!this.hasErrors() || !this.hasErrorLabels())
             return;
 
-        System.out.println("Handling errors....");
-
-        System.out.println("errors: " + this.errors.size());
-        System.out.println("lbls: " + this.errorLabels.size());
-
         for (Error err : this.errors) {
             Label lbl = this.errorLabels.get(err);
             lbl.setText(err.getErr());
             lbl.setVisible(true);
-            System.out.println("Handling Error: " + err.getErr());
         }
+
+        this.app.clearErrors();
     }
 
     private boolean hasErrorLabels(){

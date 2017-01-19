@@ -12,7 +12,6 @@ public enum GameColor implements IGameList {
     RED (3, GameConfig.RED);
 
 
-
     private static final int COUNT = GameColor.values().length;
 
     private Color color;

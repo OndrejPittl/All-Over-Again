@@ -6,7 +6,8 @@ import cz.kiv.ups.config.ErrorConfig;
 public enum Error {
 
     USERNAME_TAKEN (ErrorConfig.USERNAME_TAKEN),
-    ROOM_JOIN (ErrorConfig.ROOM_JOIN);
+    ROOM_JOIN_REFUSED(ErrorConfig.ROOM_JOIN_REFUSED),
+    GAME_REPLAY_REFUSED (ErrorConfig.GAME_REPLAY_REFUSED);
 
 
     private String err;

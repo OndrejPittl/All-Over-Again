@@ -17,18 +17,6 @@ public enum GameType {
         return playerCount;
     }
 
-    public void setPlayerCount(int playerCount) {
-        this.playerCount = playerCount;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
     public static GameType getNth(int count){
         return GameType.values()[count];
     }

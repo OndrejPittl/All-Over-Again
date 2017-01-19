@@ -1,23 +1,22 @@
 package cz.kiv.ups.io;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import cz.kiv.ups.application.Main;
 import cz.kiv.ups.config.Routes;
+import cz.kiv.ups.model.FXMLSource;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import cz.kiv.ups.model.FXMLSource;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 public class DataLoader {
 	
 	
 	public static FXMLSource loadLayout(String path) {
 	    String p = Routes.getLayoutFile(path);
-	    System.out.println(p);
         InputStream in = Main.class.getResourceAsStream(p);
         return DataLoader.loadFXML(in);
 	}

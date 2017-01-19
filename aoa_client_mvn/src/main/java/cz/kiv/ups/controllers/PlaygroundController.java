@@ -1,6 +1,7 @@
 package cz.kiv.ups.controllers;
 
 import cz.kiv.ups.application.Application;
+import cz.kiv.ups.application.Logger;
 import cz.kiv.ups.config.Routes;
 import cz.kiv.ups.config.ViewConfig;
 import cz.kiv.ups.game.GameMove;
@@ -12,8 +13,8 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.util.Duration;
 import cz.kiv.ups.model.FXMLSource;
@@ -22,9 +23,12 @@ import cz.kiv.ups.model.Room;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Optional;
 
 
 public class PlaygroundController extends ScreenController {
+
+    private static Logger logger = Logger.getLogger();
 
     private Room room;
 
@@ -53,20 +57,11 @@ public class PlaygroundController extends ScreenController {
     @FXML
     private Button btn_giveUp;
 
-//    @FXML
-//    private Button btn_btn;
-//
-//    @FXML
-//    private Button btn_exitGame;
-
     @FXML
     private GridPane gp_playground;
 
     @FXML
     private VBox vb_playerWrapper;
-
-    @FXML
-    private VBox vb_timerWrapper;
 
 
 
@@ -75,8 +70,7 @@ public class PlaygroundController extends ScreenController {
     private BoardFieldController[] fieldControllers;
 
     private ArrayList<GameMove> moves;
-
-
+    private boolean waitAskResult = false;
 
 
     public void prepare(){
@@ -108,13 +102,14 @@ public class PlaygroundController extends ScreenController {
                 this.timerValue--;
                 this.lbl_timer.setText(String.valueOf(this.timerValue));
 
-                if(this.timerValue == 0 || this.isNewTurn()) {
+                if(this.timerValue == 0) {
+                    logger.debug("* * * * * END TURN: timer runs out");
                     this.endTurn();
                 }
             })
         );
 
-        System.out.println("Timer setting to: " + this.timerValue);
+        logger.debug("Timer setting to: " + this.timerValue);
         this.timer.setCycleCount(this.timerValue);
     }
 
@@ -132,9 +127,10 @@ public class PlaygroundController extends ScreenController {
             src = DataLoader.loadPartialLayout(Routes.LAYOUT_PARTIAL_PLAYER_RECORD);
 
             controller = (PlayerController) src.getController();
-            controller.setData(p);
+            controller.update(p, this.room.getCurrentPlayerID());
 
             item = (BorderPane) src.getRoot();
+
             vb_playerWrapper.getChildren().add(item);
         }
     }
@@ -182,10 +178,11 @@ public class PlaygroundController extends ScreenController {
         this.updateMoveStats();
 
         if(this.moveCounter == this.turn.getTurn()) {
+            logger.debug("* * * * * END TURN: move counter");
             this.endTurn();
         }
 
-        System.out.println(Arrays.toString(this.moves.toArray()));
+        logger.debug(Arrays.toString(this.moves.toArray()));
     }
 
     private void updateMoveStats(){
@@ -203,7 +200,7 @@ public class PlaygroundController extends ScreenController {
         this.turn = this.app.getGameTurn();
         this.amIActive = this.app.amIActive();
 
-        System.out.println("------------   starting turn: " + this.turn.getTurn());
+        logger.debug("------------   starting turn: " + this.turn.getTurn());
 
         Platform.runLater(() -> {
             this.updateMoveStats();
@@ -231,14 +228,6 @@ public class PlaygroundController extends ScreenController {
         Platform.runLater(() -> Application.awaitAtGuiBarrier("GUI releases. Turn ends."));
     }
 
-    private boolean isNewTurn(){
-        return this.app.getGameTurn().getTurn() != this.turn.getTurn();
-    }
-
-    public void stopGame() {
-        Platform.runLater(() -> this.endTurn());
-    }
-
     private void enableBoard(){
         this.gp_playground.setDisable(false);
     }
@@ -254,12 +243,15 @@ public class PlaygroundController extends ScreenController {
         if(progress == null) {
             if(this.amIActive)
                 this.proceedTurnStart();
-            else this.endTurn();
+            else {
+                logger.debug("* * * * * END TURN: not my turn (first turn without progress)");
+                this.endTurn();
+            }
             return;
         }
 
         Timeline timeline = new Timeline(
-            new KeyFrame(Duration.millis(ViewConfig.TIMER_TURN_INTRO_MOVE_DURATION), new EventHandler<ActionEvent>() {
+            new KeyFrame(Duration.millis(ViewConfig.TIMER_TURN_INTRO_MOVE_DURATION + 200), new EventHandler<ActionEvent>() {
                 int i = 0;
                 @Override
                 public void handle(ActionEvent event) {
@@ -285,11 +277,41 @@ public class PlaygroundController extends ScreenController {
                     (ActionEvent) -> {
                         if(this.amIActive)
                             this.proceedTurnStart();
-                        else this.endTurn();
+                        else {
+                            logger.debug("* * * * * END TURN: not my turn (after turn task)");
+                            this.endTurn();
+                        }
                     }
             )).play()
         );
 
         timeline.play();
+    }
+
+    public void updatePlayerList() {
+        this.initPlayerList();
+    }
+
+    public void askPlayerWait() {
+        boolean waiting = false;
+
+        ButtonType waitBtn = new ButtonType(ViewConfig.MSG_ASK_YES, ButtonBar.ButtonData.YES);
+        ButtonType leaveBtn = new ButtonType(ViewConfig.MSG_ASK_NO, ButtonBar.ButtonData.NO);
+        Alert alert = new Alert(Alert.AlertType.WARNING, ViewConfig.MSG_ASK_OPPONENT_LEFT_CONTENT, waitBtn, leaveBtn);
+
+        alert.setTitle(ViewConfig.MSG_ASK_OPPONENT_LEFT_TITLE);
+        alert.setHeaderText(ViewConfig.MSG_ASK_OPPONENT_LEFT_HEADER);
+
+        Optional<ButtonType> result = alert.showAndWait();
+
+        if (result.isPresent() && result.get() == waitBtn) {
+            waiting = true;
+        }
+
+        this.app.setWaitingAskResult(waiting);
+    }
+
+    public boolean isWaitingForPlayer() {
+        return waitAskResult;
     }
 }

@@ -1,6 +1,7 @@
 package cz.kiv.ups.controllers;
 
 
+import cz.kiv.ups.application.Logger;
 import cz.kiv.ups.config.GameConfig;
 import cz.kiv.ups.config.Routes;
 import cz.kiv.ups.config.ViewConfig;
@@ -12,18 +13,22 @@ import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class BoardFieldController extends ScreenController {
+
+    private static Logger logger = Logger.getLogger();
 
     private static final double ACTIVE_SPOT_SIZE = 1.3;
 
@@ -33,17 +38,6 @@ public class BoardFieldController extends ScreenController {
 
     private static final int SYMBOL_COUNT = GameSymbol.count();
 
-    private static final Background focusedBackground = new Background(
-            new BackgroundFill(Color.web("e8fff9"),
-                    CornerRadii.EMPTY,
-                    Insets.EMPTY)
-    );
-
-    private static final Background unfocusedBackground = new Background(
-            new BackgroundFill(Color.WHITE,
-                    CornerRadii.EMPTY,
-                    Insets.EMPTY)
-    );
 
     private static BoardFieldController activeField = null;
 
@@ -58,8 +52,6 @@ public class BoardFieldController extends ScreenController {
     private GameColor color;
 
     private GameSymbol symbol;
-
-
 
 
     private PlaygroundController playgroundController;
@@ -275,26 +267,22 @@ public class BoardFieldController extends ScreenController {
 
     private void increaseColorPosition(){
         this.color = (GameColor) this.color.next();
-        System.out.println("selected color: " + this.color.getIndex());
-//        this.initColorBar();
+        logger.info("selected color: " + this.color.getIndex());
     }
 
     private void decreaseColorPosition(){
         this.color = (GameColor) this.color.previous();
-        System.out.println("selected color: " + this.color.getIndex());
-//        this.initColorBar();
+        logger.info("selected color: " + this.color.getIndex());
     }
 
     private void increaseSymbolPosition(){
         this.symbol = (GameSymbol) this.symbol.next();
-        System.out.println("selected symbol: " + this.symbol.getIndex());
-//        this.initSymbolBar();
+        logger.info("selected symbol: " + this.symbol.getIndex());
     }
 
     private void decreaseSymbolPosition(){
         this.symbol = (GameSymbol) this.symbol.previous();
-        System.out.println("selected symbol: " + this.symbol.getIndex());
-//        this.initSymbolBar();
+        logger.info("selected symbol: " + this.symbol.getIndex());
     }
 
     public void fitSize(int w) {
@@ -336,12 +324,6 @@ public class BoardFieldController extends ScreenController {
         this.playgroundController = playgroundController;
     }
 
-
-
-    public BorderPane getControlElement() {
-        return this.comp_boardField;
-    }
-
     public void setDifficulty(GameDifficulty difficulty) {
         this.difficulty = difficulty;
     }
@@ -359,7 +341,6 @@ public class BoardFieldController extends ScreenController {
         new Timer().schedule(new TimerTask() {
             public void run() {
                 Platform.runLater(() -> {
-                    resetField();
                     endMove();
                     setFieldActivity(isActive);
                 });
@@ -367,7 +348,6 @@ public class BoardFieldController extends ScreenController {
             }
         }, ViewConfig.TIMER_TURN_INTRO_MOVE_DURATION);
     }
-
 
     public static void stopActivity(){
         if(isAnyFieldActive()) {
