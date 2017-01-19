@@ -67,7 +67,7 @@ void Server::run() {
         result = this->conn->waitForRequests();
 
         if(result < 0) {
-            Logger::error(std::to_string(errno));
+            // Logger::error(std::to_string(errno));
             // EINTR: sys call, a socket of online user removed from a set
             // EBADF: Bad File Descriptor, a FD removed from a set due to amount of incorrect messages
             if(errno == EINTR || errno == EBADF) continue;
