@@ -300,7 +300,7 @@ int Room::getTime() const {
 
     //time += 500;
 
-    time += 3;
+    time += 50;
 
     return this->turn == 1 ? time + Game::FIRST_TURN_RESERVE : time;
 }
