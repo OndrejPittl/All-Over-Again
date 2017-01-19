@@ -1,4 +1,5 @@
 // libraries
+#include <cstring>
 #include <string>
 #include <iostream>
 #include <zconf.h>
