@@ -77,21 +77,23 @@ class ServerOptions {
         static const std::string OPT_HELP;
 
 
-
-
         ServerOptions(int argc, char **argv);
 
+        void init();
+
         bool has(const std::string &opt) const;
+
         void parse();
+
         int validatePort(std::string port);
+
         void printHelp();
+
         void print();
 
-    const std::string &getAppName() const;
+        const std::string &getAppName() const;
 
-    void init();
-
-    uint get(const std::string &flag);
+        uint get(const std::string &flag);
 };
 
 

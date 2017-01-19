@@ -1,14 +1,11 @@
 #include <thread>
 #include <stdlib.h>
 
-
 #include "MessageProcessor.h"
-#include "MessageSerializer.h"
-#include "MessageParser.h"
 #include "../partial/tools.h"
 #include "../core/Logger.h"
-#include "../partial/StringBuilder.h"
-#include "../core/Application.h"
+
+
 
 MessageProcessor::MessageProcessor(SafeQueue<Message *> *messageQueue, SafeQueue<Message *> *sendMessageQueue) {
     this->messageQueue = messageQueue;
@@ -86,7 +83,7 @@ void MessageProcessor::perform(Message *msg){
         case GAME_START: this->proceedRestartGame(); break;
         case TURN_DATA: this->proceedTurnData(msg); break;
         case GAME_LEAVE: this->proceedLeaveGame(); break;
-        default: case SIGN_OUT: this->proceedSignOut(msg); break;
+        default: case SIGN_OUT: this->proceedSignOut(); break;
     }
 }
 
@@ -95,9 +92,7 @@ void MessageProcessor::perform(Message *msg){
  * outcoming:   Hey Client! I am fine.
  */
 void MessageProcessor::proceedHelloPacket() {
-    this->log->clear();
-    this->log->append("MSGProcessor, processing: hello.");
-    Logger::info(this->log->getString());
+    Logger::debug("MSGProcessor, processing: hello.");
 
     this->sbMsg->append(Message::HELLO_PACKET_RESPONSE);
     this->answerMessageAndClean();
@@ -118,10 +113,9 @@ void MessageProcessor::proceedSignIn(Message *msg) {
     int uid = msg->getSock();
     std::string username = msg->getMessage();
 
-    this->log->clear();
-    this->log->append("MSGProcessor, processing signin: ");
-    this->log->append(username);
-    Logger::info(this->log->getString());
+    // -- log --
+    this->log->clear(); this->log->append("MSGProcessor, processing signin: ");
+    this->log->append(username); Logger::debug(this->log->getString());
 
     sbMsg->append(msg->getType());
     sbMsg->append(Message::DELIMITER);
@@ -163,28 +157,20 @@ void MessageProcessor::proceedSignIn(Message *msg) {
  *                  2    ;  1  ;   2  ;    0    ;    2    ;   2  ;  4  ; a:b:c
  */
 void MessageProcessor::proceedGameList() {
-    RoomMap rooms;
+    Logger::debug("MSGProcessor, processing gamelist:");
 
-    this->log->clear();
-    this->log->append("MSGProcessor, processing gamelist:");
-    Logger::info(this->log->getString());
+    RoomMap rooms;
 
     rooms = this->app->getRooms();
     std::string roomStr = this->serializer->serializeRooms(rooms);
 
-    // tmp
-    this->log->clear();
-    this->log->append("MSGProcessor, rooms serialized: ");
-    this->log->append(roomStr);
-    Logger::info(this->log->getString());
+    // -- log --
+    this->log->clear(); this->log->append("MSGProcessor, rooms serialized: ");
+    this->log->append(roomStr); Logger::debug(this->log->getString());
 
     this->sbMsg->append(MessageType::GAME_LIST);
     this->sbMsg->append(Message::DELIMITER);
     this->sbMsg->append(roomStr);
-
-    // type ; r-ID ; p-count ; p-limit ; diff ; dim ; nicks
-    //sbMsg->append("2;1;1;2;1;3;marty;2;2;2;2;5;dendasda:gabin");
-                   //2;0;1;2;0;2;Marty;1;2;2;2;4;dendasda:gabin
     this->answerMessageAndClean();
 }
 
@@ -196,9 +182,7 @@ void MessageProcessor::proceedGameList() {
  * @param msg
  */
 void MessageProcessor::proceedNewGame(Message *msg) {
-    this->log->clear();
-    this->log->append("MSGProcessor, processing newgame:");
-    Logger::info(this->log->getString());
+    Logger::debug("MSGProcessor, processing newgame:");
 
     std::string roomStr;
     Room *room = this->app->createNewRoom();
@@ -236,9 +220,7 @@ void MessageProcessor::proceedJoinGame(Message *msg) {
     int rid;
     bool joinResult;
 
-    this->log->clear();
-    this->log->append("MSGProcessor, processing joingame:");
-    Logger::info(this->log->getString());
+    Logger::debug("MSGProcessor, processing joingame:");
 
     rid = this->parser->parseJoinRoomRequest(msg->getMessage());
     joinResult = this->app->joinRoom(msg->getSock(), rid);
@@ -267,7 +249,6 @@ void MessageProcessor::proceedJoinGame(Room *room, bool joinResult) {
 
         // room is already full
         this->sbMsg->append(Message::NACK);
-
     }
 
     this->answerMessageAndClean();
@@ -286,90 +267,31 @@ void MessageProcessor::proceedJoinGame(Room *room, bool joinResult) {
  *                  5    ;  0
  */
 void MessageProcessor::proceedRestartGame() {
-    this->log->clear();
-    this->log->append("MSGProcessor, processing restartgame:");
-    Logger::info(this->log->getString());
+    Logger::debug("MSGProcessor, processing restartgame:");
 
     Player *p = this->app->getPlayer(this->clientSocket);
     Room *r = this->app->getRoom(p->getRoomID());
 
 
-    // request on a game endGame
+    // request a game endGame
 
     // waits until all players are ready to play again
     if(!r->checkReadyToContinue(true))
         return;
-
 
     // everybody sent a response
 
     if(r->isReplayReady()) {
 
         r->restart();
-        //r->startTurn();
 
         // everybody wants to replay a game -> start game
-
-
     }
-
-//    else {
-//
-//        // end game
-//        this->proceedEndGame(r);
-//
-//    }
 
     this->proceedStartGame(r, r->isReplayReady());
     if(r->hasGameEnded()) this->proceedLeaveGame();
 }
 
-
-/**
- *
- */
-void MessageProcessor::proceedFirstTurnData() {
-    this->log->clear();
-    this->log->append("MSGProcessor, processing FIRST turndata:");
-    Logger::info(this->log->getString());
-
-    this->proceedTurnDataBase(true);
-}
-
-void MessageProcessor::proceedTurnDataBase(bool ack) {
-    int turn, turnTime;
-
-    Player *p = this->app->getPlayer(this->clientSocket);
-    Room *r = this->app->getRoom(p->getRoomID());
-
-
-    // ----- broadcast: player info
-    this->proceedPlayerInfo();
-
-
-
-
-    sbMsg->clear();
-    sbMsg->append(MessageType::TURN_DATA);
-    sbMsg->append(Message::DELIMITER);
-
-    if(!ack) {
-        //NACK
-        sbMsg->append(Message::NACK);
-        return;
-    }
-
-    turn = r->getTurn();
-    turnTime = r->getTime();
-
-    sbMsg->append(Message::ACK);
-    sbMsg->append(Message::DELIMITER);
-    sbMsg->append(r->getActivePlayerID());
-    sbMsg->append(Message::DELIMITER);
-    sbMsg->append(turn);
-    sbMsg->append(Message::DELIMITER);
-    sbMsg->append(turnTime);
-}
 
 /**
  * incoming: 0;0;0; 4;1;1; 8;3;4
@@ -383,16 +305,12 @@ void MessageProcessor::proceedTurnDataBase(bool ack) {
  * @param msg
  */
 void MessageProcessor::proceedTurnData(Message *msg) {
-    std::string progressStr;
-    std::queue<int> progress;
+    Logger::debug("MSGProcessor, processing turndata:");
 
     int rid;
     bool result;
-
-    this->log->clear();
-    this->log->append("MSGProcessor, processing turndata:");
-    Logger::info(this->log->getString());
-
+    std::string progressStr;
+    std::queue<int> progress;
 
     Player *p = this->app->getPlayer(this->clientSocket);
     rid = p->getRoomID();
@@ -420,9 +338,11 @@ void MessageProcessor::proceedTurnData(Message *msg) {
             // a response was received during waiting on a player
             // -> ignore progress but NOT ignore game end request
 
-            Logger::error("response while WAITING:");
-            Logger::error(msg->getMessage());
-            Logger::error(std::to_string(msg->getMessage().length()));
+            // -- log --
+            this->log->clear(); this->log->append("response while WAITING:");
+            this->log->append(msg->getMessage());
+            this->log->append(std::to_string(msg->getMessage().length()));
+            Logger::debug(this->log->getString());
 
 
             // end game detection:
@@ -435,28 +355,7 @@ void MessageProcessor::proceedTurnData(Message *msg) {
                 result = true;
             }
         }
-
-
     }
-
-//    if(msg != nullptr && r->isEverybodyOnline()) {
-//
-//        // NOT FIRST TIME, ack dependent on progress
-//        this->parser->parseTurn(msg->getMessage(), progress);
-//        result = this->app->proceedTurn(rid, progress);
-//
-//    } else {
-//
-//        // first turn || waiting for a player
-//
-//
-//
-//
-//
-//        // first time, ack = true
-//        result = true;
-//
-//    }
 
     if(!this->reJoining && r->isEverybodyOnline())
         r->startTurn();
@@ -467,24 +366,50 @@ void MessageProcessor::proceedTurnData(Message *msg) {
 
     // not first turn && progress ok
     if(r->hasProgress() && result) {
-//        this->log->clear();
-//        this->log->append("ROOM PROGRESS SERIALIZED: ");
-//        this->log->append(progressStr);
-//        Logger::info(this->log->getString());
 
         this->sbMsg->append(Message::DELIMITER);
         this->sbMsg->append(progressStr);
     }
 
-//    Logger::info("--------- sending a new progress: ");
-//    Logger::info(this->sbMsg->getString());
-
     this->answerRoomAndClean(r, &MessageProcessor::answerMessage);
 
     if(!result) {
-        Logger::info("--------- sending END game:");
+        Logger::debug("--------- sending END game:");
         this->proceedEndGame(r);
     }
+}
+
+void MessageProcessor::proceedTurnDataBase(bool ack) {
+    int turn, turnTime;
+
+    Player *p = this->app->getPlayer(this->clientSocket);
+    Room *r = this->app->getRoom(p->getRoomID());
+
+
+    // ----- broadcast: player info
+    this->proceedPlayerInfo();
+
+
+    sbMsg->clear();
+    sbMsg->append(MessageType::TURN_DATA);
+    sbMsg->append(Message::DELIMITER);
+
+    if(!ack) {
+        //NACK
+        sbMsg->append(Message::NACK);
+        return;
+    }
+
+    turn = r->getTurn();
+    turnTime = r->getTime();
+
+    sbMsg->append(Message::ACK);
+    sbMsg->append(Message::DELIMITER);
+    sbMsg->append(r->getActivePlayerID());
+    sbMsg->append(Message::DELIMITER);
+    sbMsg->append(turn);
+    sbMsg->append(Message::DELIMITER);
+    sbMsg->append(turnTime);
 }
 
 /**
@@ -496,15 +421,12 @@ void MessageProcessor::proceedTurnData(Message *msg) {
  * @param room
  */
 void MessageProcessor::proceedEndGame(Room *room) {
-    this->log->clear();
-    this->log->append("MSGProcessor, processing endgame:");
-    Logger::info(this->log->getString());
+    Logger::debug("MSGProcessor, processing endgame:");
 
     this->sbMsg->clear();
     this->sbMsg->append(MessageType::GAME_END);
     this->sbMsg->append(Message::DELIMITER);
     this->sbMsg->append(room->getWinnerID());
-
 
     this->answerRoomAndClean(room, &MessageProcessor::answerMessage);
     room->endGame();
@@ -515,9 +437,7 @@ void MessageProcessor::proceedEndGame(Room *room) {
  *                  8
  */
 void MessageProcessor::proceedLeaveGame() {
-    this->log->clear();
-    this->log->append("MSGProcessor, processing leavegame:");
-    Logger::info(this->log->getString());
+    Logger::debug("MSGProcessor, processing leavegame:");
 
     Player *p = this->app->getPlayer(this->clientSocket);
     Room *r = this->app->getRoom(p->getRoomID());
@@ -541,21 +461,9 @@ void MessageProcessor::proceedLeaveGame() {
  *                  9
  * @param msg
  */
-void MessageProcessor::proceedSignOut(Message *msg) {
-    this->log->clear();
-    this->log->append("MSGProcessor, processing signout:");
-    Logger::info(this->log->getString());
-
-//    Player *p = this->app->getPlayer(this->clientSocket);
-//    Room *r = this->app->getRoom(p->getID());;
-
-
+void MessageProcessor::proceedSignOut() {
+    Logger::debug("MSGProcessor, processing signout:");
     this->app->deregisterUser(this->clientSocket);
-//    if(r->getGameType() == GameType::SINGLEPLAYER) {
-//        this->app->leaveRoomCheckCancel(p);
-//    } else {
-//        this->app->signOutUser(this->clientSocket);
-//    }
 }
 
 
@@ -570,10 +478,7 @@ void MessageProcessor::proceedPlayerInfo(){
 }
 
 void MessageProcessor::proceedPlayerInfo(Room *r){
-    this->log->clear();
-    this->log->append("MSGProcessor, processing playerinfo:");
-    Logger::info(this->log->getString());
-
+    Logger::debug("MSGProcessor, processing playerinfo:");
 
     std::string playerInfo = this->serializer->serializeRoomPlayers(r);
 
@@ -582,7 +487,6 @@ void MessageProcessor::proceedPlayerInfo(Room *r){
     this->sbMsg->append(Message::DELIMITER);
     this->sbMsg->append(playerInfo);
 
-    //this->answerMessageAndClean();
     this->answerRoomAndClean(r, &MessageProcessor::answerMessage);
 }
 
@@ -596,34 +500,25 @@ void MessageProcessor::handleRejoin() {
 }
 
 
-
-
 void MessageProcessor::setApp(Application *app) {
     this->app = app;
 }
 
 void MessageProcessor::proceedStartGame(Room *r, bool ack) {
-    this->log->clear();
-    this->log->append("MSGProcessor, processing startgame:");
-    Logger::info(this->log->getString());
+    Logger::debug("MSGProcessor, processing startgame:");
 
     this->sbMsg->append(MessageType::GAME_START);
     this->sbMsg->append(Message::DELIMITER);
 
-
     if(!ack) {
         this->sbMsg->append(Message::NACK);
         this->answerRoomAndClean(r, &MessageProcessor::answerMessage);
-        //this->proceedLeaveGame();
         return;
     }
 
     this->sbMsg->append(Message::ACK);
     this->answerRoomAndClean(r, &MessageProcessor::answerMessage);
     r->changeStatus(GameStatus::STARTED);
-
-//    this->proceedFirstTurnData();
-//    this->answerRoomAndClean(r, &MessageProcessor::answerMessage);
 
     // new game with no previous progress
     // or rejoined
@@ -640,10 +535,10 @@ void MessageProcessor::answerRoomAndClean(const Room *r, void (MessageProcessor:
         this->clientSocket = socks.front();
         (this->*callback)();
 
-        this->log->clear();
-        this->log->append("sending to: ");
+        // -- log --
+        this->log->clear(); this->log->append("sending (to all) to: ");
         this->log->append(std::to_string(this->clientSocket));
-        Logger::info(this->log->getString());
+        Logger::debug(this->log->getString());
 
         socks.pop();
     }
@@ -671,11 +566,7 @@ bool MessageProcessor::checkHelloPacket(std::string msg) {
 
 void MessageProcessor::handleUserGoneOffline(Room *r) {
     // a user has left a room -> inform other players
-
-    Logger::error("TOTO BY SE MĚLO STÁT POUZE V PŘÍPADĚ, ŽE UŽIVATEL ZAVŘEL HRU KŘÍŽKEM. NEJSEM SI VŠAK JIST, ZDA TO BUDE JEDINÝ PŘÍPAD, ALE BÝT BY MĚL (TŘEBAŽE NEBUDE, BUDE).");
-
     this->proceedPlayerInfo(r);
-
 }
 
 

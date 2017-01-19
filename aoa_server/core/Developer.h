@@ -7,25 +7,18 @@
 
 #include "../partial/tools.h"
 #include "../game/Player.h"
+#include "Logger.h"
 
 class Developer {
-
     public:
-//        static void printOnlineOfflineUser(std::map<int, Player> online, std::map<int, Player> offline){
-//            std::cout << "PRINTING ONLINE: " << std::endl;
-//            printPlayers(online);
-//            std::cout << "PRINTING OFFLINE: " << std::endl;
-//            printPlayers(offline);
-//        }
-
-        static void printOnlineOfflineUsers(PlayerMap online, PlayerMap offline){
-
-            std::cout << "============================" << std::endl;
-            std::cout << "PRINTING ONLINE: " << std::endl;
+        static void printOnlineOfflineUsers(PlayerMap online, PlayerMap offline) {
+            std::string str = "";
+            str.append("========= ONLINE =========\n");
             printPlayers(online);
-            std::cout << "PRINTING OFFLINE: " << std::endl;
+            str.append("========= OFFLINE ========\n");
             printPlayers(offline);
-            std::cout << "============================" << std::endl;
+            str.append("===========================");
+            Logger::info(str);
         }
 
 };

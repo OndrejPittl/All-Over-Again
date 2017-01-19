@@ -33,8 +33,14 @@ void Server::run() {
 
 
 
+    this->log = new StringBuilder();
 
-    Logger::info("------ Starting server -------");
+
+
+    Logger::info("----------------------------------");
+    Logger::info("----    running AOA server    ----");
+    Logger::info("----------------------------------");
+
 
     // accepting input args
     this->handleInputArguments();
@@ -62,18 +68,11 @@ void Server::run() {
 
         if(result < 0) {
             Logger::error(std::to_string(errno));
-            if(errno == EINTR || errno == EBADF) {
-                // EINTR: sys call
-                // a socket of online user removed from a set
-
-                // EBADF: Bad File Descriptor
-                // a FD removed from a set due to amount of incorrect messages
-                continue;
-            } else {
-                exit(Logger::printErr(ERR_SELECT));
-            }
+            // EINTR: sys call, a socket of online user removed from a set
+            // EBADF: Bad File Descriptor, a FD removed from a set due to amount of incorrect messages
+            if(errno == EINTR || errno == EBADF) continue;
+            exit(Logger::printErr(ERR_SELECT));
         }
-
 
 		Logger::info("Server recognized a new request.");
 
@@ -112,8 +111,6 @@ void Server::run() {
 			}
 		}
 	}
-
-	Logger::info("---------- Finished ----------");
 }
 
 void Server::init() {
@@ -121,7 +118,6 @@ void Server::init() {
     this->comm = new CommunicationManager();
     this->app = new Application(this->conn, this->comm);
     this->comm->setApp(this->app);
-    this->log = new StringBuilder();
 }
 
 void Server::handleInputArguments() {
@@ -132,13 +128,30 @@ void Server::handleInputArguments() {
 
     if(this->opts->has(ServerOptions::OPT_PORT)) {
         this->portNumber = this->opts->get(ServerOptions::OPT_PORT);
+
+        // -- log --
+        this->log->clear(); this->log->append("port:   ");
+        this->log->append(this->portNumber); this->log->append(" (accepted)");
+        Logger::info(this->log->getString());
+
     } else {
         this->portNumber = ConnectionManager::DEFAULT_PORT;
+
+        // -- log --
+        this->log->clear(); this->log->append("port:   ");
+        this->log->append(this->portNumber); this->log->append(" (default)");
+        Logger::info(this->log->getString());
     }
 
     if(this->opts->has(ServerOptions::OPT_QUIET)) {
+
+        // -- log --
+        Logger::info("quiet:  active");
         Logger::disableLogging(true);
-        Logger::info("Running in quiet mode.");
+    } else {
+
+        // -- log --
+        Logger::info("quiet:  not active (default)");
     }
 }
 

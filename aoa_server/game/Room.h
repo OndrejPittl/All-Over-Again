@@ -17,16 +17,27 @@ class Room {
 
     private:
         int id;
+
         int activePlayerIndex;
+
         int turn;
+
         int winnerID;
+
         GameStatus status;
+
         GameType type;
+
         BoardDimension boardDimension;
+
         GameDifficulty difficulty;
+
         PlayerMap players;
+
         std::queue<int> progress;
+
         std::vector<int> playerOrder;
+
 
         void init();
 
@@ -36,8 +47,6 @@ class Room {
         Room(int id);
 
         Room(GameType type, GameDifficulty difficulty, BoardDimension dimension);
-
-
 
         void restart();
 
@@ -83,7 +92,6 @@ class Room {
 
         bool hasProgress();
 
-        // turn++
         void startTurn();
 
         int getTurn() const;
@@ -98,10 +106,6 @@ class Room {
 
         bool hasGameFinished();
 
-//        bool checkPlayerReplayReady();
-//
-//        void checkPlayerReplayRefuse();
-//
         bool isReplayReady();
 
         void endGame();
@@ -112,18 +116,15 @@ class Room {
 
         bool isReady();
 
+        bool isEverybodyOnline();
 
+        int getTime() const;
 
+        PlayerMap copyPlayers();
 
-    bool isEverybodyOnline();
+        bool hasGameEnded();
 
-    int getTime() const;
-
-    PlayerMap copyPlayers();
-
-    bool hasGameEnded();
-
-    void reassignPlayer(Player *player, Player *prevPlayer);
+        void reassignPlayer(Player *player, Player *prevPlayer);
 };
 
 

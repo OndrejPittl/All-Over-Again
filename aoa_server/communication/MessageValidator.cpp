@@ -5,11 +5,7 @@
 
 #include "MessageValidator.h"
 #include "../partial/tools.h"
-#include "../partial/StringBuilder.h"
 #include "../core/Logger.h"
-#include "../core/Application.h"
-
-//const std::string MessageValidator::STX = "\u0002";
 
 
 MessageValidator::MessageValidator(SafeQueue<Message *> *queue, SafeQueue<RawMessage *> *rawMessageQueue, Application *app) {
@@ -29,7 +25,6 @@ std::thread MessageValidator::run() {
 
 void MessageValidator::runValidation() {
     for(;;) {
-
         bool hello;
         int sock;
         long size;
@@ -61,10 +56,9 @@ void MessageValidator::runValidation() {
             std::string logTxt = msgValidText;
             removeChar(&logTxt, '\n');
 
-            this->log->clear();
-            this->log->append("MSGValidator, a message (");
-            this->log->append(logTxt);
-            this->log->append(") accepted.");
+            // -- log --
+            this->log->clear(); this->log->append("A message (");
+            this->log->append(logTxt); this->log->append(") accepted.");
             Logger::info(this->log->getString());
 
             this->messageQueue->push(m);
@@ -74,7 +68,6 @@ void MessageValidator::runValidation() {
 
 std::vector<std::string> MessageValidator::separateMessages(RawMessage msg){
     std::vector<std::string> messages;
-
     std::string txt = msg.getMessage();
 
     long stxPos = -1,
@@ -103,7 +96,6 @@ std::vector<std::string> MessageValidator::separateMessages(RawMessage msg){
         }
     }
 
-    //printVector(messages);
     return messages;
 }
 

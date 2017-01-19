@@ -3,10 +3,6 @@
 
 #include "Application.h"
 #include "../partial/tools.h"
-#include "../partial/Indexer.h"
-#include "../partial/StringBuilder.h"
-#include "../game/Player.h"
-#include "../game/GameType.h"
 #include "Logger.h"
 #include "Developer.h"
 #include "../connection/ConnectionManager.h"
@@ -30,7 +26,6 @@ void Application::init() {
     this->offlinePlayerIndexer = new Indexer();
     this->game = new Game();
     this->log = new StringBuilder();
-    //this->fillMockRooms();
 }
 
 void Application::fillMockRooms() {
@@ -81,7 +76,6 @@ bool Application::checkUsernameAvailability(std::string username) {
     // iteration through a map of usernames
     for(it_type iterator = this->usernames.begin(); iterator != this->usernames.end(); iterator++) {
         std::string uName = iterator->first;
-        int id = iterator->second;
 
         // found -> not available
         if(!uName.compare(username))
@@ -100,11 +94,9 @@ void Application::registerUser(int uid) {
     Player *p = new Player(uid);
     this->storePlayer(p);
 
-    this->log->clear();
-    this->log->append("A new player was created and stored at index: ");
-    this->log->append(uid);
-    this->log->append(".");
-    Logger::info(this->log->getString());
+    // -- log --
+    this->log->clear(); this->log->append("A new player was created and stored at index: ");
+    this->log->append(uid); this->log->append("."); Logger::info(this->log->getString());
 }
 
 /**
@@ -138,10 +130,6 @@ bool Application::signInUser(int uid, std::string username) {
     Player *player;
 
 
-    Logger::error("signing in");
-    printUsernames(this->usernames);
-    printRooms(this->rooms);
-
     // charset check
     if(!validateUsername(username))
         return false;
@@ -151,7 +139,13 @@ bool Application::signInUser(int uid, std::string username) {
     offIsOnline = keyExistsInPlayerMap(this->onlinePlayers, offIndex);
     mergable = taken && !offIsOnline;
 
-    std::cout << "taken: " << (taken ? "y" : "n") << ", offIndex: " << offIndex << ", mergable: " << (mergable ? "y" : "n") << ", isOnline: " << (offIsOnline ? "y" : "n") << std::endl;
+
+    // -- log --
+    this->log->clear(); this->log->append("taken: "); this->log->append(taken ? "y" : "n");
+    this->log->append(", offIndex: "); this->log->append(offIndex); this->log->append(", mergable: ");
+    this->log->append(mergable ? "y" : "n"); this->log->append(", isOnline: ");
+    this->log->append(offIsOnline ? "y" : "n"); Logger::debug(this->log->getString());
+
 
     // username is not available!
     if(taken && offIsOnline)
@@ -163,19 +157,16 @@ bool Application::signInUser(int uid, std::string username) {
     player->setUsername(username);
 
     if(mergable) {
-        Logger::info("mergiiiiiiiiing");
+        this->log->clear(); this->log->append("Merging a player: ");
+        this->log->append(username); Logger::info(this->log->getString());
+
         // a game must go on!
         this->reassignPlayer(player);
     }
 
     this->usernames[username] = uid;
 
-    Logger::info("assigniiiiiiing new uid to username");
-    printRooms(this->rooms);
-    printUsernames(this->usernames);
-
-
-
+    Logger::debug("Assigning new uid to username.");
     return true;
 }
 
@@ -191,9 +182,6 @@ void Application::reassignPlayer(Player *player) {
     Room *room;
 
 
-
-    Developer::printOnlineOfflineUsers(this->onlinePlayers, this->offlinePlayers);
-
     username = player->getUsername();
     prevPlayerUid = this->usernames[username];
     prevPlayer = this->getOfflinePlayer(prevPlayerUid);
@@ -203,37 +191,9 @@ void Application::reassignPlayer(Player *player) {
     room->reassignPlayer(player, prevPlayer);
     this->removeOfflineUser(prevPlayerUid);
 
-    this->log->clear();
-    this->log->append("A user ");
-    this->log->append(username);
-    this->log->append(" was reconnected!");
-    Logger::info(this->log->getString());
-    Developer::printOnlineOfflineUsers(this->onlinePlayers, this->offlinePlayers);
-}
-
-void Application::reconnectUser(Player *player){
-    int offUid;
-
-    Player *offPlayer;
-
-    std::string username = player->getUsername();
-
-
-    Developer::printOnlineOfflineUsers(this->onlinePlayers, this->offlinePlayers);
-
-    offUid = this->usernames[username];
-    offPlayer = this->getOfflinePlayer(offUid);
-    player->merge(offPlayer);
-
-    this->offlinePlayers.erase(offUid);
-    this->offlinePlayerIndexer->free(offUid);
-
-    this->log->clear();
-    this->log->append("A user ");
-    this->log->append(username);
-    this->log->append(" was reconnected!");
-    Logger::info(this->log->getString());
-    Developer::printOnlineOfflineUsers(this->onlinePlayers, this->offlinePlayers);
+    // -- log --
+    this->log->clear(); this->log->append("A user "); this->log->append(username);
+    this->log->append(" was reconnected!"); Logger::debug(this->log->getString());
 }
 
 /**
@@ -255,7 +215,7 @@ void Application::deregisterUser(int uid) {
 
     // -- LOG --
     this->log->clear(); this->log->append(" --- deregistering: ");
-    this->log->append(uid); Logger::info(this->log->getString());
+    this->log->append(uid); Logger::debug(this->log->getString());
 
 
     // is in room? -> offline users, stays in room marked as offline
@@ -271,13 +231,6 @@ void Application::deregisterUser(int uid) {
         int rid = p->getRoomID();
         Room *r = this->getRoom(rid);
 
-        // singleplayer
-//        if(r->getGameType() == GameType::SINGLEPLAYER) {
-//            //Player *p = this->getPlayer(uid);
-//            this->leaveRoomCheckCancel(p);
-//            return;
-//        }
-
         // multiplayer
         // online
         this->signOutUser(uid);
@@ -289,16 +242,13 @@ void Application::deregisterUser(int uid) {
 
         } else {
 
-            // @TODO: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
             // cancel room ALWAYS -> everybody offline
             this->checkRoomCancel(rid);
         }
 
-        printRooms(this->rooms);
-
     } else {
 
-        Logger::info(" --- deregistering a user without room");
+        Logger::debug(" --- deregistering a user without room");
 
         // online -> remove
         this->removeOnlineUser(uid);
@@ -313,8 +263,6 @@ void Application::deregisterUser(int uid) {
 void Application::signOutUser(int uid) {
     Player *p = this->getPlayer(uid);
     Room *r = this->getRoom(p->getRoomID());
-
-    Developer::printOnlineOfflineUsers(this->onlinePlayers, this->offlinePlayers);
 
     // mark as offline
     p->setOffline();
@@ -332,8 +280,6 @@ void Application::signOutUser(int uid) {
     // p still in a room, marked as offline
     r->changeStatus(GameStatus::WAITING);
 
-    Developer::printOnlineOfflineUsers(this->onlinePlayers, this->offlinePlayers);
-
     // -- LOG --
     this->log->clear(); this->log->append("A user "); this->log->append(p->getUsername());
     this->log->append(" was marked as offline."); Logger::info(this->log->getString());
@@ -348,8 +294,6 @@ void Application::removeOnlineUser(int uid) {
     if(player == nullptr)
         return;
 
-    Developer::printOnlineOfflineUsers(this->onlinePlayers, this->offlinePlayers);
-
     this->onlinePlayers.erase(uid);
 
     //remove a user from FD_SET
@@ -358,9 +302,6 @@ void Application::removeOnlineUser(int uid) {
     // -- LOG --
     this->log->clear(); this->log->append("The online user "); this->log->append(player->getUsername());
     this->log->append(" was completely removed."); Logger::info(this->log->getString());
-
-    Developer::printOnlineOfflineUsers(this->onlinePlayers, this->offlinePlayers);
-
 
     // free username if exists
     this->freeUsername(player);
@@ -375,17 +316,12 @@ void Application::removeOfflineUser(int offUid) {
     if(player == nullptr)
         return;
 
-    Developer::printOnlineOfflineUsers(this->onlinePlayers, this->offlinePlayers);
-
     this->offlinePlayers.erase(offUid);
     this->offlinePlayerIndexer->free(offUid);
 
     // -- LOG --
     this->log->clear(); this->log->append("The offline user "); this->log->append(player->getUsername());
     this->log->append(" was completely removed."); Logger::info(this->log->getString());
-
-    Developer::printOnlineOfflineUsers(this->onlinePlayers, this->offlinePlayers);
-
 
     // free username if exists
     this->freeUsername(player);
@@ -398,16 +334,12 @@ void Application::freeUsername(Player *player) {
     if(!player->hasUsername())
         return;
 
-    printUsernames(this->usernames);
-
     // free username
     this->usernames.erase(player->getUsername());
 
     // -- LOG --
     this->log->clear(); this->log->append("A username "); this->log->append(player->getUsername());
     this->log->append(" was freed."); Logger::info(this->log->getString());
-
-    printUsernames(this->usernames);
 }
 
 /**
@@ -417,8 +349,6 @@ void Application::freeUsername(Player *player) {
 void Application::leaveRoom(Player *player) {
     if(!player->hasRoom())
         return;
-
-    printRooms(this->rooms);
 
     int rid = player->getRoomID();
     Room *room = this->getRoom(rid);
@@ -430,12 +360,9 @@ void Application::leaveRoom(Player *player) {
     room->deregisterPlayer(player);
 
     // -- LOG --
-    this->log->clear(); this->log->append("Player: "); this->log->append(player->getUsername());
+    this->log->clear(); this->log->append("A player: "); this->log->append(player->getUsername());
     this->log->append(" left room: "); this->log->append(rid); this->log->append(".");
     Logger::info(this->log->getString());
-
-    printRooms(this->rooms);
-
 }
 
 /**
@@ -444,8 +371,6 @@ void Application::leaveRoom(Player *player) {
  */
 void Application::cancelRoom(Room *room){
     PlayerMap players = room->copyPlayers();
-
-    printRooms(this->rooms);
 
     for(auto it = players.cbegin(); it != players.cend(); ++it) {
 
@@ -460,8 +385,6 @@ void Application::cancelRoom(Room *room){
     // cancel a room
     this->rooms.erase(room->getID());
     this->roomIndexer->free(room->getID());
-
-    printRooms(this->rooms);
 }
 
 /**
@@ -470,8 +393,6 @@ void Application::cancelRoom(Room *room){
  */
 void Application::disbandRoom(Room *room){
     PlayerMap players = room->copyPlayers();
-
-    printRooms(this->rooms);
 
     for(auto it = players.cbegin(); it != players.cend(); ++it) {
 
@@ -482,8 +403,6 @@ void Application::disbandRoom(Room *room){
     // cancel a room
     this->rooms.erase(room->getID());
     this->roomIndexer->free(room->getID());
-
-    printRooms(this->rooms);
 }
 
 /**
@@ -515,212 +434,10 @@ void Application::checkRoomCancel(int rid) {
 
     // -- LOG --
     this->log->clear(); this->log->append("-- Room at: "); this->log->append(rid);
-    this->log->append(" is empty or everyone is offline and was CANCELED.");
+    this->log->append(" is empty or everyone is offline. The room was CANCELED.");
     Logger::info(this->log->getString());
 
 }
-
-
-
-
-
-
-//void Application::deregisterUser_old(int uid) {
-//    Player *p = this->getPlayer(uid);
-//    if(p == nullptr) p = this->getOfflinePlayer(uid);
-//    if(p == nullptr) return;
-//
-//
-//    this->log->clear();
-//    this->log->append(" --- deregistering: ");
-//    this->log->append(uid);
-//    Logger::info(this->log->getString());
-//
-//    // is in room? -> offline users, stays in room marked as offline
-//    //        not? -> remove from online/offline/room - COMPLETELY
-//
-//    // is online and currently playing a game
-//    if(p->isOnline() && p->hasRoom()) {
-//        Logger::info(" --- deregistering a user with room");
-//
-//        int rid = p->getRoomID();
-//        Room *r = this->getRoom(rid);
-//
-//        // online -> offline
-//        this->signOutUser(uid);
-//
-//        if(r->isAnyoneOnline()) {
-//            // notify other players
-//            this->comm->getMsgProcessor()->handleUserGoneOffline(r);
-//
-//        } else {
-//            // cancel room
-//            this->checkRoomCancel(rid);
-//        }
-//
-//    } else {
-//
-//        Logger::info(" --- deregistering a user without room");
-//
-//        // online/offline -> remove
-//        this->removeUser(p);
-//
-//    }
-//}
-
-//void Application::signOutUser(int uid) {
-//    Player *p = this->getPlayer(uid);
-//    Room *r = this->getRoom(p->getRoomID());
-//
-//    Developer::printOnlineOfflineUsers(this->onlinePlayers, this->offlinePlayers);
-//
-//    // mark as offline
-//    p->setOffline();
-//
-//    // add to offline
-//    this->storeOfflinePlayer(p);
-//
-//    // remove from online
-//    this->onlinePlayers.erase(uid);
-//
-//    //remove a user from FD_SET
-//    this->conn->deregisterClient(uid);
-//
-//    // room waiting for the player comes back
-//    // p still in a room, marked as offline
-//    r->changeStatus(GameStatus::WAITING);
-//
-//    Developer::printOnlineOfflineUsers(this->onlinePlayers, this->offlinePlayers);
-//
-//    this->log->clear();
-//    this->log->append("A user ");
-//    this->log->append(p->getUsername());
-//    this->log->append(" was marked as offline.");
-//    Logger::info(this->log->getString());
-//
-//}
-
-
-//void Application::removeUser(Player *player) {
-//    int uid;
-//    std::string username;
-//
-//    uid = player->getID();
-//    username = player->getUsername();
-//
-//    // remove a user from a room (if joined)
-//    this->leaveRoomAndCheck(player);
-//
-//    this->onlinePlayers.erase(uid);
-//
-//    //remove a user from FD_SET
-//    this->conn->deregisterClient(uid);
-//
-//    this->log->clear();
-//    this->log->append("A user ");
-//    this->log->append(username);
-//    this->log->append(" was completely removed.");
-//    Logger::info(this->log->getString());
-//
-//
-//    if(!player->hasUsername())
-//        return;
-//
-//    // free username
-//    this->usernames.erase(username);
-//
-//    this->log->clear();
-//    this->log->append("A username ");
-//    this->log->append(username);
-//    this->log->append(" was freed.");
-//    Logger::info(this->log->getString());
-//}
-
-
-//void Application::leaveRoomAndCheck(Player *player) {
-//    if(!player->hasRoom())
-//        return;
-//
-//    int rid = player->getRoomID();
-//    Room *room = this->getRoom(rid);
-//
-//    this->leaveRoom(player);
-//    this->disbandRoom(room);
-//
-//
-//}
-
-//void Application::leaveRoom(Player *player) {
-//    if(!player->hasRoom())
-//        return;
-//
-//    int rid = player->getRoomID();
-//    Room *room = this->getRoom(rid);
-//
-//    player->leaveRoom();
-//    room->deregisterPlayer(player);
-//
-//    this->log->clear();
-//    this->log->append("Player: ");
-//    this->log->append(player->getUsername());
-//    this->log->append(" left room:");
-//    this->log->append(rid);
-//    this->log->append(".");
-//    Logger::info(this->log->getString());
-//
-//}
-
-//void Application::disbandRoom(Room *room){
-//    //PlayerMap &players = room->getPlayers();
-//
-//    PlayerMap players = room->copyPlayers();
-//
-//    for(auto it = players.cbegin(); it != players.cend(); ++it) {
-//        Player *p = it->second;
-//
-//        // remove players from online/offline players & FD_SET
-//        this->leaveRoomAndCheck(p);
-//    }
-//
-//    // cancel a room
-//    //this->rooms.erase(room->getID());
-//}
-
-//void Application::cancelRoom(Room *room){
-//    PlayerMap players = room->copyPlayers();
-//
-//    for(auto it = players.cbegin(); it != players.cend(); ++it) {
-//        Player *p = it->second;
-//
-//        // remove players from online/offline players & FD_SET
-//        this->removeUser(p);
-//    }
-//
-//    // cancel a room
-//    this->rooms.erase(room->getID());
-//}
-
-
-//void Application::checkRoomCancel(int rid) {
-//    Room *r = this->getRoom(rid);
-//
-//    if(r->isAnyoneOnline())
-//        return;
-//
-//    this->cancelRoom(r);
-//
-//    this->log->clear();
-//    this->log->append("-- Room at: ");
-//    this->log->append(rid);
-//    this->log->append(" is empty or everyone is offline and was CANCELED.");
-//    Logger::info(this->log->getString());
-//
-//}
-
-
-
-
-
 
 RoomMap &Application::getRooms() {
     return this->rooms;
@@ -737,18 +454,13 @@ bool Application::joinRoom(int uid, int rid) {
     Room *r = this->getRoom(rid);
 
     if(r->isJoinable()) {
-        this->log->clear();
-        this->log->append("* User ");
-        this->log->append(p->getUsername());
-        this->log->append(" (");
-        this->log->append(uid);
-        this->log->append(") ");
-        this->log->append("joining room: ");
-        this->log->append(rid);
-        Logger::info(this->log->getString());
+        this->log->clear(); this->log->append("User ");
+        this->log->append(p->getUsername()); this->log->append(" (");
+        this->log->append(uid); this->log->append(") ");
+        this->log->append("joining room ("); this->log->append(rid);
+        this->log->append(")."); Logger::info(this->log->getString());
 
         this->assignPlayer(p, r);
-
         return true;
     }
 
@@ -759,14 +471,11 @@ void Application::assignPlayer(Player *player, Room *room) {
     player->setRoomID(room->getID());
     room->registerPlayer(player);
 
-    this->log->clear();
-    this->log->append("assigning: ");
-    this->log->append(player->getUsername());
-    this->log->append(" with ID: ");
-    this->log->append(player->getID());
-    this->log->append(" to room: ");
-    this->log->append(room->getID());
-    Logger::info(this->log->getString());
+    // -- log --
+    this->log->clear(); this->log->append("assigning: ");
+    this->log->append(player->getUsername()); this->log->append(" with ID: ");
+    this->log->append(player->getID()); this->log->append(" to room: ");
+    this->log->append(room->getID()); Logger::debug(this->log->getString());
 }
 
 /**
@@ -786,7 +495,6 @@ Room *Application::getRoom(int rid) {
 
 Player *Application::getPlayer(int uid) {
     return this->onlinePlayers.count(uid) ? this->onlinePlayers[uid] : nullptr;
-//    return this->onlinePlayers[uid];
 }
 
 Player *Application::getOfflinePlayer(int uid) {
@@ -813,27 +521,19 @@ bool Application::startGameIfReady(Room *room) {
     this->log->clear();
 
     if(room->isReady()) {
-        this->log->append("A room (");
-        this->log->append(room->getID());
-        this->log->append(") is full. Starting.");
-        Logger::info(this->log->getString());
-        //room->startTurn();
+        this->log->append("A room ("); this->log->append(room->getID());
+        this->log->append(") is full. Starting."); Logger::info(this->log->getString());
         return true;
     } else {
-        this->log->append("A room (");
-        this->log->append(room->getID());
-        this->log->append(") is NOT full. NOT starting.");
-        Logger::info(this->log->getString());
+        this->log->append("A room ("); this->log->append(room->getID());
+        this->log->append(") is NOT full. NOT starting."); Logger::info(this->log->getString());
         return false;
     }
 }
 
-
 bool Application::proceedTurn(int rid, const std::queue<int> &progress) {
-    bool result;
     Room *r = this->getRoom(rid);
-
-    result = this->game->validateTurn(progress, r);
+    bool result = this->game->validateTurn(progress, r);
 
     if(result) {
         r->setProgress(progress);
@@ -855,15 +555,10 @@ void Application::registerSuspiciousBehaviour(int uid){
 
     p->registerIncorrectMsgCount();
 
-    this->log->clear();
-    this->log->append("Suspicious/invalid messages detected from client ");
-    this->log->append(uid);
-    this->log->append(" (");
-    this->log->append(p->getIncorrectMsgCount());
-    this->log->append("/");
-    this->log->append(ConnectionManager::COMM_INVALID_MSG_LIMIT);
-    this->log->append(").");
-    Logger::warning(this->log->getString());
+    this->log->clear(); this->log->append("Suspicious/invalid messages detected from client ");
+    this->log->append(uid); this->log->append(" ("); this->log->append(p->getIncorrectMsgCount());
+    this->log->append("/"); this->log->append(ConnectionManager::COMM_INVALID_MSG_LIMIT);
+    this->log->append(")."); Logger::warning(this->log->getString());
 
     if(p->getIncorrectMsgCount() == ConnectionManager::COMM_INVALID_MSG_LIMIT) {
         this->suspiciousClients.push_back(uid);
@@ -874,17 +569,12 @@ void Application::handleSuspiciousClients(){
     while(this->suspiciousClients.size() > 0) {
         int c = this->suspiciousClients.back();
 
-        //odstrihneme
-        this->log->clear();
-        this->log->append("Client ");
-        this->log->append(c);
-        this->log->append(" was marked as an attacker.");
+        // cut off!
+        this->log->clear(); this->log->append("Client "); this->log->append(c);
+        this->log->append(" was marked as an attacker and will be cut off.");
         Logger::warning(this->log->getString());
 
         this->deregisterUser(c);
         this->suspiciousClients.pop_back();
     }
 }
-
-
-

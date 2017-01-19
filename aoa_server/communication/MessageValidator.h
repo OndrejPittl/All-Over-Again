@@ -7,7 +7,6 @@
 
 
 #include "../partial/SafeQueue.h"
-#include "../partial/Semaphore.h"
 #include "Message.h"
 #include "RawMessage.h"
 #include "../partial/StringBuilder.h"
@@ -31,15 +30,21 @@ class MessageValidator {
 
     private:
         SafeQueue<Message *> *messageQueue;
+
         SafeQueue<RawMessage *> *rawMessageQueue;
+
         Application *app;
+
         StringBuilder *log;
 
-        void init();
-        void runValidation();
-        std::vector<std::string> separateMessages(RawMessage msg);
-        bool checkMessageChecksum(std::string msg, std::string *pureMessage);
 
+        void init();
+
+        void runValidation();
+
+        std::vector<std::string> separateMessages(RawMessage msg);
+
+        bool checkMessageChecksum(std::string msg, std::string *pureMessage);
 
 
     public:
@@ -57,7 +62,6 @@ class MessageValidator {
         std::thread run();
 
         bool checkHelloPacket(std::string msg, std::string *pureMessage);
-
 
 };
 

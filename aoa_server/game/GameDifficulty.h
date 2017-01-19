@@ -2,7 +2,6 @@
 #define GAME_DIFFICULTY_H
 
 
-//class GameDifficulty {};
 enum class GameDifficulty {
     EASY,
     NORMAL,

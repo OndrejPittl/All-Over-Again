@@ -17,11 +17,6 @@ class Application;
 
 class CommunicationManager {
 	private:
-		
-		/**
-		*	Input message buffer.
-		*/
-		std::string inputBuffer;
 
 		Application *app;
 
@@ -61,13 +56,9 @@ class CommunicationManager {
          */
         std::thread msgProcessorThrd;
 
-
-
         MessageSender *msgSender;
 
         std::thread msgSenderThrd;
-
-
 
 		StringBuilder *log;
 
@@ -89,10 +80,6 @@ class CommunicationManager {
 		 * @param messageQueue
 		 */
 		CommunicationManager();
-//      CommunicationManager(SafeQueue<Message *> *messageQueue);
-//		CommunicationManager(Application *app);
-
-
 
         void startMessageValidator();
 
@@ -100,15 +87,11 @@ class CommunicationManager {
 
         void startMessageSender();
 
-		/**
-		*	
-		*/
 		void receiveMessage(int fdIndex, int byteCount);
 
 		void setApp(Application *app);
 
-
-	MessageProcessor *getMsgProcessor() const;
+		MessageProcessor *getMsgProcessor() const;
 };
 
 #endif

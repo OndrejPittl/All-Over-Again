@@ -12,13 +12,16 @@
 #include "Logger.h"
 
 
-LoggerSeverity Logger::lvl;
+const std::string Logger::LOG_FILE_PATH = "../logs/aoa_server.log";
+
+const bool Logger::DEVELOPER_MODE = true;
+
+
 std::mutex Logger::mtx;
+
 StringBuilder *Logger::sb;
 
 bool Logger::logging = true;
-
-const std::string Logger::LOG_FILE_PATH = "../logs/aoa_server.log";
 
 /**
 *	Table of errors.
@@ -40,49 +43,35 @@ void Logger::init(){
     Logger::sb = new StringBuilder();
 }
 
-void Logger::trace(std::string msg, bool stdOut) {
-    if(!logging) return;
+void Logger::trace(std::string msg) {
 	Logger::log(LoggerSeverity::TRACE, msg);
-	//if(stdOut) println(msg);
 }
 
-void Logger::debug(std::string msg, bool stdOut) {
-    if(!logging) return;
+void Logger::debug(std::string msg) {
 	Logger::log(LoggerSeverity::DEBUG, msg);
-	//if(stdOut) println(msg);
 }
 
-void Logger::fatal(std::string msg, bool stdOut) {
-    if(!logging) return;
+void Logger::fatal(std::string msg) {
 	Logger::log(LoggerSeverity::FATAL, msg);
-	//if(stdOut) println(msg);
 }
 
-void Logger::error(std::string msg, bool stdOut) {
-    if(!logging) return;
+void Logger::error(std::string msg) {
 	Logger::log(LoggerSeverity::ERROR, msg);
-	//if(stdOut) println(msg);
 }
 
-void Logger::warning(std::string msg, bool stdOut) {
-    if(!logging) return;
+void Logger::warning(std::string msg) {
 	Logger::log(LoggerSeverity::WARNING, msg);
-	//if(stdOut) println(msg);
 }
 
-void Logger::info(std::string msg, bool stdOut) {
-    if(!logging) return;
+void Logger::info(std::string msg) {
 	Logger::log(LoggerSeverity::INFO, msg);
-	//if(stdOut) println(msg);
 }
 
 /**
 *	Prints an error corresponding with error code given.
 */
 int Logger::printErr(ErrCode ec){
-	Logger::error(Logger::ERROR_TABLE[ec].c_str(), false);
-	printf("%s\n", Logger::ERROR_TABLE[ec].c_str());
-	printf("\n---------------------\n");
+	Logger::error(Logger::ERROR_TABLE[ec].c_str());
 	return ec;
 }
 
@@ -117,11 +106,13 @@ void Logger::log(LoggerSeverity lvl, std::string msg, bool consoleLog) {
     Logger::sb->append("\n");
 
 
-    if(consoleLog) {
-        if(lvl == LoggerSeverity::ERROR) {
-            Logger::logConsoleErr();
-        } else {
-            Logger::logConsole();
+    if(Logger::logging && consoleLog) {
+        if(!(lvl == LoggerSeverity::DEBUG && !Logger::DEVELOPER_MODE)) {  // jo?
+            if (lvl == LoggerSeverity::ERROR) {
+                Logger::logConsoleErr();
+            } else {
+                Logger::logConsole();
+            }
         }
     }
 

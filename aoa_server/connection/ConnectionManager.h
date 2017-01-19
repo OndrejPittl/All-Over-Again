@@ -76,16 +76,7 @@ class ConnectionManager {
 		*/
 		uint getPortNumber();
 
-		/**
-		*	Server socket getter.
-		*/
-		int getServerSocket();
-
         bool isServerSocket(int sock);
-
-
-
-        void prepareClientSocketSet();
 
         void restoreSocketSets();
 
@@ -93,21 +84,9 @@ class ConnectionManager {
 
         int isSockReadable(int sock);
 
-//        int isSockWritable(int sock);
-
-        fd_set getClientSocketSet();
-
-        fd_set getReadSocketSet();
-
-//        fd_set getWriteSocketSet();
-
-//        void registerNewClient(int cliSock);
-
         void deregisterClient(int sock);
 
-	//void registerClient(int sock);
-
-    int acceptConnection();
+        int acceptConnection();
 };
 
 

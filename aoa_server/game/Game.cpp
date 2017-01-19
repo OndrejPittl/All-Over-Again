@@ -1,20 +1,24 @@
 #include <iostream>
 #include "Game.h"
 
+#include "../core/Logger.h"
+
 
 /**
  * 4 seconds for every move.
  * ->  turn * 4 s = total time for a turn (without intro)
  */
 const int Game::MOVE_TIME = 10;
+
 const int Game::FIRST_TURN_RESERVE = 3;
 
-Game::Game() {
 
+Game::Game() {
+    this->init();
 }
 
 void Game::init() {
-
+    this->log = new StringBuilder();
 }
 
 bool Game::validateTurn(const std::queue<int> &progress, Room *room) {
@@ -24,7 +28,6 @@ bool Game::validateTurn(const std::queue<int> &progress, Room *room) {
 
     correct = true;
 
-
     previousProgress = room->getProgress();
 
     // new progress: progress count == prev progress count + difficult
@@ -32,12 +35,18 @@ bool Game::validateTurn(const std::queue<int> &progress, Room *room) {
     prevProgCount = (int) previousProgress.size();
     expectedCount = prevProgCount + (int) room->getDifficulty() + 1;
 
-    std::cout << "____ PROGRESS: old: " << prevProgCount << ", new: " << progCount << ", expected: " << expectedCount << std::endl;
+
+    // -- log --
+    this->log->clear();
+    this->log->append("____ PROGRESS: old: "); this->log->append(prevProgCount);
+    this->log->append(", new: "); this->log->append(progCount);
+    this->log->append(", expected: "); this->log->append(expectedCount);
+    Logger::debug(this->log->getString());
+
 
     if(progCount != expectedCount) {
         return false;
     }
-
 
     if(room->hasProgress()) {
         // NOT first turn

@@ -1,12 +1,9 @@
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
-// libraries
 #include <string>
 #include "../partial/SafeQueue.h"
 #include "MessageType.h"
-
-// headers
 
 
 class Message {
@@ -38,7 +35,7 @@ class Message {
         static const char ETX;
 		static const int MSG_CHECKSUM_MODULO;
         static const char DELIMITER;
-        static const char SUBDELIMITER;
+        static const char SUB_DELIMITER;
         static const std::string ACK;
         static const std::string NACK;
         static const std::string HELLO_PACKET;

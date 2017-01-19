@@ -37,6 +37,8 @@ class Logger {
 	private:
 		static const std::string LOG_FILE_PATH;
 
+        static const bool DEVELOPER_MODE;
+
 		/**
 		*	Table of errors.
 		*/
@@ -47,8 +49,6 @@ class Logger {
         static std::mutex mtx;
 
         static StringBuilder *sb;
-
-		static LoggerSeverity lvl;
 
         static void log(LoggerSeverity lvl, std::string msg, bool consoleLog = true);
 
@@ -66,32 +66,32 @@ class Logger {
 		/**
 		*	helps with backtracing events
 		*/
-		static void trace(std::string msg, bool stdOut = true);
+		static void trace(std::string msg);
 
 		/**
 		*	Informs a developer during debugging.
 		*/
-		static void debug(std::string msg, bool stdOut = true);
+		static void debug(std::string msg);
 
 		/**
 		*	Informs about very severe error.
 		*/
-		static void fatal(std::string msg, bool stdOut = true);
+		static void fatal(std::string msg);
 
 		/**
 		*	Informs about a serious error which does not interrupt execution.
 		*/
-		static void error(std::string msg, bool stdOut = true);
+		static void error(std::string msg);
 
 		/**
 		*	Informs about a less serous error which does not interrupt execution.
 		*/
-		static void warning(std::string msg, bool stdOut = true);
+		static void warning(std::string msg);
 
 		/**
 		*	Mainly informs about a progress.
 		*/
-		static void info(std::string msg, bool stdOut = true);
+		static void info(std::string msg);
 
 		/**
 		*	Mainly informs about a progress.

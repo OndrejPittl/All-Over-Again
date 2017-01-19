@@ -8,15 +8,7 @@
 #include "../game/Room.h"
 
 
-enum CommandType {
-	CMD_EXAMPLE = 0,
-	CMD_EXAMPLE2
-};
-
-
 const std::string VALIDATION_USERNAME_REGEX = "^[a-zA-Z0-9-_<>]{3,15}$";
-
-
 
 bool validate(std::string str, std::string regexp);
 

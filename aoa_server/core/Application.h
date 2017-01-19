@@ -35,15 +35,11 @@ class Application {
         /**
          * Users connected to a server and are interacting with an app.
          */
-        //std::vector <Player> onlinePlayers;
-        //std::map<int, Player> onlinePlayers;
         PlayerMap onlinePlayers;
 
         /**
          *  Users previously connected to a server however without a response, BUT not signed out!
          */
-        //std::map<int, Player> offlineUsers;
-        //std::vector<Player> offlinePlayers;
         //PlayerVector offlinePlayers;
         PlayerMap offlinePlayers;
 
@@ -58,28 +54,18 @@ class Application {
         /**
          * Existing rooms.
          */
-        //std::map<int, Room*> rooms;
         RoomMap rooms;
 
         Indexer *roomIndexer;
 
-
-
-//        int roomIndex;
-//        std::queue<int> freedRoomIndexeQueue;
-
-
-
-
         StringBuilder *log;
-
 
 
         void init();
 
-        bool checkUsernameAvailability(std::string username);
+        void fillMockRooms();
 
-        //void deregisterUserFrom(Player& p, std::vector<Player>& users);
+        bool checkUsernameAvailability(std::string username);
 
 
     public:
@@ -104,8 +90,6 @@ class Application {
 
         Room *getRoom(int rid);
 
-        int registerRoom(Room *r);
-
         bool joinRoom(int uid, int rid);
 
         bool startGameIfReady(Room *room);
@@ -118,10 +102,6 @@ class Application {
 
         bool proceedTurn(int rid, const std::queue<int> &progress);
 
-        void cancelRoom(int rid);
-
-        void removePlayer(int uid);
-
         Player *getPlayer(int uid);
 
         Player *getOfflinePlayer(int uid);
@@ -130,34 +110,23 @@ class Application {
 
         int storeOfflinePlayer(Player *p);
 
-        //void leaveRoomAndCheck(Player *player);
         void leaveRoomCheckCancel(Player *player);
 
         void deregisterUser(int uid);
 
-        void fillMockRooms();
-
         void cancelRoom(Room *room);
-
-        void cancelRoomKick(Room *room);
 
         void disbandRoom(Room *room);
 
-    void registerSuspiciousBehaviour();
+        void registerSuspiciousBehaviour(int uid);
 
-    void registerSuspiciousBehaviour(int uid);
+        void handleSuspiciousClients();
 
-    void handleSuspiciousClients();
+        void reassignPlayer(Player *player);
 
-    void reconnectUser(Player *player);
+        void leaveRoom(Player *player);
 
-    void reassignPlayer(Player *player);
-
-    void leaveRoom(Player *player);
-
-    void freeUsername(Player *player);
-
-    void resignIn(int uid);
+        void freeUsername(Player *player);
 };
 
 

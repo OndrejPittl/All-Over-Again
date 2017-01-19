@@ -1,14 +1,10 @@
 #include <sstream>
 #include <iostream>
 #include <vector>
-#include <string>
 #include <queue>
 #include <map>
 
 #include "MessageParser.h"
-#include "../partial/StringBuilder.h"
-#include "../game/Room.h"
-#include "Message.h"
 #include "../core/Logger.h"
 
 
@@ -18,7 +14,7 @@ MessageParser::MessageParser() {
 
 void MessageParser::init() {
     this->sb = new StringBuilder();
-    Logger::info("MSGParser initialized.");
+    Logger::debug("MSGParser initialized.");
 }
 
 

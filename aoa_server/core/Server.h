@@ -17,13 +17,19 @@
 
 class Server {
 	private:
-
 		Application *app;
+
 		ConnectionManager *conn;
+
 		CommunicationManager *comm;
+
         ServerOptions *opts;
+
 		StringBuilder *log;
+
         uint portNumber;
+
+
 		void init();
 
 	public:
@@ -36,7 +42,7 @@ class Server {
 
         void handleInputArguments();
 
-    void runServices();
+        void runServices();
 };
 
 #endif

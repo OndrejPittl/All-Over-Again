@@ -33,37 +33,47 @@ class Player {
 
 
         void init();
+
         void setStatus(bool online);
 
     public:
         Player();
+
         Player(int id);
+
         Player(int id, std::string username);
 
         void setID(int id);
+
         int getID() const;
 
         void setRoomID(int id);
+
         int getRoomID() const;
+
         bool hasRoom();
+
         void leaveRoom();
 
         void setUsername(std::string username);
+
         std::string getUsername() const;
 
         void setOnline();
+
         void setOffline();
+
         bool isOnline() const;
 
         int getIncorrectMsgCount() const;
-        void registerIncorrectMsgCount(int incorrectMsgCount);
+
         void clearIncorrectMsgCount();
 
-    void registerIncorrectMsgCount();
+        void registerIncorrectMsgCount();
 
-    bool hasUsername() const;
+        bool hasUsername() const;
 
-    void merge(Player *p);
+        void merge(Player *p);
 };
 
 typedef std::map<int, Player*> PlayerMap;

@@ -10,11 +10,13 @@ const int ServerOptions::PORT_NUM_LOWER_LIMIT = 1;
 
 const int ServerOptions::PORT_NUM_UPPER_LIMIT = 65535;
 
+
 const std::string ServerOptions::OPT_PORT = "p";
 
 const std::string ServerOptions::OPT_QUIET = "q";
 
 const std::string ServerOptions::OPT_HELP = "h";
+
 
 const ServerOptions::Option ServerOptions::OPT_PORT_FLAGS ("-p", "--port");
 
@@ -23,13 +25,11 @@ const ServerOptions::Option ServerOptions::OPT_QUIET_FLAGS ("-q", "--quiet");
 const ServerOptions::Option ServerOptions::OPT_HELP_FLAGS ("-h", "--help");
 
 
-
 ServerOptions::ServerOptions(int argc, char **argv) {
     this->argc = argc;
     this->argv = argv;
     this->init();
     this->parse();
-    //this->print();
 }
 
 void ServerOptions::init() {
@@ -81,7 +81,7 @@ void ServerOptions::parse() {
             return std::stoi(port);
         }
 
-        Logger::error("Invalid port inserted. DEFAULT is used.");
+        Logger::warning("Invalid port inserted. DEFAULT is used.");
         return -1;
     }
 

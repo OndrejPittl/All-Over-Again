@@ -1,24 +1,13 @@
-// libraries
 #include <iostream>
 #include <regex>
 
 #include "tools.h"
-#include "../game/Room.h"
-
-
-
-// headers
-
-
-
-
-
+#include "../core/Logger.h"
 
 
 bool validate(std::string str, std::string regexp) {
     std::regex regex(regexp);
     return regex_match(str, regex);
-
 }
 
 bool validateUsername(std::string username) {
@@ -75,60 +64,73 @@ long checksum(std::string str, int mod) {
 }
 
 void printVector(std::vector<std::string> vec) {
-    std::cout << "Printing vector:" << std::endl;
+    Logger::debug("Printing vector:");
 
     if(vec.size() <= 0)
-        std::cout << "Vector is empty." << std::endl;
+        Logger::debug("Vector is empty.");
 
     int i = 0;
     for (auto const& v : vec){
-        std::string str = std::string(v);
-        removeChar(&str, '\n');
-        std::cout << i++ << ". polozka: " << str << std::endl;
-    }
+        std::string str = std::string(v); removeChar(&str, '\n');
+        //std::cout << i++ << ". polozka: " << str << std::endl;
 
+        std::string s = ""; s.append(std::to_string(i++));
+        s.append(". polozka: "); s.append(str); Logger::debug(s);
+    }
 }
 
 void printPlayerVector(PlayerVector vec) {
-    std::cout << "Printing vector of players:" << std::endl;
+    Logger::debug("Printing vector of players:");
 
     if(vec.size() <= 0)
-        std::cout << "No player in a vector." << std::endl;
+        Logger::debug("No player in a vector.");
 
     int i = 0;
     for (auto const& v : vec){
-        std::cout << i++ << ". [" << v->getID() << ", " << (v->hasRoom() ? v->getRoomID() : -1) << "] " << v->getUsername() << (v->isOnline() ? " (online)" : " (offline)") << std::endl;
+
+        std::string str = ""; str.append(std::to_string(i++)); str.append(". ["); str.append(std::to_string(v->getID()));
+        str.append(", "); str.append(std::to_string((v->hasRoom() ? v->getRoomID() : -1))); str.append("] ");
+        str.append(v->getUsername()); str.append((v->isOnline() ? " (online)" : " (offline)")); Logger::debug(str);
     }
 
 }
 
 void printPlayers(PlayerMap m) {
-    std::cout << "Printing a PLAYER MAP:" << std::endl;
+    Logger::info("Printing a PLAYER MAP:");
 
     if(m.size() <= 0)
-        std::cout << "Map is empty." << std::endl;
+        Logger::info("Map is empty.");
 
     int i = 0;
 
     for(auto it = m.cbegin(); it != m.cend(); ++it) {
-        std::cout << (i++) << ". [" << it->first << ", " << (it->second->hasRoom() ? it->second->getRoomID() : -1) << "] " << it->second->getUsername()<< (it->second->isOnline() ? " (online)" : " (offline)") << std::endl;
+
+        std::string str = ""; str.append(std::to_string(i++)); str.append(". ["); str.append(std::to_string(it->first));
+        str.append(", "); str.append(std::to_string((it->second->hasRoom() ? it->second->getRoomID() : -1))); str.append("] ");
+        str.append(it->second->getUsername()); str.append((it->second->isOnline() ? " (online)" : " (offline)")); Logger::debug(str);
     }
 }
 
 void printRooms(RoomMap m) {
-    std::cout << "============== Printing rooms ==============" << std::endl;
+    Logger::info("============== Printing rooms ==============");
 
     if(m.size() <= 0)
-        std::cout << "No room." << std::endl;
+        Logger::info("No room.");
 
     for(auto it = m.cbegin(); it != m.cend(); ++it) {
         Room *r = it->second;
 
-        std::cout << "key: " << it->first << " - ID: " << r->getID() << ", diff: " << (int) r->getDifficulty()
-                  << ", dim: " << (int) r->getBoardDimension() << ", type: " << (int) r->getGameType() << ", players: " << r->getPlayerCount() << "(online: " << r->countOnlinePlayers() << ")" << std::endl;
+
+        std::string str = "key: "; str.append(std::to_string(it->first)); str.append(" - ID: "); str.append(std::to_string(r->getID()));
+        str.append(", diff: "); str.append(std::to_string((int) r->getDifficulty())); str.append(", dim: ");
+        str.append(std::to_string((int) r->getBoardDimension())); str.append(", type: ");
+        str.append(std::to_string((int) r->getGameType())); str.append(", players: ");
+        str.append(std::to_string(r->getPlayerCount())); str.append("(online: ");
+        str.append(std::to_string(r->countOnlinePlayers())); str.append(")");
+        Logger::debug(str);
     }
 
-    std::cout << "============================================" << std::endl;
+    Logger::info("===========================================");
 }
 
 bool checkIfExistsInPlayerVector(PlayerVector &vec, int uid) {
@@ -140,18 +142,23 @@ bool checkIfExistsInPlayerVector(PlayerVector &vec, int uid) {
         if(p->getID() == uid)
             return true;
     }
+
+    return false;
 }
 
 void printUsernames(std::map <std::string, int> usernames){
     int i = 0;
 
-    std::cout << "--- printing usernames ---" << std::endl;
+    Logger::info("--- printing usernames ---");
 
     for(auto it = usernames.cbegin(); it != usernames.cend(); ++it) {
-        std::cout << (i++) << ". " << it->first << " (" << it->second << ")" << std::endl;
+        std::string str = ""; str.append(std::to_string((i++)));
+        str.append(". "); str.append(it->first);
+        str.append(" ("); str.append(std::to_string(it->second));
+        str.append(")"); Logger::info(str);
     }
 
-    std::cout << "----------" << std::endl;
+    Logger::info("--------------------------");
 }
 
 

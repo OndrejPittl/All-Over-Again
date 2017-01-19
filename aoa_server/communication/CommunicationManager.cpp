@@ -1,36 +1,22 @@
 #include <iostream>
 #include <sys/socket.h>
-#include <stdio.h>
-#include <cstring>
 
 
 #include "../core/Logger.h"
 #include "CommunicationManager.h"
-#include "../partial/StringBuilder.h"
-#include "../core/Application.h"
-#include "../partial/tools.h"
 
 
-
-// libraries
-// headers
 
 CommunicationManager::CommunicationManager() {
     this->init();
 }
-
-//CommunicationManager::CommunicationManager(SafeQueue<Message *> *messageQueue) {
-//CommunicationManager::CommunicationManager(Application *app) {
-//    this->app = app;
-//	this->init();
-//}
 
 void CommunicationManager::init() {
     this->messageQueue = new SafeQueue<Message *>();
     this->sendMessageQueue = new SafeQueue<Message *>();
     this->rawMessageQueue = new SafeQueue<RawMessage *>();
     this->log = new StringBuilder();
-    Logger::info("CommunicationManager is initialized.");
+    Logger::debug("CommunicationManager is initialized.");
 }
 
 void CommunicationManager::startMessageValidator(){
@@ -78,15 +64,12 @@ std::string CommunicationManager::recvMsg(int sock, int byteCount) {
     if(byteCount > 2048)
         return std::string();
 
-    this->log->clear();
-    this->log->append("<<<<<<< ");
-    this->log->append(msgLen);
-    this->log->append(" B received from: ");
-    this->log->append(sock);
-    this->log->append(" in a message:\n                     > ");
-    this->log->append(buffer);
 
+    this->log->clear(); this->log->append("<<<<<<< "); this->log->append(msgLen);
+    this->log->append(" B received from: "); this->log->append(sock);
+    this->log->append(" in a message:\n                     > "); this->log->append(buffer);
     Logger::info(this->log->getString());
+
 
     // an error during receiving data
     if(result < 0) {

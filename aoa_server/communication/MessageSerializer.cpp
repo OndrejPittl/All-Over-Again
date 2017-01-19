@@ -14,16 +14,13 @@ MessageSerializer::MessageSerializer() {
 void MessageSerializer::init() {
     this->sb = new StringBuilder();
     this->log = new StringBuilder();
-
-    Logger::info("MSGSerializer initialized.", false);
+    Logger::debug("MSGSerializer initialized.");
 }
 
 std::string MessageSerializer::serializeRooms(RoomMap &rooms) {
     unsigned long roomCount;
 
-    Logger::info("serializing rooms...");
-
-    printRooms(rooms);
+    Logger::debug("serializing rooms...");
 
     this->sb->clear();
     roomCount = rooms.size();
@@ -55,7 +52,7 @@ void MessageSerializer::serializeRoomAndJoin(Room *r) {
 
     for(auto it = players.cbegin(); it != players.cend(); ++it) {
         this->sb->append(it->second->getUsername());
-        if(--playerCount > 0) this->sb->append(Message::SUBDELIMITER);
+        if(--playerCount > 0) this->sb->append(Message::SUB_DELIMITER);
     }
 }
 

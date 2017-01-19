@@ -29,7 +29,6 @@ void Room::init() {
 }
 
 void Room::restart() {
-    Logger::error("Restartuju progress v roomu.");
     this->turn = 0;
     this->winnerID = -1;
     this->progress = std::queue<int>();
@@ -45,7 +44,6 @@ void Room::setID(int id) {
 }
 
 int Room::getPlayerCount() {
-    //return this->playerCount;
     return (int) this->players.size();
 }
 
@@ -62,20 +60,7 @@ int Room::getActivePlayerID() {
 }
 
 void Room::updateActivePlayer() {
-//    std::string str = "";
-//    str.append("==================================== apID: ");
-//    str.append(std::to_string(this->activePlayerIndex));
-//    str.append(" real ID: ");
-//    str.append(std::to_string(this->getActivePlayerID()));
-//    str.append("\n ");
-
     this->activePlayerIndex = this->getPlayerCount() > 0 ? this->turn % this->getPlayerCount() : 0;
-
-//    str.append("==== apID: ");
-//    str.append(std::to_string(this->activePlayerIndex));
-//    str.append(" real ID: ");
-//    str.append(std::to_string(this->getActivePlayerID()));
-//    Logger::info(str);
 }
 
 GameDifficulty Room::getDifficulty() const {
@@ -99,12 +84,9 @@ void Room::registerPlayer(Player *p) {
     this->playerOrder.push_back(p->getID());
 
     if(this->isRoomFull()) {
-        //Logger::info("++++++++++++++ room FULL");
         if(this->isEverybodyOnline()) {
-            //Logger::info("++++++++++++++ ONLINE");
             this->changeStatus(GameStatus::READY);
         } else {
-            //Logger::info("++++++++++++++ NOT ONLINE");
             this->changeStatus(GameStatus::CONNECTING);
         }
     } else {
@@ -184,8 +166,6 @@ int Room::getTurn() const {
 void Room::deregisterPlayer(Player *p) {
     int uid = p->getID();
 
-    //this->playerOrder: vector[int] = uid
-
     int i = 0;
     for (auto const& o : this->playerOrder) {
         int id = this->playerOrder[i];
@@ -236,7 +216,6 @@ void Room::changeStatus(GameStatus s) {
     this->status = s;
 
     std::string str = "";
-
     str.append("CHANGING STATUS OF ROOM ");
     str.append(std::to_string(this->getID()));
     str.append(" TO ");

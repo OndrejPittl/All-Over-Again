@@ -24,78 +24,81 @@ class MessageProcessor {
         bool reJoining = false;
 
         StringBuilder *sbMsg;
+
         StringBuilder *log;
 
         Application *app;
+
         MessageSerializer *serializer;
+
         MessageParser *parser;
 
         SafeQueue<Message *> *messageQueue;
+
         SafeQueue<Message *> *sendMessageQueue;
 
 
 
         void perform(Message *msg);
+
         bool handleMessageType(Message *msg);
+
         void runProcessing();
 
         bool checkHelloPacket(std::string msg);
-        void answerMessage();
-        void proceedHelloPacket();
-        void proceedSignIn(Message *msg);
-        void proceedGameList();
-        void proceedNewGame(Message *msg);
-        void proceedJoinGame(Message *msg);
-        void proceedRestartGame();
-        void proceedStartGameBase();
-        void proceedFirstTurnData();
-        void proceedTurnDataBase(bool ack);
-        void proceedTurnData(Message *msg);
-        void proceedEndGame(Room *room);
-        void proceedLeaveGame();
-        void proceedSignOut(Message *msg);
 
-//        void (*processFunctions[7])() = {
-//                proceedSignIn(),
-//                proceedGameList,
-//                proceedNewGame,
-//                proceedJoinGame,
-//                proceedFirstTurnData,
-//                proceedLeaveGame,
-//                proceedSignOut
-//        };
+        void answerMessage();
+
+        void proceedHelloPacket();
+
+        void proceedSignIn(Message *msg);
+
+        void proceedGameList();
+
+        void proceedNewGame(Message *msg);
+
+        void proceedJoinGame(Message *msg);
+
+        void proceedRestartGame();
+
+        void proceedTurnDataBase(bool ack);
+
+        void proceedTurnData(Message *msg);
+
+        void proceedEndGame(Room *room);
+
+        void proceedLeaveGame();
+
+        void proceedSignOut();
+
 
     public:
         MessageProcessor(SafeQueue<Message *> *messageQueue, SafeQueue<Message *> *sendMessageQueue);
+
         std::thread run();
+
         void setApp(Application *app);
+
         void init();
+
         void proceedStartGame(Room *r, bool ack);
+
         void answerRoomAndClean(const Room *r, void (MessageProcessor::*callback)());
 
-    void clearMsg();
+        void clearMsg();
 
-    void answerMessageAndClean();
+        void answerMessageAndClean();
 
+        void proceedPlayerInfo();
 
-    void proceedPlayerInfo();
+        void handleUserGoneOffline(Room *r);
 
-    void handleUserGoneOffline(Room *r);
+        void proceedPlayerInfo(Room *);
 
-    void proceedPlayerInfo(Room *);
+        void handleRejoin();
 
-    void handleRejoin();
-
-    void proceedJoiGame();
-
-    void proceedJoinGame(Room *room, bool joinResult);
-
-    void proceedJoinGame(Room *room, bool joinResult, bool rejoin);
-
+        void proceedJoinGame(Room *room, bool joinResult);
 
 };
-
-typedef void (MessageProcessor::*processFunction) ();
-
 
 #endif

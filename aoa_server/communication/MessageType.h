@@ -19,7 +19,4 @@ enum MessageType {
 
 MessageType convertInternalMessageType(int index);
 
-//int convertExternalMessageType(int type);
-
-
 #endif
