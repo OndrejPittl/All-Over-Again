@@ -453,7 +453,7 @@ bool Application::joinRoom(int uid, int rid) {
     Player *p = this->getPlayer(uid);
     Room *r = this->getRoom(rid);
 
-    if(r->isJoinable()) {
+    if(r != nullptr && r->isJoinable()) {
         this->log->clear(); this->log->append("User ");
         this->log->append(p->getUsername()); this->log->append(" (");
         this->log->append(uid); this->log->append(") ");
@@ -490,7 +490,7 @@ void Application::assignPlayer(int uid, int roomID) {
 }
 
 Room *Application::getRoom(int rid) {
-    return this->rooms[rid];
+    return this->rooms.count(rid) ? this->rooms[rid] : nullptr;
 }
 
 Player *Application::getPlayer(int uid) {
