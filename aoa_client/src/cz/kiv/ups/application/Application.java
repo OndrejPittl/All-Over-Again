@@ -248,7 +248,7 @@ public class Application {
 
         if(message != null) {
             Platform.runLater(() -> {
-                Alert alert = new Alert(Alert.AlertType.INFORMATION, message , ButtonType.OK);
+                Alert alert = new Alert(Alert.AlertType.ERROR, message , ButtonType.OK);
                 alert.showAndWait();
 
                 if(hard) {
@@ -257,6 +257,14 @@ public class Application {
                 }
             });
 
+            if(hard)
+                try {
+                    new CyclicBarrier(2).await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (BrokenBarrierException e) {
+                    e.printStackTrace();
+                }
             return;
         }
 
