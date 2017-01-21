@@ -24,7 +24,7 @@ void MessageSender::runSending(){
         this->log->append(msg->getMessage()); Logger::info(this->log->getString());
 
         this->sb->append(Message::STX);
-        this->sb->append(checksum(msg->getMessage(), Message::MSG_CHECKSUM_MODULO));
+        this->sb->append(Tools::checksum(msg->getMessage(), Message::MSG_CHECKSUM_MODULO));
         this->sb->append(Message::DELIMITER);
         this->sb->append(msg->getMessage());
         this->sb->append(Message::ETX);

@@ -54,7 +54,7 @@ void MessageValidator::runValidation() {
             Message *m = new Message(sock, size, msgValidText);
 
             std::string logTxt = msgValidText;
-            removeChar(&logTxt, '\n');
+            Tools::removeChar(&logTxt, '\n');
 
             // -- log --
             this->log->clear(); this->log->append("A message (");
@@ -121,12 +121,12 @@ bool MessageValidator::checkMessageChecksum(std::string msg, std::string *pureMe
     std::string checkSumStr = msg.substr(0, delimPos),
                 message = msg.substr(delimPos + 1, msgLen - delimPos);
 
-    if(!isNumber(checkSumStr)) {
+    if(!Tools::isNumber(checkSumStr)) {
         return false;
     }
 
     checkSum = stol(checkSumStr);
     (*pureMessage) = message;
 
-    return checkSum == checksum(message, Message::MSG_CHECKSUM_MODULO);
+    return checkSum == Tools::checksum(message, Message::MSG_CHECKSUM_MODULO);
 }

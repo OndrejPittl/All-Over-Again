@@ -1,6 +1,6 @@
 // headers
 
-#include "core/Developer.h"
+#include "partial/Tools.h"
 #include "core/Server.h"
 #include "core/Logger.h"
 #include "libs/easylogging++.h"
@@ -15,7 +15,8 @@ INITIALIZE_EASYLOGGINGPP;
 */
 int main(int argc, char **argv) {
 
-    Logger::init();
+	Tools::init();
+	Logger::init();
 
 	Server *server = new Server(argc, argv);
 	server->run();

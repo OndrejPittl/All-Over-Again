@@ -77,7 +77,7 @@ void ServerOptions::parse() {
     }
 
     int ServerOptions::validatePort(std::string port) {
-        if(isNumberInRange(port, ServerOptions::PORT_NUM_LOWER_LIMIT, ServerOptions::PORT_NUM_UPPER_LIMIT)) {
+        if(Tools::isNumberInRange(port, ServerOptions::PORT_NUM_LOWER_LIMIT, ServerOptions::PORT_NUM_UPPER_LIMIT)) {
             return std::stoi(port);
         }
 

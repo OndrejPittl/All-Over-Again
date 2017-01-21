@@ -49,5 +49,7 @@ enum class GameStatus {
 };
 
 
+std::string translateGameStatus(GameStatus s);
+
 #endif
 

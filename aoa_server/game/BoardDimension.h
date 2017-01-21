@@ -3,7 +3,7 @@
 
 
 enum class BoardDimension {
-    BOARD_TINE = 1,
+    BOARD_TINY = 1,
     BOARD_SMALL,
     BOARD_NORMAL,
     BOARD_LARGE,

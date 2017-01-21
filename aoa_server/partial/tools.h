@@ -8,48 +8,83 @@
 #include "../game/Room.h"
 
 
-const std::string VALIDATION_USERNAME_REGEX = "^[a-zA-Z0-9-_<>]{3,15}$";
 
-bool validate(std::string str, std::string regexp);
+class Tools {
 
-bool validateUsername(std::string username);
+    private:
+        static const std::string VALIDATION_USERNAME_REGEX;
 
-/**
-*	Checks whether a string given is a number or not.
-*/
-bool isNumber(std::string str);
+        static StringBuilder *sb;
 
-/**
-*	Checks whether a string given is a number and in range or not.
-*/
-bool isNumberInRange(std::string str, int lowerLimit, int upperLimit);
+        static const std::string LOG_PADDING_LEFT;
 
-/**
-*	Prints a line of a text.
-*/
-void println(std::string str);
+    public:
+        static void init();
 
-/**
-*
-*/
-void printTrueFalse();
+        static bool validate(std::string str, std::string regexp);
 
-void removeChar(std::string *str, char c);
+        static bool validateUsername(std::string username);
 
-long checksum(std::string str, int modulo = -1);
+        /**
+        *	Checks whether a string given is a number or not.
+        */
+        static bool isNumber(std::string str);
 
-void printVector(std::vector<std::string> vec);
+        /**
+        *	Checks whether a string given is a number and in range or not.
+        */
+        static bool isNumberInRange(std::string str, int lowerLimit, int upperLimit);
 
-void printPlayerVector(PlayerVector vec);
+        /**
+        *	Prints a line of a text.
+        */
+        static void println(std::string str);
 
-void  printPlayers(PlayerMap m);
+        static void printTrueFalse();
 
-void printRooms(RoomMap m);
+        static void removeChar(std::string *str, char c);
 
-bool checkIfExistsInPlayerVector(PlayerVector &v, int uid);
+        static long checksum(std::string str, int modulo = -1);
 
-void printUsernames (std::map <std::string, int> usernames);
+        static void printVector(std::vector<std::string> vec);
 
-bool keyExistsInPlayerMap (PlayerMap &players, int uid);
+        static void printPlayerVector(PlayerVector vec);
+
+        static void  printPlayers(PlayerMap &m);
+
+        static void printRooms(RoomMap &m);
+
+        static bool checkIfExistsInPlayerVector(PlayerVector &v, int uid);
+
+        static void printUsernames (std::map <std::string, int> usernames);
+
+        static bool keyExistsInPlayerMap (PlayerMap &players, int uid);
+
+
+
+        template<typename T> static std::string buildColumn(T str, int width, char fillChar = ' ') {
+            int len = (int) str.length();
+
+            if(width < len) {
+                std::string out = str.substr(0, width - 2);
+                out.append("..");
+                return out;
+            }
+
+
+            int diff = width - len,
+                    pad1 = diff/2,
+                    pad2 = diff - pad1;
+
+            return std::string(pad1, fillChar) + str + std::string(pad2, fillChar);
+        };
+
+        static void printOnlineOfflineUsers(PlayerMap online, PlayerMap offline);
+};
+
+
+
+
+
 
 #endif

@@ -125,6 +125,14 @@ class Room {
         bool hasGameEnded();
 
         void reassignPlayer(Player *player, Player *prevPlayer);
+
+    GameStatus getStatus();
+
+    bool hasDifficulty();
+
+    bool hasDimension();
+
+    bool hasType();
 };
 
 

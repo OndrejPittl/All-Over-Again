@@ -127,6 +127,8 @@ class Application {
         void leaveRoom(Player *player);
 
         void freeUsername(Player *player);
+
+    void removeRoom(Room *room);
 };
 
 

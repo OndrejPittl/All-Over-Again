@@ -136,7 +136,7 @@ void Logger::logConsoleErr() {
 }
 
 void Logger::print(std::string str) {
-    println(str);
+    Tools::println(str);
 }
 
 void Logger::disableLogging(bool disabled) {

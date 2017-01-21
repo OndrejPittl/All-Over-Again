@@ -60,7 +60,7 @@ bool MessageProcessor::handleMessageType(Message *msg) {
         return true;
     }
 
-    if(!isNumber(msgTypeStr)) {
+    if(!Tools::isNumber(msgTypeStr)) {
         return false;
     }
 
@@ -519,6 +519,8 @@ void MessageProcessor::proceedStartGame(Room *r, bool ack) {
     this->sbMsg->append(Message::ACK);
     this->answerRoomAndClean(r, &MessageProcessor::answerMessage);
     r->changeStatus(GameStatus::STARTED);
+
+    Tools::printRooms(this->app->getRooms());
 
     // new game with no previous progress
     // or rejoined

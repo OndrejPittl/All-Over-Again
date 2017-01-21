@@ -215,24 +215,10 @@ void Room::endGame() {
 void Room::changeStatus(GameStatus s) {
     this->status = s;
 
-    std::string str = "";
-    str.append("CHANGING STATUS OF ROOM ");
-    str.append(std::to_string(this->getID()));
-    str.append(" TO ");
-
-    switch (s) {
-        case GameStatus::CONNECTING: str.append("CONNECTING"); break;
-        case GameStatus::READY: str.append("READY"); break;
-        case GameStatus::STARTED: str.append("STARTED"); break;
-        case GameStatus::PLAYING: str.append("PLAYING"); break;
-        case GameStatus::WAITING: str.append("WAITING"); break;
-        case GameStatus::FINISHED: str.append("FINISHED"); break;
-        case GameStatus::FINISHED_REPLAY: str.append("FINISHED_REPLAY"); break;
-        case GameStatus::FINISHED_END: str.append("FINISHED_END"); break;
-        case GameStatus::ENDED: str.append("ENDED"); break;
-    }
-
-    Logger::info(str);
+    // -- log --
+    std::string str = ""; str.append("Status of the room (");
+    str.append(std::to_string(this->getID())); str.append(") has changed to ");
+    str.append(translateGameStatus(s)); str.append("."); Logger::info(str);
 }
 
 bool Room::isReady() {
@@ -315,4 +301,20 @@ void Room::reassignPlayer(Player *player, Player *prevPlayer) {
     // this->players: PlayerMap[uid] = player
     this->deregisterPlayer(prevPlayer);
     this->registerPlayer(player);
+}
+
+GameStatus Room::getStatus() {
+    return this->status;
+}
+
+bool Room::hasDifficulty() {
+    return this->difficulty >= GameDifficulty::EASY && this->difficulty <= GameDifficulty::EXPERT;
+}
+
+bool Room::hasDimension() {
+    return this->boardDimension >= BoardDimension::BOARD_TINY && this->boardDimension <= BoardDimension::BOARD_HUGE;
+}
+
+bool Room::hasType() {
+    return this->type >= GameType::SINGLEPLAYER && this->type <= GameType::MULTIPLAYER;
 }
