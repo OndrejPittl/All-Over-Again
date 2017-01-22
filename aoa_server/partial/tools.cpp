@@ -11,7 +11,7 @@ StringBuilder *Tools::sb;
 
 const std::string Tools::VALIDATION_USERNAME_REGEX = "^[a-zA-Z0-9-_<>]{3,15}$";
 
-const std::string Tools::LOG_PADDING_LEFT = "                      ";
+//const std::string Tools::LOG_PADDING_LEFT = "                      ";
 
 
 
@@ -113,17 +113,22 @@ void Tools::printPlayerVector(PlayerVector vec) {
 
 }
 
+
 void Tools::printPlayers(PlayerMap &m) {
+    Tools::buildPlayers(m);
+    Logger::debug(Tools::sb->getString());
+}
+
+void Tools::buildPlayers(PlayerMap &m) {
     int nullPtrCount = 0, nullPtrCountLimit = 5, colWidth = 10, colCount = 5,
-        colTotal = colCount * (colWidth + 3);
+            colTotal = colCount * (colWidth + 3);
 
     if(m.size() <= 0) {
-        Logger::debug(Tools::buildColumn(std::string("(empty)"), colTotal, ' '));
+        Tools::sb->append(Tools::buildColumn(std::string("(empty)"), colTotal, ' '));
         return;
     }
 
     // header
-    Tools::sb->clear();
     Tools::sb->append("| "); Tools::sb->append(Tools::buildColumn(std::string("index"), colWidth)); Tools::sb->append(" ");
     Tools::sb->append("| "); Tools::sb->append(Tools::buildColumn(std::string("user id"), colWidth)); Tools::sb->append(" ");
     Tools::sb->append("| "); Tools::sb->append(Tools::buildColumn(std::string("username"), colWidth)); Tools::sb->append(" ");
@@ -139,31 +144,27 @@ void Tools::printPlayers(PlayerMap &m) {
             continue;
         };
 
-        Tools::sb->append(LOG_PADDING_LEFT);
         Tools::sb->append("| "); Tools::sb->append(Tools::buildColumn(std::to_string(it->first) + ".", colWidth)); Tools::sb->append(" ");
         Tools::sb->append("| "); Tools::sb->append(Tools::buildColumn(std::to_string(p->getID()), colWidth)); Tools::sb->append(" ");
         Tools::sb->append("| "); Tools::sb->append(Tools::buildColumn(p->hasUsername() ? p->getUsername() : std::string("-"), colWidth)); Tools::sb->append(" ");
         Tools::sb->append("| "); Tools::sb->append(Tools::buildColumn(std::to_string(p->getRoomID()), colWidth)); Tools::sb->append(" ");
         Tools::sb->append("| "); Tools::sb->append(Tools::buildColumn(p->isOnline() ? std::string("online") : std::string("offline"), colWidth)); Tools::sb->append(" |\n");
     }
-
-    Logger::debug(Tools::sb->getString());
-
 }
 
-void Tools::printRooms(RoomMap &m) {
+void Tools::buildRooms(RoomMap &m) {
     int nullPtrCount = 0, nullPtrCountLimit = 5, colWidth = 10, colCount = 8,
             colTotal = colCount * (colWidth + 3);
 
-    Logger::debug(Tools::buildColumn(std::string("ROOMS"), colTotal, '='));
+    Tools::sb->append("\n" + Tools::buildColumn(std::string(" ROOMS "), colTotal, '=') + "\n");
 
     if(m.size() <= 0) {
-        Logger::debug(Tools::buildColumn(std::string("(no room)"), colTotal, ' '));
+        Tools::sb->append(Tools::buildColumn(std::string("(no room)"), colTotal, ' ') + "\n");
+        Tools::sb->append(std::string(colTotal, '='));
         return;
     }
 
     // header
-    Tools::sb->clear();
     Tools::sb->append("| "); Tools::sb->append(Tools::buildColumn(std::string("index"), colWidth)); Tools::sb->append(" ");
     Tools::sb->append("| "); Tools::sb->append(Tools::buildColumn(std::string("room id"), colWidth)); Tools::sb->append(" ");
     Tools::sb->append("| "); Tools::sb->append(Tools::buildColumn(std::string("difficulty"), colWidth)); Tools::sb->append(" ");
@@ -183,7 +184,6 @@ void Tools::printRooms(RoomMap &m) {
             continue;
         };
 
-        Tools::sb->append(LOG_PADDING_LEFT);
         Tools::sb->append("| "); Tools::sb->append(Tools::buildColumn(std::to_string(it->first), colWidth)); Tools::sb->append(" ");
         Tools::sb->append("| "); Tools::sb->append(Tools::buildColumn(std::to_string(r->getID()), colWidth)); Tools::sb->append(" ");
         Tools::sb->append("| "); Tools::sb->append(Tools::buildColumn(r->hasDifficulty() ? std::to_string((int) r->getDifficulty()) : std::string("-"), colWidth)); Tools::sb->append(" ");
@@ -194,8 +194,13 @@ void Tools::printRooms(RoomMap &m) {
         Tools::sb->append("| "); Tools::sb->append(Tools::buildColumn(translateGameStatus(r->getStatus()), colWidth)); Tools::sb->append(" |\n");
     }
 
+    Tools::sb->append(std::string(colTotal, '='));
+}
+
+void Tools::printRooms(RoomMap &m) {
+    Tools::sb->clear();
+    Tools::buildRooms(m);
     Logger::debug(Tools::sb->getString());
-    Logger::debug(std::string(colTotal, '='));
 }
 
 bool Tools::checkIfExistsInPlayerVector(PlayerVector &vec, int uid) {
@@ -211,19 +216,20 @@ bool Tools::checkIfExistsInPlayerVector(PlayerVector &vec, int uid) {
     return false;
 }
 
-void Tools::printUsernames(std::map <std::string, int> usernames){
+void Tools::buildUsernames(std::map<std::string, int> usernames) {
     int nullPtrCount = 0, nullPtrCountLimit = 5, colWidth = 15, colCount = 3,
             colTotal = colCount * (colWidth + 3);
 
-    Logger::debug(Tools::buildColumn(std::string("USERNAMES"), colTotal, '-'));
+    Tools::sb->clear();
+    Tools::sb->append("\n" + Tools::buildColumn(std::string(" USERNAMES "), colTotal, '-') + "\n");
 
     if(usernames.size() <= 0) {
-        Logger::debug(Tools::buildColumn(std::string("(no username)"), colTotal, ' '));
+        Tools::sb->append(Tools::buildColumn(std::string("(no username)"), colTotal, ' ') + "\n");
+        Tools::sb->append(std::string(colTotal, '-'));
         return;
     }
 
     // header
-    Tools::sb->clear();
     Tools::sb->append("| "); Tools::sb->append(Tools::buildColumn(std::string("index"), colWidth)); Tools::sb->append(" ");
     Tools::sb->append("| "); Tools::sb->append(Tools::buildColumn(std::string("username"), colWidth)); Tools::sb->append(" ");
     Tools::sb->append("| "); Tools::sb->append(Tools::buildColumn(std::string("uid(on)/index(off)"), colWidth)); Tools::sb->append(" |\n");
@@ -240,7 +246,6 @@ void Tools::printUsernames(std::map <std::string, int> usernames){
             continue;
         };
 
-        Tools::sb->append(LOG_PADDING_LEFT);
         Tools::sb->append("| "); Tools::sb->append(Tools::buildColumn(std::to_string(i), colWidth)); Tools::sb->append(" ");
         Tools::sb->append("| "); Tools::sb->append(Tools::buildColumn(u, colWidth)); Tools::sb->append(" ");
         Tools::sb->append("| "); Tools::sb->append(Tools::buildColumn(std::to_string(it->second), colWidth)); Tools::sb->append(" |\n");
@@ -248,8 +253,12 @@ void Tools::printUsernames(std::map <std::string, int> usernames){
         i++;
     }
 
+    Tools::sb->append(std::string(colTotal, '-'));
+}
+
+void Tools::printUsernames(std::map <std::string, int> usernames){
+    Tools::buildUsernames(usernames);
     Logger::debug(Tools::sb->getString());
-    Logger::debug(std::string(colTotal, '-'));
 }
 
 
@@ -261,11 +270,19 @@ bool Tools::keyExistsInPlayerMap (PlayerMap &players, int uid) {
 void Tools::printOnlineOfflineUsers(PlayerMap online, PlayerMap offline) {
     int colWidth = 5 * (10 + 3);
 
-    Logger::debug(Tools::buildColumn(std::string("ONLINE"), colWidth, '='));
-    Tools::printPlayers(online);
-    Logger::debug("");
-    Logger::debug(Tools::buildColumn(std::string("OFFLINE"), colWidth, '='));
-    Tools::printPlayers(offline);
-    Logger::debug(std::string(colWidth, '='));
-    Logger::debug("\n");
+    Tools::sb->clear();
+    Tools::sb->append("\n" + Tools::buildColumn(std::string("ONLINE"), colWidth, '=') + "\n");
+    Tools::buildPlayers(online);
+    Tools::sb->append("\n" + std::string(colWidth, '=') + "\n");
+
+    Tools::sb->append("\n" + Tools::buildColumn(std::string("OFFLINE"), colWidth, '=') + "\n");
+    Tools::buildPlayers(offline);
+    Tools::sb->append("\n" + std::string(colWidth, '=') + "\n");
+    Logger::debug(Tools::sb->getString());
 }
+
+
+
+
+
+

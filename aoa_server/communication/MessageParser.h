@@ -27,6 +27,8 @@ class MessageParser {
         int parseJoinRoomRequest(string msg);
 
         void parseTurn(string progress, std::queue<int>& queue);
+
+        bool isWaitReady(std::string msg);
 };
 
 #endif

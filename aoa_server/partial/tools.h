@@ -16,7 +16,7 @@ class Tools {
 
         static StringBuilder *sb;
 
-        static const std::string LOG_PADDING_LEFT;
+//        static const std::string LOG_PADDING_LEFT;
 
     public:
         static void init();
@@ -80,6 +80,12 @@ class Tools {
         };
 
         static void printOnlineOfflineUsers(PlayerMap online, PlayerMap offline);
+
+    static void buildPlayers(PlayerMap &m);
+
+    static void buildRooms(RoomMap &m);
+
+    static void buildUsernames(std::map<std::string, int> usernames);
 };
 
 

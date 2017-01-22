@@ -24,6 +24,8 @@ class Room {
 
         int winnerID;
 
+        int waitingCount;
+
         GameStatus status;
 
         GameType type;
@@ -126,6 +128,11 @@ class Room {
 
         void reassignPlayer(Player *player, Player *prevPlayer);
 
+        bool checkReadyToContinueAfterWait();
+
+        bool isReplayReadyAfterWait();
+
+
     GameStatus getStatus();
 
     bool hasDifficulty();
@@ -133,6 +140,8 @@ class Room {
     bool hasDimension();
 
     bool hasType();
+
+    void resetReadyToContinueAfterWait();
 };
 
 

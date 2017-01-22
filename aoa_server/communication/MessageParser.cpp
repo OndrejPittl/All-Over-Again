@@ -79,4 +79,8 @@ void MessageParser::parseTurn(string progress, std::queue<int>& queue) {
     }
 }
 
+bool MessageParser::isWaitReady(std::string msg) {
+    return std::stoi(msg) == 1;
+}
+
 

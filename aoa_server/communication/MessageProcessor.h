@@ -99,6 +99,7 @@ class MessageProcessor {
 
         void proceedJoinGame(Room *room, bool joinResult);
 
+    void proceedWaitReady(Message *msg);
 };
 
 #endif

@@ -229,7 +229,7 @@ void Application::deregisterUser(int uid) {
 
 
     // online player
-    Player *p = this->getPlayer(uid);
+        Player *p = this->getPlayer(uid);
 
     if(p == nullptr)
         return;
@@ -374,8 +374,6 @@ void Application::freeUsername(Player *player) {
     // free username
     this->usernames.erase(player->getUsername());
 
-    Tools::printUsernames(this->usernames);
-
     // -- LOG --
     this->log->clear(); this->log->append("A username "); this->log->append(player->getUsername());
     this->log->append(" was freed."); Logger::info(this->log->getString());
@@ -447,7 +445,13 @@ void Application::disbandRoom(Room *room){
     for(auto it = players.cbegin(); it != players.cend(); ++it) {
 
         // removes relations player - room
+        //this->leaveRoom(this->getPlayer(it->second->getID()));
         this->leaveRoom(it->second);
+
+        if(!it->second->isOnline()) {
+            this->removeOfflineUser(this->usernames[it->second->getUsername()]);
+        }
+
     }
 
     // destroy the room
@@ -512,7 +516,8 @@ RoomMap &Application::getRooms() {
 
 Room *Application::createNewRoom() {
     int index = this->roomIndexer->take();
-    this->rooms[index] = new Room(index); Tools::printRooms(this->rooms);
+    this->rooms[index] = new Room(index);
+    Tools::printRooms(this->rooms);
     return this->rooms[index];
 }
 
@@ -520,18 +525,17 @@ bool Application::joinRoom(int uid, int rid) {
     Player *p = this->getPlayer(uid);
     Room *r = this->getRoom(rid);
 
-    if(r != nullptr && r->isJoinable()) {
-        this->log->clear(); this->log->append("User ");
-        this->log->append(p->getUsername()); this->log->append(" (");
-        this->log->append(uid); this->log->append(") ");
-        this->log->append("joining room ("); this->log->append(rid);
-        this->log->append(")."); Logger::info(this->log->getString());
-
-        this->assignPlayer(p, r);
-        return true;
+    if(r == nullptr || !r->isJoinable()) {
+        return false;
     }
 
-    return false;
+    // -- log --
+    this->log->clear(); this->log->append("User "); this->log->append(p->getUsername()); this->log->append(" (");
+    this->log->append(uid); this->log->append(") "); this->log->append("joining room ("); this->log->append(rid);
+    this->log->append(")."); Logger::info(this->log->getString());
+
+    this->assignPlayer(p, r);
+    return true;
 }
 
 void Application::assignPlayer(Player *player, Room *room) {

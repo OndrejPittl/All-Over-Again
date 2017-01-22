@@ -24,6 +24,7 @@ Room::Room(GameType type, GameDifficulty difficulty, BoardDimension dimension) {
 void Room::init() {
     this->turn = 0;
     this->winnerID = -1;
+    this->waitingCount = 0;
     this->activePlayerIndex = 0;
     this->status = GameStatus::CONNECTING;
 }
@@ -31,6 +32,7 @@ void Room::init() {
 void Room::restart() {
     this->turn = 0;
     this->winnerID = -1;
+    this->waitingCount = 0;
     this->progress = std::queue<int>();
     this->updateActivePlayer();
 }
@@ -155,6 +157,7 @@ bool Room::hasProgress() {
 }
 
 void Room::startTurn() {
+    Logger::error("NEXT TURN ****** ");
     this->turn++;
     this->updateActivePlayer();
 }
@@ -209,7 +212,9 @@ bool Room::hasGameFinished() {
 }
 
 void Room::endGame() {
-    //this->changeStatus(GameStatus::FINISHED);
+
+    // @TODO: being tested for: re-joining && no wait result
+    //this->changeStatus(GameStatus::ENDED);
 }
 
 void Room::changeStatus(GameStatus s) {
@@ -270,6 +275,25 @@ bool Room::hasGameEnded() {
     return this->status == GameStatus::ENDED;
 }
 
+bool Room::checkReadyToContinueAfterWait(){
+    ++this->waitingCount;
+
+    if(this->isReplayReadyAfterWait()) {
+        // everybody ready to continue
+        return true;
+    }
+
+    return false;
+}
+
+void Room::resetReadyToContinueAfterWait() {
+    this->waitingCount = 0;
+}
+
+bool Room::isReplayReadyAfterWait() {
+    return this->waitingCount >= (int) this->getGameType();
+}
+
 int Room::getTime() const {
     /*
      *  difficulty (0 - 2): 1 - 2
@@ -296,7 +320,7 @@ void Room::reassignPlayer(Player *player, Player *prevPlayer) {
     // players
     // player order
 
-    this->changeStatus(GameStatus::READY);
+    //this->changeStatus(GameStatus::READY);
 
     // this->players: PlayerMap[uid] = player
     this->deregisterPlayer(prevPlayer);
@@ -318,3 +342,5 @@ bool Room::hasDimension() {
 bool Room::hasType() {
     return this->type >= GameType::SINGLEPLAYER && this->type <= GameType::MULTIPLAYER;
 }
+
+

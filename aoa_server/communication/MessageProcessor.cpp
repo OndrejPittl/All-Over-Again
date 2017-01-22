@@ -83,6 +83,7 @@ void MessageProcessor::perform(Message *msg){
         case GAME_START: this->proceedRestartGame(); break;
         case TURN_DATA: this->proceedTurnData(msg); break;
         case GAME_LEAVE: this->proceedLeaveGame(); break;
+        case WAIT_READY: this->proceedWaitReady(msg); break;
         default: case SIGN_OUT: this->proceedSignOut(); break;
     }
 }
@@ -169,8 +170,13 @@ void MessageProcessor::proceedGameList() {
     this->log->append(roomStr); Logger::debug(this->log->getString());
 
     this->sbMsg->append(MessageType::GAME_LIST);
-    this->sbMsg->append(Message::DELIMITER);
-    this->sbMsg->append(roomStr);
+
+
+    if(!roomStr.empty()) {
+        this->sbMsg->append(Message::DELIMITER);
+        this->sbMsg->append(roomStr);
+    }
+
     this->answerMessageAndClean();
 }
 
@@ -184,9 +190,16 @@ void MessageProcessor::proceedGameList() {
 void MessageProcessor::proceedNewGame(Message *msg) {
     Logger::debug("MSGProcessor, processing newgame:");
 
-    std::string roomStr;
-    Room *room = this->app->createNewRoom();
     Player *player = this->app->getPlayer(this->clientSocket);
+
+    if(player->hasRoom())
+        return;
+
+
+    std::string roomStr;
+
+    Room *room = this->app->createNewRoom();
+
 
     this->parser->parseNewRoomRequest(msg, room);
     this->app->assignPlayer(player, room);
@@ -217,19 +230,28 @@ void MessageProcessor::proceedNewGame(Message *msg) {
  * @param msg
  */
 void MessageProcessor::proceedJoinGame(Message *msg) {
+    Logger::debug("MSGProcessor, processing joingame:");
+
     int rid;
     bool joinResult;
 
-    Logger::debug("MSGProcessor, processing joingame:");
+    if(this->app->getPlayer(this->clientSocket)->hasRoom())
+        return;
 
     rid = this->parser->parseJoinRoomRequest(msg->getMessage());
-    joinResult = this->app->joinRoom(msg->getSock(), rid);
     Room *room = this->app->getRoom(rid);
+
+    if(room == nullptr || !room->isJoinable()) {
+        joinResult = false;
+    } else {
+        joinResult = this->app->joinRoom(msg->getSock(), rid);
+    }
 
     this->proceedJoinGame(room, joinResult);
 }
 
 void MessageProcessor::proceedJoinGame(Room *room, bool joinResult) {
+
     std::string roomStr;
 
     this->sbMsg->clear();
@@ -253,7 +275,16 @@ void MessageProcessor::proceedJoinGame(Room *room, bool joinResult) {
 
     this->answerMessageAndClean();
 
-    if(joinResult && this->app->startGameIfReady(room)) {
+
+
+    bool readyToRejoin = this->reJoining
+            && room->checkReadyToContinueAfterWait()
+            && room->isReplayReadyAfterWait();
+
+    bool startReady = joinResult && this->app->startGameIfReady(room);
+
+
+    if((!this->reJoining && startReady) || readyToRejoin) {
         this->proceedStartGame(room, true);
     }
 }
@@ -271,6 +302,9 @@ void MessageProcessor::proceedRestartGame() {
 
     Player *p = this->app->getPlayer(this->clientSocket);
     Room *r = this->app->getRoom(p->getRoomID());
+
+    if(r == nullptr)
+        return;
 
 
     // request a game endGame
@@ -315,6 +349,10 @@ void MessageProcessor::proceedTurnData(Message *msg) {
     Player *p = this->app->getPlayer(this->clientSocket);
     rid = p->getRoomID();
     Room *r = this->app->getRoom(rid);
+
+
+    if(r == nullptr)
+        return;
 
 
     if(msg == nullptr) {
@@ -442,6 +480,9 @@ void MessageProcessor::proceedLeaveGame() {
     Player *p = this->app->getPlayer(this->clientSocket);
     Room *r = this->app->getRoom(p->getRoomID());
 
+    if(r == nullptr)
+        return;
+
 
     if(r->checkReadyToContinue(false)) {
         // a second player replies: does not wont to play again
@@ -449,6 +490,7 @@ void MessageProcessor::proceedLeaveGame() {
 
         this->proceedStartGame(r, false);
         this->app->disbandRoom(r);
+        //this->app->leaveRoomCheckCancel(p);
     }
 
     // WANTS to leave the room
@@ -477,6 +519,48 @@ void MessageProcessor::proceedPlayerInfo(){
     this->proceedPlayerInfo(r);
 }
 
+/**
+ * incoming:    msg-type ; (N)ACK
+ *                 11    ;   1
+ */
+void MessageProcessor::proceedWaitReady(Message *msg) {
+
+    Player *p = this->app->getPlayer(this->clientSocket);
+    Room *r = this->app->getRoom(p->getRoomID());
+
+    // 1: wanna continue, 0: don't
+     bool result = this->parser->isWaitReady(msg->getMessage());
+
+     if(result) {
+
+        // game continues
+         if(!r->checkReadyToContinueAfterWait())
+             return;
+
+         // everybody checked
+         if(r->isReplayReadyAfterWait()) {
+
+             // continue game
+             this->proceedStartGame(r, true);
+             return;
+
+         } // else: end game
+     }
+
+
+    // end game
+    this->proceedStartGame(r, false);
+    //this->app->leaveRoomCheckCancel(p);
+    this->app->disbandRoom(r);
+    this->reJoining = false;
+
+}
+
+
+/**
+ * outcoming:    msg-type ; [uid] ; [username] ; [0: offline, 1: online] ; [0: not active, 1: active]
+ *                  10    ;   1   ;     aaa    ;            1            ;              0
+ */
 void MessageProcessor::proceedPlayerInfo(Room *r){
     Logger::debug("MSGProcessor, processing playerinfo:");
 
@@ -496,7 +580,6 @@ void MessageProcessor::handleRejoin() {
 
     this->reJoining = true;
     this->proceedJoinGame(room, true);
-    this->reJoining = false;
 }
 
 
@@ -516,6 +599,8 @@ void MessageProcessor::proceedStartGame(Room *r, bool ack) {
         return;
     }
 
+    r->resetReadyToContinueAfterWait();
+
     this->sbMsg->append(Message::ACK);
     this->answerRoomAndClean(r, &MessageProcessor::answerMessage);
     r->changeStatus(GameStatus::STARTED);
@@ -525,7 +610,9 @@ void MessageProcessor::proceedStartGame(Room *r, bool ack) {
     // new game with no previous progress
     // or rejoined
     this->proceedTurnData(nullptr);
+
     r->changeStatus(GameStatus::PLAYING);
+    this->reJoining = false;
 }
 
 void MessageProcessor::answerRoomAndClean(const Room *r, void (MessageProcessor::*callback)()) {
@@ -567,6 +654,14 @@ bool MessageProcessor::checkHelloPacket(std::string msg) {
 }
 
 void MessageProcessor::handleUserGoneOffline(Room *r) {
+
+//    if(r->getStatus() == GameStatus::WAITING) {
+//        // exit while another player is waiting for playing again
+//        this->proceedStartGame(r, false);
+//        this->app->disbandRoom(r);
+//        return;
+//    }
+
     // a user has left a room -> inform other players
     this->proceedPlayerInfo(r);
 }

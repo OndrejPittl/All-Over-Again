@@ -1,7 +1,7 @@
 #ifndef MESSAGE_TYPE_H
 #define MESSAGE_TYPE_H
 
-static const int MESSAGE_TYPE_COUNT = 10;
+static const int MESSAGE_TYPE_COUNT = 12;
 
 enum MessageType {
     HELLO,
@@ -15,6 +15,7 @@ enum MessageType {
     GAME_LEAVE,
     SIGN_OUT,
     PLAYER_INFO,
+    WAIT_READY
 };
 
 MessageType convertInternalMessageType(int index);
