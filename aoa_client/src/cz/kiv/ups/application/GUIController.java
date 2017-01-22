@@ -119,7 +119,6 @@ public class GUIController implements Runnable {
                         this.gui.updatePlayerList();
 
                         if(!this.app.isOpponentOnline()) {
-
                             // opponent has gone offline
                             this.gui.askPlayerWait();
 
@@ -134,7 +133,7 @@ public class GUIController implements Runnable {
                             Application.awaitAtBarrier("GUIC waits for CLI for turn data.");
                         }
 
-                          if (Application.getStatus() == GameStatus.GAME_END || Application.getStatus() == GameStatus.GAME_RESULTS) {
+                        if (Application.getStatus() == GameStatus.GAME_END || Application.getStatus() == GameStatus.GAME_RESULTS) {
                             logger.info("=== Game is over.");
                             break;
                         }

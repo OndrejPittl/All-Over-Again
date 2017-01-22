@@ -33,9 +33,14 @@ public class ViewConfig {
    public static final String MSG_ASK_OPPONENT_LEFT_CONTENT = "Your opponent has gone offline. There's a chance they return in a while and retain their honor. Would you like to wait?\n\n";
 
    public static final String MSG_ASK_OPPONENT_LEFT_TITLE = "Your opponent left.";
-    public static final String MSG_ASK_YES = "Of course, I wanna win!";
+    public static final String MSG_ASK_YES = "Yes, I wanna win!";
 
-   public static final String MSG_ASK_NO = "Nope. I'm looser, anyway.";
+   public static final String MSG_ASK_NO = "Nope. I'm looser.";
+
+
+
+	public static final String MSG_SERVER_SUSPICIOUS = "Server cannot be authorized and was marked as suspicious (after 5 incorrect messages). I am disconnecting.";
+
 
 
 
@@ -52,15 +57,15 @@ public class ViewConfig {
 	private static final ScreenSettings[] SCREENS = {
 		new ScreenSettings(
 			ScreenType.Login,
-			new Dimension2D(400, 300),
+			new Dimension2D(450, 300),
 			new Dimension2D(350, 330)
 		), new ScreenSettings(
 			ScreenType.GameCenter,
-			new Dimension2D(700, 400),
-			new Dimension2D(700, 400)
+			new Dimension2D(700, 450),
+			new Dimension2D(700, 450)
 		), new ScreenSettings(
 			ScreenType.Initializing,
-			new Dimension2D(400, 300),
+			new Dimension2D(450, 300),
 			new Dimension2D(350, 330)
 		), new ScreenSettings(
 			ScreenType.Playground,
@@ -68,7 +73,7 @@ public class ViewConfig {
 			new Dimension2D(850, 650)
 		), new ScreenSettings(
 			ScreenType.GameResult,
-			new Dimension2D(400, 300),
+			new Dimension2D(850, 650),
 			new Dimension2D(350, 330)
 		), new ScreenSettings(
 			ScreenType.Message,

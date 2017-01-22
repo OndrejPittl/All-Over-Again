@@ -53,6 +53,8 @@ public class Application {
 
     private boolean waitingAskResult = false;
 
+    private static boolean disconnecting = false;
+
 
 
 	/**
@@ -176,7 +178,7 @@ public class Application {
     }
 
     public synchronized boolean amIActive(){
-	    return this.turn.getActivePlayerID() == this.currentPlayer.getID();
+    	    return this.turn.getActivePlayerID() == this.currentPlayer.getID();
     }
 
 	public synchronized void storeProgress(ArrayList<GameMove> gameProgress){
@@ -242,8 +244,11 @@ public class Application {
         this.turn = turn;
     }
 
-    public static void disconnect(boolean hard, String message){
-        //Main.restartApp();
+    public static synchronized void disconnect(boolean hard, String message){
+        if(Application.disconnecting)
+            return;
+
+        Application.disconnecting = true;
         Connection.disconnect();
 
         if(message != null) {
