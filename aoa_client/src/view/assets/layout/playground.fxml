@@ -3,6 +3,8 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
@@ -10,257 +12,139 @@
 <?import javafx.scene.text.Font?>
 
 <BorderPane id="playgroundWindow" maxHeight="-Infinity" maxWidth="950.0" minHeight="-Infinity" minWidth="-Infinity" prefWidth="850.0" styleClass="mainFrame" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cz.kiv.ups.controllers.PlaygroundController">
-   <right>
-      <BorderPane maxHeight="1.7976931348623157E308" maxWidth="400.0" prefWidth="230.0" BorderPane.alignment="CENTER">
-         <top>
-            <BorderPane id="gameControlSection" prefWidth="200.0" BorderPane.alignment="CENTER">
-               <center>
-                  <VBox fx:id="vb_timerWrapper" alignment="CENTER" BorderPane.alignment="CENTER">
-                     <children>
-                        <HBox alignment="CENTER">
-                           <children>
-                              <Label fx:id="lbl_timer" alignment="CENTER" contentDisplay="CENTER" nodeOrientation="LEFT_TO_RIGHT" text="0" textAlignment="CENTER">
-                                 <font>
-                                    <Font size="25.0" />
-                                 </font>
-                              </Label>
-                              <Label alignment="CENTER" contentDisplay="CENTER" nodeOrientation="LEFT_TO_RIGHT" text="s" textAlignment="CENTER">
-                                 <font>
-                                    <Font size="25.0" />
-                                 </font>
-                                 <HBox.margin>
-                                    <Insets left="5.0" />
-                                 </HBox.margin>
-                              </Label>
-                           </children>
-                        </HBox>
-                        <Label text="l e f t" textAlignment="CENTER">
-                           <font>
-                              <Font size="12.0" />
-                           </font></Label>
-                        <VBox alignment="CENTER">
-                           <children>
-                              <HBox alignment="CENTER">
-                                 <children>
-                                    <Label fx:id="lbl_movesDone">
-                                       <font>
-                                          <Font size="17.0" />
-                                       </font></Label>
-                                    <Label text="/" textFill="#979797">
-                                       <HBox.margin>
-                                          <Insets left="5.0" right="2.0" />
-                                       </HBox.margin>
-                                       <font>
-                                          <Font size="14.0" />
-                                       </font>
-                                    </Label>
-                                    <Label fx:id="lbl_movesRequired" textFill="#979797">
-                                       <font>
-                                          <Font size="14.0" />
-                                       </font></Label>
-                                 </children>
-                              </HBox>
-                              <Label text="m o v e s">
-                                 <font>
-                                    <Font size="12.0" />
-                                 </font></Label>
-                           </children>
-                           <VBox.margin>
-                              <Insets top="10.0" />
-                           </VBox.margin>
-                        </VBox>
-                     </children>
-                  </VBox>
-               </center>
-               <padding>
-                  <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-               </padding>
-            </BorderPane>
-         </top>
-         <bottom>
-            <VBox alignment="CENTER" BorderPane.alignment="CENTER">
-               <children>
-                  <Button fx:id="btn_giveUp" focusTraversable="false" mnemonicParsing="false" onAction="#endTurn" text="End turn.">
-                     <VBox.margin>
-                        <Insets bottom="5.0" left="5.0" right="5.0" />
-                     </VBox.margin>
-                  </Button>
-               </children>
-               <padding>
-                  <Insets top="20.0" />
-               </padding>
-            </VBox>
-         </bottom>
-         <padding>
-            <Insets bottom="20.0" top="20.0" />
-         </padding>
-         <center>
-            <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="TOP_LEFT">
-               <padding>
-                  <Insets bottom="10.0" top="10.0" />
-               </padding>
-               <children>
-                  <VBox fx:id="vb_playerWrapper" prefHeight="200.0" prefWidth="100.0" />
-                  <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0">
-                     <children>
-                        <Label text="–––   Legend   –––">
-                           <VBox.margin>
-                              <Insets bottom="5.0" top="10.0" />
-                           </VBox.margin>
-                           <font>
-                              <Font size="14.0" />
-                           </font>
-                        </Label>
-                        <HBox alignment="CENTER">
-                           <children>
-                              <VBox alignment="CENTER">
-                                 <children>
-                                    <Label prefWidth="80.0" text="mouse">
-                                       <font>
-                                          <Font size="12.0" />
-                                       </font>
-                                    </Label>
-                                 </children>
-                              </VBox>
-                              <VBox alignment="CENTER">
-                                 <children>
-                                    <Label prefWidth="140.0" text="move: position change">
-                                       <font>
-                                          <Font size="12.0" />
-                                       </font>
-                                    </Label>
-                                 </children>
-                              </VBox>
-                           </children>
-                           <VBox.margin>
-                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                           </VBox.margin>
-                        </HBox>
-                        <HBox alignment="CENTER">
-                           <children>
-                              <VBox alignment="CENTER">
-                                 <children>
-                                    <Label prefWidth="80.0" text="←→" textAlignment="RIGHT">
-                                       <font>
-                                          <Font size="12.5" />
-                                       </font>
-                                    </Label>
-                                 </children>
-                              </VBox>
-                              <VBox alignment="CENTER">
-                                 <children>
-                                    <Label prefWidth="140.0" text="move: color change">
-                                       <font>
-                                          <Font size="12.0" />
-                                       </font>
-                                    </Label>
-                                 </children>
-                              </VBox>
-                           </children>
-                           <VBox.margin>
-                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                           </VBox.margin>
-                        </HBox>
-                        <HBox alignment="CENTER">
-                           <children>
-                              <VBox alignment="CENTER">
-                                 <children>
-                                    <Label prefWidth="80.0" text="↑↓" textAlignment="RIGHT">
-                                       <font>
-                                          <Font size="12.5" />
-                                       </font>
-                                    </Label>
-                                 </children>
-                              </VBox>
-                              <VBox alignment="CENTER">
-                                 <children>
-                                    <Label prefWidth="140.0" text="move: symbol change">
-                                       <font>
-                                          <Font size="12.0" />
-                                       </font>
-                                    </Label>
-                                 </children>
-                              </VBox>
-                           </children>
-                           <VBox.margin>
-                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                           </VBox.margin>
-                        </HBox>
-                        <HBox alignment="CENTER">
-                           <children>
-                              <VBox alignment="CENTER">
-                                 <children>
-                                    <Label prefWidth="80.0" text="enter, space" textAlignment="RIGHT">
-                                       <font>
-                                          <Font size="12.0" />
-                                       </font>
-                                    </Label>
-                                 </children>
-                              </VBox>
-                              <VBox alignment="CENTER">
-                                 <children>
-                                    <Label prefWidth="140.0" text="move: confirm">
-                                       <font>
-                                          <Font size="12.0" />
-                                       </font>
-                                    </Label>
-                                 </children>
-                              </VBox>
-                           </children>
-                           <VBox.margin>
-                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                           </VBox.margin>
-                        </HBox>
-                        <HBox alignment="CENTER">
-                           <children>
-                              <VBox alignment="CENTER">
-                                 <children>
-                                    <Label prefWidth="80.0" text="esc," textAlignment="RIGHT">
-                                       <font>
-                                          <Font size="12.0" />
-                                       </font>
-                                    </Label>
-                                    <Label prefWidth="80.0" text="backspace" textAlignment="RIGHT">
-                                       <font>
-                                          <Font size="12.0" />
-                                       </font>
-                                    </Label>
-                                 </children>
-                              </VBox>
-                              <VBox alignment="CENTER">
-                                 <children>
-                                    <Label prefWidth="140.0" text="move: cancel">
-                                       <font>
-                                          <Font size="12.0" />
-                                       </font>
-                                    </Label>
-                                 </children>
-                              </VBox>
-                           </children>
-                           <VBox.margin>
-                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                           </VBox.margin>
-                        </HBox>
-                     </children></VBox>
-               </children>
-            </VBox>
-         </center>
-         <opaqueInsets>
-            <Insets left="10.0" />
-         </opaqueInsets></BorderPane>
-   </right>
    <center>
-      <BorderPane BorderPane.alignment="CENTER">
-         <center>
-            <GridPane fx:id="gp_playground" alignment="CENTER" disable="true" hgap="5.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="600.0" vgap="5.0" BorderPane.alignment="CENTER">
+      <AnchorPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>
+            <BorderPane prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+               <center>
+                  <BorderPane BorderPane.alignment="CENTER">
+                     <center>
+                        <GridPane fx:id="gp_playground" alignment="CENTER" disable="true" hgap="5.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="600.0" vgap="5.0" BorderPane.alignment="CENTER">
       </GridPane>
-         </center>
-         <BorderPane.margin>
-            <Insets />
-         </BorderPane.margin>
-         <padding>
-            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-         </padding>
-      </BorderPane>
+                     </center>
+                     <BorderPane.margin>
+                        <Insets />
+                     </BorderPane.margin>
+                     <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                     </padding>
+                  </BorderPane>
+               </center>
+               <right>
+                  <BorderPane maxHeight="1.7976931348623157E308" maxWidth="400.0" prefWidth="230.0" BorderPane.alignment="CENTER">
+                     <top>
+                        <BorderPane id="gameControlSection" prefWidth="200.0" BorderPane.alignment="CENTER">
+                           <center>
+                              <VBox fx:id="vb_timerWrapper" alignment="CENTER" BorderPane.alignment="CENTER">
+                                 <children>
+                                    <HBox alignment="CENTER">
+                                       <children>
+                                          <Label fx:id="lbl_timer" alignment="CENTER" contentDisplay="CENTER" nodeOrientation="LEFT_TO_RIGHT" text="0" textAlignment="CENTER">
+                                             <font>
+                                                <Font size="25.0" />
+                                             </font>
+                                          </Label>
+                                          <Label alignment="CENTER" contentDisplay="CENTER" nodeOrientation="LEFT_TO_RIGHT" text="s" textAlignment="CENTER">
+                                             <font>
+                                                <Font size="25.0" />
+                                             </font>
+                                             <HBox.margin>
+                                                <Insets left="5.0" />
+                                             </HBox.margin>
+                                          </Label>
+                                       </children>
+                                    </HBox>
+                                    <Label text="l e f t" textAlignment="CENTER">
+                                       <font>
+                                          <Font size="12.0" />
+                                       </font>
+                                    </Label>
+                                    <VBox alignment="CENTER">
+                                       <children>
+                                          <HBox alignment="CENTER">
+                                             <children>
+                                                <Label fx:id="lbl_movesDone">
+                                                   <font>
+                                                      <Font size="17.0" />
+                                                   </font>
+                                                </Label>
+                                                <Label text="/" textFill="#979797">
+                                                   <HBox.margin>
+                                                      <Insets left="5.0" right="2.0" />
+                                                   </HBox.margin>
+                                                   <font>
+                                                      <Font size="14.0" />
+                                                   </font>
+                                                </Label>
+                                                <Label fx:id="lbl_movesRequired" textFill="#979797">
+                                                   <font>
+                                                      <Font size="14.0" />
+                                                   </font>
+                                                </Label>
+                                             </children>
+                                          </HBox>
+                                          <Label text="m o v e s">
+                                             <font>
+                                                <Font size="12.0" />
+                                             </font>
+                                          </Label>
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets top="10.0" />
+                                       </VBox.margin>
+                                    </VBox>
+                                 </children>
+                              </VBox>
+                           </center>
+                           <padding>
+                              <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                           </padding>
+                        </BorderPane>
+                     </top>
+                     <bottom>
+                        <VBox alignment="CENTER" BorderPane.alignment="CENTER">
+                           <children>
+                              <Button fx:id="btn_giveUp" focusTraversable="false" mnemonicParsing="false" onAction="#endTurn" text="End turn.">
+                                 <VBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" />
+                                 </VBox.margin>
+                              </Button>
+                           </children>
+                           <padding>
+                              <Insets top="20.0" />
+                           </padding>
+                        </VBox>
+                     </bottom>
+                     <padding>
+                        <Insets bottom="20.0" top="20.0" />
+                     </padding>
+                     <center>
+                        <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="TOP_LEFT">
+                           <padding>
+                              <Insets bottom="10.0" top="10.0" />
+                           </padding>
+                           <children>
+                              <VBox fx:id="vb_playerWrapper" prefHeight="200.0" prefWidth="100.0" />
+                              <ImageView fx:id="iv_legend" fitHeight="200.0" fitWidth="230.0" pickOnBounds="true" preserveRatio="true" />
+                           </children>
+                        </VBox>
+                     </center>
+                     <opaqueInsets>
+                        <Insets left="10.0" />
+                     </opaqueInsets>
+                  </BorderPane>
+               </right>
+            </BorderPane>
+            <BorderPane fx:id="bp_overlay" nodeOrientation="LEFT_TO_RIGHT" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: rgba(255, 255, 255, 0.8);" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+               <center>
+                  <Label fx:id="lbl_overlay" text="Study..." BorderPane.alignment="CENTER">
+                     <font>
+                        <Font size="48.0" />
+                     </font>
+                  </Label>
+               </center>
+            </BorderPane>
+         </children>
+      </AnchorPane>
    </center>
 </BorderPane>

@@ -6,7 +6,9 @@ import cz.kiv.ups.config.Routes;
 import cz.kiv.ups.config.ViewConfig;
 import cz.kiv.ups.game.GameMove;
 import cz.kiv.ups.game.GameTurn;
+import cz.kiv.ups.game.GameType;
 import cz.kiv.ups.io.DataLoader;
+import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -14,6 +16,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.util.Duration;
@@ -21,9 +24,7 @@ import cz.kiv.ups.model.FXMLSource;
 import cz.kiv.ups.model.Player;
 import cz.kiv.ups.model.Room;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Optional;
+import java.util.*;
 
 
 public class PlaygroundController extends ScreenController {
@@ -63,6 +64,14 @@ public class PlaygroundController extends ScreenController {
     @FXML
     private VBox vb_playerWrapper;
 
+    @FXML
+    private ImageView iv_legend;
+
+    @FXML
+    private BorderPane bp_overlay;
+
+    @FXML
+    private Label lbl_overlay;
 
 
     private int fieldCount;
@@ -77,6 +86,40 @@ public class PlaygroundController extends ScreenController {
         this.updateInfo();
         this.initPlayerList();
         this.initBoard();
+
+        this.bp_overlay.setMouseTransparent(true);
+    }
+
+    private void showOverlay(String message) {
+        this.showOverlay(message, 0);
+    }
+
+    private void showOverlay(String message, int delay) {
+        this.lbl_overlay.setText(message);
+        this.bp_overlay.setVisible(true);
+
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(ViewConfig.TIMER_TURN_OVERLAY_FADE_DURATION), this.bp_overlay);
+        fadeIn.setFromValue(0.0); fadeIn.setToValue(1.0);
+
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(ViewConfig.TIMER_TURN_OVERLAY_FADE_DURATION), this.bp_overlay);
+        fadeOut.setFromValue(1.0); fadeOut.setToValue(0.0);
+        fadeOut.setOnFinished((e) -> {
+            this.bp_overlay.setVisible(false);
+        });
+
+        fadeIn.setDelay(Duration.millis(delay));
+        fadeOut.setDelay(Duration.millis(delay + ViewConfig.TIMER_TURN_OVERLAY_FADE_DURATION + ViewConfig.TIMER_TURN_OVERLAY_SHOW_DURATION));
+
+//        fadeIn.setOnFinished((e) -> {
+//            new Timer().schedule(new TimerTask() {
+//                public void run() {
+//
+//                }
+//            }, ViewConfig.TIMER_TURN_OVERLAY_SHOW_DURATION);
+//        });
+
+        fadeIn.play();
+        fadeOut.play();
     }
 
     private void updateInfo(){
@@ -114,7 +157,10 @@ public class PlaygroundController extends ScreenController {
     }
 
     private void initPlayerList(){
-        // TODO: updatePlayerList(), zmena existujicich komponent
+        Image legend = new Image(Routes.getImagesDir() + Routes.IMG_LEGEND);
+        this.iv_legend.setImage(legend);
+
+
         FXMLSource src;
         BorderPane item;
         PlayerController controller;
@@ -241,14 +287,23 @@ public class PlaygroundController extends ScreenController {
         GameMove[] progress = this.turn.getMoves();
 
         if(progress == null) {
-            if(this.amIActive)
+            if(this.amIActive) {
+
+                if(room.getType() == GameType.SINGLEPLAYER)
+                    this.showOverlay(ViewConfig.MSG_GAME_OVERLAY_START_SINGLE);
+                else
+                    this.showOverlay(ViewConfig.MSG_GAME_OVERLAY_START);
+
                 this.proceedTurnStart();
-            else {
+            } else {
                 logger.debug("* * * * * END TURN: not my turn (first turn without progress)");
+                this.showOverlay(ViewConfig.MSG_GAME_OVERLAY_START_OPPONENT);
                 this.endTurn();
             }
             return;
         }
+
+        this.showOverlay(ViewConfig.MSG_GAME_OVERLAY_STUDY, ViewConfig.TIMER_TURN_INTRO_MOVE_DURATION);
 
         Timeline timeline = new Timeline(
             new KeyFrame(Duration.millis(ViewConfig.TIMER_TURN_INTRO_MOVE_DURATION + 200), new EventHandler<ActionEvent>() {
@@ -271,21 +326,59 @@ public class PlaygroundController extends ScreenController {
 
         timeline.setCycleCount(progress.length);
 
-        timeline.setOnFinished((e) ->
-            new Timeline(new KeyFrame(
-                    Duration.millis(ViewConfig.TIMER_TURN_INTRO_MOVE_DURATION),
-                    (ActionEvent) -> {
-                        if(this.amIActive)
-                            this.proceedTurnStart();
-                        else {
-                            logger.debug("* * * * * END TURN: not my turn (after turn task)");
-                            this.endTurn();
-                        }
-                    }
-            )).play()
-        );
+        timeline.setOnFinished((e) -> {
 
+//            new Timer().schedule(new TimerTask() {
+//                public void run() {
+//
+//                }
+//            }, 300);
+
+            new Timer().schedule(new TimerTask() {
+                public void run() {
+
+                    Timeline t = new Timeline(new KeyFrame(
+                            Duration.millis(ViewConfig.TIMER_TURN_INTRO_MOVE_DURATION),
+                            (ActionEvent) -> {
+                                if (amIActive) {
+                                    proceedTurnStart();
+                                } else {
+                                    logger.debug("* * * * * END TURN: not my turn (after turn task)");
+                                    endTurn();
+                                }
+                            }
+                    ));
+
+                    t.setDelay(Duration.millis(ViewConfig.TIMER_TURN_OVERLAY_TOTAL_DURATION));
+                    t.play();
+
+                    Platform.runLater(() -> {
+                        if (amIActive) {
+                            showOverlay(ViewConfig.MSG_GAME_OVERLAY_PLAY);
+                        } else {
+                            showOverlay(ViewConfig.MSG_GAME_OVERLAY_OPPONENT);
+                        }
+                    });
+
+//                    new Timer().schedule(new TimerTask() {
+//                        public void run() {
+//                            t.play();
+//                        }
+//                    }, );
+
+                }
+            }, ViewConfig.TIMER_TURN_INTRO_MOVE_DURATION);
+
+        });
+
+        timeline.setDelay(Duration.millis(ViewConfig.TIMER_TURN_OVERLAY_TOTAL_DURATION));
         timeline.play();
+
+//        new Timer().schedule(new TimerTask() {
+//            public void run() {
+//                timeline.play();
+//            }
+//        }, ViewConfig.TIMER_TURN_OVERLAY_TOTAL_DURATION);
     }
 
     public void updatePlayerList() {
