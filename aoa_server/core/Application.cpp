@@ -229,7 +229,7 @@ void Application::deregisterUser(int uid) {
 
 
     // online player
-        Player *p = this->getPlayer(uid);
+    Player *p = this->getPlayer(uid);
 
     if(p == nullptr)
         return;
@@ -264,6 +264,10 @@ void Application::deregisterUser(int uid) {
             // cancel room ALWAYS -> everybody offline
             this->checkRoomCancel(rid);
         }
+
+        // room waiting for the player comes back
+        // p still in a room, marked as offline
+        //r->changeStatus(GameStatus::WAITING);
 
         Tools::printRooms(this->rooms);
 

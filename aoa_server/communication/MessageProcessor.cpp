@@ -655,14 +655,14 @@ bool MessageProcessor::checkHelloPacket(std::string msg) {
 
 void MessageProcessor::handleUserGoneOffline(Room *r) {
 
-//    if(r->getStatus() == GameStatus::WAITING) {
-//        // exit while another player is waiting for playing again
-//        this->proceedStartGame(r, false);
-//        this->app->disbandRoom(r);
-//        return;
-//    }
+    if(r->getStatus() == GameStatus::WAITING && r->hasGameFinished()) {
+        // exit while another player is waiting for playing AGAIN after game has FINISHED
+        this->proceedStartGame(r, false);
+        this->app->disbandRoom(r);
+        return;
+    }
 
-    // a user has left a room -> inform other players
+    // a user has left a room DURING PLAYING -> inform other players
     this->proceedPlayerInfo(r);
 }
 
