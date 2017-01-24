@@ -35,6 +35,8 @@ public class Routes {
 
 	public static final String IMG_ARROW = "arrow.png";
 
+	public static final String IMG_LEGEND = "legend.png";
+
 
 
     public static final String[] IMG_COLOR_PREFIXES = {

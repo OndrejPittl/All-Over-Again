@@ -85,7 +85,7 @@ public class CommunicationParser {
 		
 		// collection of rooms
 		Room[] rooms = new Room[count];
-		
+
 		
 		for (int i = offset; i < parts.length - offset; i+=attribCount) {
 			Room r = new Room();

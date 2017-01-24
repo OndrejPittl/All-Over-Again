@@ -29,6 +29,9 @@ public class CommunicationManager {
     private LinkedBlockingQueue<Message> outcomingMessages;
 
 
+    private int incorrectHelloMessages;
+
+
     private MessageReceiver receiver;
     private Thread receiverThrd;
 
@@ -48,6 +51,7 @@ public class CommunicationManager {
         this.outcomingMessages = new LinkedBlockingQueue<>();
 
         this.sb = new StringBuilder();
+        this.incorrectHelloMessages = 0;
 
         this.receiver = new MessageReceiver(this.incomingMessages);
         this.sender = new MessageSender(this.outcomingMessages);
@@ -116,6 +120,13 @@ public class CommunicationManager {
     }
 
     public boolean checkHelloPacket(String msg) {
+
+        if(msg.length() != CommunicationConfig.MSG_HELLO_SERVER_RESPONSE.length()) {
+            this.receiver.markIncorrectAndCheck();
+            return false;
+        }
+
+
         return msg.contains(CommunicationConfig.MSG_HELLO_SERVER_RESPONSE) && msg.length() == CommunicationConfig.MSG_HELLO_SERVER_RESPONSE.length();
     }
 
@@ -216,6 +227,20 @@ public class CommunicationManager {
      */
     public Player[] handlePlayerList(String msg) {
         return this.parser.parsePlayerList(msg);
+    }
+
+    public void sendWaitingReady() {
+        this.sb.append(CommunicationConfig.REQ_WAITING_READY);
+        this.sb.append(CommunicationConfig.MSG_DELIMITER);
+        this.sb.append(CommunicationConfig.REQ_ACK);
+        this.prepareMessage();
+    }
+
+    public void sendWaitingRefuse() {
+        this.sb.append(CommunicationConfig.REQ_WAITING_READY);
+        this.sb.append(CommunicationConfig.MSG_DELIMITER);
+        this.sb.append(CommunicationConfig.REQ_NACK);
+        this.prepareMessage();
     }
 }
 

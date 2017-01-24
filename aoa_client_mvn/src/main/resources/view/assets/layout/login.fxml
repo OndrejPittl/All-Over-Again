@@ -38,6 +38,9 @@
                <font>
                   <Font size="12.0" />
                </font>
+               <padding>
+                  <Insets left="15.0" right="15.0" />
+               </padding>
             </Label>
             <Button fx:id="btn_login" mnemonicParsing="false" onAction="#handleLogin" text="Log in" />
          </children>

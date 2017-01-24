@@ -259,12 +259,17 @@ public class Client implements Runnable {
 
                 // WAITING RESULT: waiting for the opponent comes back
                 Application.changeStatus(GameStatus.GAME_WAITING);
+
+                // send server: waiting ready
+                this.comm.sendWaitingReady();
+
                 Application.awaitAtBarrier("++++ CLI: releases GUIC with WAITING result process.");
 
             } else if (!this.app.isWaitingAskResult()) {
 
                 // WAITING RESULT: not waiting
                 this.app.forceEndTurn();
+                this.comm.sendWaitingRefuse();
                 Application.changeStatus(GameStatus.GAME_END);
                 Application.awaitAtBarrier("++++ CLI: releases GUIC with WAITING result process.");
                 Application.awaitAtBarrier("++++ CLI waits for GUIC for END GAME registered.");

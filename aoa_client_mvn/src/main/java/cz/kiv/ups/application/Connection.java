@@ -97,9 +97,9 @@ public class Connection {
 	
 	public boolean createSocket() {
 		try {
-			//Connection.clientSocket = new Socket(this.serverIP, this.serverPort);
-            Connection.clientSocket = new Socket();
-            Connection.clientSocket.connect(new InetSocketAddress(this.serverIP, this.serverPort), 3000);
+			Connection.clientSocket = new Socket(this.serverIP, this.serverPort);
+			// Connection.clientSocket = new Socket();
+			// Connection.clientSocket.connect(new InetSocketAddress(this.serverIP, this.serverPort), 3000);
 
             this.address = Connection.clientSocket.getInetAddress();
 			this.outStream = Connection.clientSocket.getOutputStream();
@@ -108,11 +108,10 @@ public class Connection {
             logger.error("Error: Server unreachable! (timeout)");
             Application.disconnect(true, null);
 		} catch (UnknownHostException e) {
-			logger.error("Error: while creating connection.");
-			Application.disconnect(true, null);
+			logger.error("The server is unreachable.");
 		} catch (IOException e) {
-			logger.error("Error: while creating connection.");
-            Application.disconnect(true, null);
+			logger.error("The server is unreachable.");
+            //Application.disconnect(true, null);
 		}
 
 		return this.isConnected();

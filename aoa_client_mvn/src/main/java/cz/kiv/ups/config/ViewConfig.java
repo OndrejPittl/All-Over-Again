@@ -21,6 +21,18 @@ public class ViewConfig {
 
 	public static final String MSG_STATUS_OFFLINE = "(offline)";
 
+	public static final String MSG_GAME_OVERLAY_START = "You start first. Show your skills.";
+
+	public static final String MSG_GAME_OVERLAY_START_SINGLE = "Game starts. Show your skills.";
+
+	public static final String MSG_GAME_OVERLAY_START_OPPONENT = "Your opponent starts first.";
+
+	public static final String MSG_GAME_OVERLAY_OPPONENT = "Opponent's turn starts.";
+
+	public static final String MSG_GAME_OVERLAY_STUDY = "Study...";
+
+	public static final String MSG_GAME_OVERLAY_PLAY = "...and go!";
+
 	public static final String MSG_GAME_WIN = "You won!";
 
 	public static final String MSG_GAME_LOSE = "You lost.";
@@ -33,13 +45,25 @@ public class ViewConfig {
    public static final String MSG_ASK_OPPONENT_LEFT_CONTENT = "Your opponent has gone offline. There's a chance they return in a while and retain their honor. Would you like to wait?\n\n";
 
    public static final String MSG_ASK_OPPONENT_LEFT_TITLE = "Your opponent left.";
-    public static final String MSG_ASK_YES = "Of course, I wanna win!";
+    public static final String MSG_ASK_YES = "Yes, I wanna win!";
 
-   public static final String MSG_ASK_NO = "Nope. I'm looser, anyway.";
+   public static final String MSG_ASK_NO = "Nope. I'm looser.";
+
+
+
+	public static final String MSG_SERVER_SUSPICIOUS = "Server cannot be authorized and was marked as suspicious (after 5 incorrect messages).\nI am disconnecting.";
+
 
 
 
 	public static final int TIMER_TURN_INTRO_MOVE_DURATION = 1000;
+
+	public static final int TIMER_TURN_OVERLAY_FADE_DURATION = 600;
+
+	public static final int TIMER_TURN_OVERLAY_SHOW_DURATION = 500;
+
+	public static final int TIMER_TURN_OVERLAY_TOTAL_DURATION = TIMER_TURN_OVERLAY_FADE_DURATION + TIMER_TURN_OVERLAY_SHOW_DURATION;
+
 
 	public static final Color CORRECT = Color.web("18b639");
 
@@ -52,15 +76,15 @@ public class ViewConfig {
 	private static final ScreenSettings[] SCREENS = {
 		new ScreenSettings(
 			ScreenType.Login,
-			new Dimension2D(400, 300),
+			new Dimension2D(450, 300),
 			new Dimension2D(350, 330)
 		), new ScreenSettings(
 			ScreenType.GameCenter,
-			new Dimension2D(700, 400),
-			new Dimension2D(700, 400)
+			new Dimension2D(700, 450),
+			new Dimension2D(700, 450)
 		), new ScreenSettings(
 			ScreenType.Initializing,
-			new Dimension2D(400, 300),
+			new Dimension2D(450, 300),
 			new Dimension2D(350, 330)
 		), new ScreenSettings(
 			ScreenType.Playground,
@@ -68,7 +92,7 @@ public class ViewConfig {
 			new Dimension2D(850, 650)
 		), new ScreenSettings(
 			ScreenType.GameResult,
-			new Dimension2D(400, 300),
+			new Dimension2D(850, 650),
 			new Dimension2D(350, 330)
 		), new ScreenSettings(
 			ScreenType.Message,
@@ -78,7 +102,7 @@ public class ViewConfig {
 	};
 
 
-    public static ScreenSettings getScreen(ScreenType screen){
+	public static ScreenSettings getScreen(ScreenType screen){
 		return ViewConfig.SCREENS[screen.getID()];
 	}
 	

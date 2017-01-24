@@ -94,6 +94,9 @@ public class CommunicationConfig {
 
     public static final int REQ_PLAYER_LIST = 10;
 
+    public static final int REQ_WAITING_READY = 11;
+
+
 
 
 	/**

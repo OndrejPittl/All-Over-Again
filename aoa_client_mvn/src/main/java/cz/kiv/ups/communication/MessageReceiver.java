@@ -9,7 +9,9 @@ import java.util.Arrays;
 
 import cz.kiv.ups.application.Logger;
 import cz.kiv.ups.config.CommunicationConfig;
+import cz.kiv.ups.config.ConnectionConfig;
 import cz.kiv.ups.config.ErrorConfig;
+import cz.kiv.ups.config.ViewConfig;
 import cz.kiv.ups.partial.Tools;
 
 import java.io.IOException;
@@ -23,6 +25,8 @@ public class MessageReceiver implements Runnable {
     private LinkedBlockingQueue<Message> receivedMessages;
 
     private StringBuilder sb;
+
+    private int incorrectMessages;
 
     private static Logger logger = Logger.getLogger();
 
@@ -42,6 +46,7 @@ public class MessageReceiver implements Runnable {
 
     private void init(){
         this.sb = new StringBuilder();
+        this.incorrectMessages = 0;
         this.buffer = new byte[1024];
     }
 
@@ -77,15 +82,17 @@ public class MessageReceiver implements Runnable {
                 // checksum
                 msgValidText = this.checkMessageChecksum(msg);
 
+                if(msgValidText == null) {
+                    this.markIncorrectAndCheck();
+                    continue;
+                }
+
                 if(this.checkHelloPacket(msgValidText)) {
                     type = MessageType.HELLO;
                 } else {
                     type = this.checkMessageType(msgValidText);
                 }
 
-                if(msgValidText == null) {
-                    continue;
-                }
 
                 Message m = new Message(type, msgValidText);
                 logger.info("Message accepted: " + m.getMessage());
@@ -112,18 +119,23 @@ public class MessageReceiver implements Runnable {
             msgLen = msg.length(),
             delimPos = msg.indexOf(CommunicationConfig.MSG_DELIMITER);
 
-        if(delimPos < 0)
+        if(delimPos < 0) {
+            this.markIncorrectAndCheck();
             return null;
+        }
 
         String checkSumStr = msg.substring(0, delimPos),
                message = msg.substring(delimPos + 1, msgLen);
 
-        if(!Tools.isNumber(checkSumStr))
+        if(!Tools.isNumber(checkSumStr)){
+            this.markIncorrectAndCheck();
             return null;
+        }
 
         checkSum = Integer.parseInt(checkSumStr);
 
         if(checkSum != Tools.checksum(message, CommunicationConfig.MSG_CHECKSUM_MODULO)) {
+            this.markIncorrectAndCheck();
             return null;
         }
 
@@ -141,6 +153,14 @@ public class MessageReceiver implements Runnable {
 
         int stxPos = -1,
              etxPos = -1;
+
+
+        if(txt.indexOf(CommunicationConfig.MSG_STX) < 0 ||
+           txt.indexOf(CommunicationConfig.MSG_ETX) < 0 ) {
+            this.markIncorrectAndCheck();
+            return messages;
+        }
+
 
         for (int i = 0; i < txt.length(); i++){
             char aChar = txt.charAt(i),
@@ -186,5 +206,12 @@ public class MessageReceiver implements Runnable {
     public void setConnection(Connection conn){
 
         this.inStream = new BufferedInputStream(conn.getInStream());
+    }
+
+    public void markIncorrectAndCheck(){
+        if(++this.incorrectMessages >= ConnectionConfig.MAX_INCORRECT_MESSAGES) {
+            // too many incorrects
+            Application.disconnect(true, ViewConfig.MSG_SERVER_SUSPICIOUS);
+        }
     }
 }
