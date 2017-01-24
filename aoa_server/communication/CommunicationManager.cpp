@@ -69,8 +69,8 @@ std::string CommunicationManager::recvMsg(int sock, int byteCount) {
     this->log->clear(); this->log->append("<<<<<<< "); this->log->append(msgLen);
     this->log->append(" B received from: "); this->log->append(sock);
     this->log->append(" in a message:\n                     > "); this->log->append(buffer);
-    //Logger::info(this->log->getString());
-    Logger::error(this->log->getString());
+    Logger::info(this->log->getString());
+    //Logger::error(this->log->getString());
 
 
     // an error during receiving data

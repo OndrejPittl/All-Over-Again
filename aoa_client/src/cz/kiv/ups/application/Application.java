@@ -178,7 +178,8 @@ public class Application {
     }
 
     public synchronized boolean amIActive(){
-    	    return this.turn.getActivePlayerID() == this.currentPlayer.getID();
+        if(this.turn == null || this.currentPlayer == null) return false;
+        return this.turn.getActivePlayerID() == this.currentPlayer.getID();
     }
 
 	public synchronized void storeProgress(ArrayList<GameMove> gameProgress){
