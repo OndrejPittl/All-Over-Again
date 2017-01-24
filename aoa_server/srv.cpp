@@ -1,6 +1,6 @@
 // headers
 
-#include "partial/Tools.h"
+#include "partial/tools.h"
 #include "core/Server.h"
 #include "core/Logger.h"
 #include "libs/easylogging++.h"
